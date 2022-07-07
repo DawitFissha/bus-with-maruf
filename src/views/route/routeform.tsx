@@ -26,7 +26,7 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import {ActiveBusses} from '../../App'
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-
+import useError from '../../utils/useError'
 type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
@@ -54,6 +54,9 @@ const validate = (values:VALUES_TYPE) => {
  function RouteRegistration(){
 const [serverErrorMessage,setServerErrorMessage] = React.useState('')
 const [serverError,setServerError] = React.useState(false)
+const [errorInfo,{setErrorOccured,setErrorMessage1}] = useError()
+
+console.log(errorInfo.error) 
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
@@ -151,6 +154,7 @@ React.useEffect(()=>{
             catch(err) {
               console.log(err)
               setServerError(true)
+              setErrorOccured()
               setServerErrorMessage(err.message)
             }
             finally {

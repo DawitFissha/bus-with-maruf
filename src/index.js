@@ -15,8 +15,9 @@ import {ThemeProvider} from '@mui/material/styles'
 const client=new ApolloClient({
     cache:new InMemoryCache,
     link:new HttpLink({
-        uri:"http://localhost:7000/graphql",
+        uri:"https://melabus.herokuapp.com/graphql",
         credentials: "include",
+        
     })
 })
 ReactDOM.render(
