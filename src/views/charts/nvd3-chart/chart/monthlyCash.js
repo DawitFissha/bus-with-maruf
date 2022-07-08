@@ -1,103 +1,77 @@
 import React,{useEffect,useState} from 'react';
 import NVD3Chart from 'react-nvd3';
 import { gql,useQuery } from '@apollo/client';
-import {useSelector} from 'react-redux'   
-const initial=[
-  {
-      label: "sun/ዕሁድ",
-      value: 0,
-  },
-  {
-      label: "mon/ሰኞ",
-      value: 0,
-  },
-  {
-      label: "tue/ማክስ",
-      value: 0,
-  },
-  {
-      label: "wen/ዕሮብ",
-      value: 0,
-  },
-  {
-      label: "thur/ሃሙስ",
-      value: 0,
-  },
-  {
-      label: "fri/አርብ",
-      value: 0,
-  },
-  {
-      label: "sat/ቅዳሜ",
-      value: 0,
-  },
- 
-]            
+import {useSelector} from 'react-redux'  
+            
 const MultiBarChartTicket = () => {
+  const initial=[{label:"1",value:0},{label:"2",value:0},{label:"3",value:0},{label:"4",value:0},{label:"5",value:0},{label:"6",value:0},{label:"7",value:0},{label:"8",value:0},{label:"9",value:0},{label:"10",value:0},{label:"11",value:0},{label:"12",value:0},{label:"13",value:0},{label:"14",value:0},{label:"15",value:0},{label:"16",value:0},{label:"17",value:0},{label:"18",value:0},{label:"19",value:0},{label:"20",value:0},{label:"21",value:0},{label:"22",value:0},{label:"23",value:0},{label:"24",value:0},{label:"25",value:0},{label:"26",value:0},{label:"27",value:0},{label:"28",value:0},{label:"29",value:0},{label:"30",value:0},{label:"31",value:0}]
     const [Sales,setSales]=useState(initial)
     const [Agent,setAgent]=useState(initial)
     const [Mobile,setMobile]=useState(initial)
-
     const sortState=useSelector(state=>state.dashboard.sort)
     const datum = [
         {
-            key: 'Sales',
+            key: 'Cash By Sales',
             color: 'rgb(62 91 234)',
             values:Sales
         },
         {
-            key: 'Agent',
+            key: 'Cash By Agent',
             color: 'rgb(189 133 182)',
             values: Agent
         },
         {
-          key: 'Mobile',
-          color: 'rgb(62 191 234)',
-          values: Mobile
+            key: 'Cash By Mobile',
+            color: 'rgb(62 191 234)',
+            values: Mobile
       }
     ]
     const gqlship=gql`
-    query{
-        getGroupMonthLocalTicketInbr{
-        totalTicket
-        month
-      }
-      getGroupMonthAgentTicketInbr{
-        totalTicket
-        month
-      }
-      getGroupMonthMobileTicketInbr{
-        totalTicket
-        month
-      }
-      
+    query($input:SaleInputFilter){
+      getGroupLocalTicketInbr(input: $input){
+        label
+        totalPrice
+    }
+    getGroupAgentTicketInbr(input: $input){
+      label
+      totalPrice
+    }
+    getGroupMobileTicketInbr(input: $input){
+      label
+        totalPrice
+    }
+  
    }`
-       const {loading,error,data,refetch}=useQuery(gqlship)
-       const months=["jan/ጥር","feb/የካቲ","mar/መጋቢ","apr/ሚያዝ","may/ግንቦ","jun/ሰኔ","july/ሃምሌ","aug/ነሃሴ","sep/መስክ","oct/ጥቅም","nov/ህዳር","dec/ታህሳ"]
+       const {loading,error,data,refetch}=useQuery(gqlship,{
+        variables:{input:{filter:sortState
+        }
+      }})
+       //will be removed
+       const days=["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"]
        useEffect(()=>{
-        refetch()
+        // refetch()
         if(data)
         {
-
-          let s=[{totalTicket:20,month:3,color:'rgb(62 91 234)'},{totalTicket:40,month:2,color:'rgb(62 91 234)'}]
-          let g=[{totalTicket:40,month:3,color:'rgb(189 133 182)'},{totalTicket:30,month:2,color:'rgb(189 133 182)'}]
-          let m=[{totalTicket:20,month:3,color:'rgb(29 233 182)'},{totalTicket:10,month:2,color:'rgb(62 191 234)'}]
+          console.log(data)
+          let s=data.getGroupLocalTicketInbr
+          let g=data.getGroupAgentTicketInbr
+          let m=data.getGroupMobileTicketInbr
             const sales=[...initial]
             const agent=[...initial]
             const mobile=[...initial]
             s.map(e=>{
-              sales[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(62 91 234)'}
+              sales[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(189 133 182)'}
+              agent[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(62 191 234'}
+              mobile[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(62 191 234'}
               return
             })
-
+console.log(sales)
             setSales(sales)
             setAgent(agent)
             setMobile(mobile)

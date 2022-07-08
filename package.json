@@ -36,6 +36,7 @@
         "install": "^0.13.0",
         "jquery": "^3.6.0",
         "material-table": "^1.69.3",
+        "moment": "^2.29.4",
         "npm": "^7.6.3",
         "promise": "^8.1.0",
         "react": "^17.0.1",

@@ -1,18 +1,30 @@
-import React from 'react';
+import {useEffect} from 'react';
 import NVD3Chart from 'react-nvd3';
-import { Pie,Bar,Doughnut } from 'react-chartjs-2';
-const datum = [
-    { key: 'One', y: 29, color: '#ff8a65' },
-    { key: 'Two', y: 0, color: '#f4c22b' },
-    { key: 'Three', y: 32, color: '#04a9f5' },
-    { key: 'Four', y: 196, color: '#3ebfea' },
-    { key: 'Five', y: 2, color: '#4F5467' },
-    { key: 'Six', y: 98, color: '#1de9b6' },
-    { key: 'Seven', y: 13, color: '#a389d4' },
-    { key: 'Eight', y: 5, color: '#FE8A7D' }
-];
+import { gql,useQuery } from '@apollo/client';
+import {useSelector} from 'react-redux'
 
+let datum=[]
 const PieDonutChart = () => {
+    const sortState=useSelector(state=>state.dashboard.sort)
+    const gqlship=gql`
+    query($input:SaleInputFilter){    
+        getEachAgentSale(input: $input) {
+            totalTicket
+            agentName
+           }
+       }`
+       const {loading,error,data,refetch}=useQuery(gqlship,{
+        variables:{input:{filter:sortState
+        }
+      }})
+      useEffect(()=>{
+        refetch()
+        if(data)
+        {
+        console.log(data)
+        datum=data?.getEachAgentSale?.map(e=>({key:e.agentName,y:e.totalTicket}))
+        }
+    },[data,sortState])
     return <NVD3Chart id="chart" height={300} type="pieChart" datum={datum} x="key" y="y" donut labelType="percent" />;
 };
 

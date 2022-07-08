@@ -3,30 +3,21 @@ import { loadingActions } from "./loading-slice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
 import { userinfoActions } from "./userinfo-slice"
-export const addUser=(data)=>{
+export const checkSession=()=>{
     return async(dispatch)=>{
         try{
-            alert(data.code)
-            console.log(data)
-            const res=await axios.post('https://sultan-lm2.herokuapp.com/register',data,{ withCredentials: true })
-            console.log(res)
-            dispatch(loadingActions.status("done"))
-            dispatch(errorActions.Message('added'))
-            
+            console.log("check vaidity")
+            await axios.get('https://melabus.herokuapp.com/checkauth')
         }
        catch(err)
        {
-           console.log(err)
-           console.log(err.response)
-        !!err.response&&dispatch(errorActions.Message(err.response.data.message))
-        !err.response&&dispatch(errorActions.Message('connection error please try again'))
-        dispatch(loadingActions.status('done'))
-
+        console.log( err.response.data.message)
+        err.response.data.message==="no token"&&dispatch(loginActions.isLoged(false))
+        err.response.data.message==="no token"&&dispatch(errorActions.Message(''))
        }
 
     }
 }
-
 export const Organization=(data)=>{
     return async(dispatch)=>{
         try{

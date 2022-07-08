@@ -26,35 +26,35 @@ const menuItems = {
                     title: 'Ticket Sale',
                     type: 'item',
                     url: '/ticketsale',
-                    icon: 'feather icon-command'
+                    icon: 'feather icon-calendar'
                 },
                 {
                     id: 'route',
                     title: 'Add Route',
                     type: 'item',
                     url: '/addroute',
-                    icon: 'feather icon-command'
+                    icon: 'feather icon-corner-up-right'
                 },
                 {
                     id: 'shedule',
                     title: 'Add Schedule',
                     type: 'item',
                     url: '/schedule',
-                    icon: 'feather icon-command'
+                    icon: 'feather icon-grid'
                 },
                 {
                     id: 'user',
                     title: 'Manage User',
                     type: 'item',
                     url: '/user',
-                    icon: 'feather icon-command'
+                    icon: 'feather icon-users'
                 },
                 {
                     id: 'bus',
                     title: 'Manage Bus',
                     type: 'item',
                     url: '/addbus',
-                    icon: 'feather icon-user'
+                    icon: 'feather icon-life-buoy'
                 },
             ]
         }]};

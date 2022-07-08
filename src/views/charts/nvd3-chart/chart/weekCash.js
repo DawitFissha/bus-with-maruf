@@ -41,60 +41,62 @@ const MultiBarChartTicket = () => {
     const sortState=useSelector(state=>state.dashboard.sort)
     const datum = [
         {
-            key: 'Sales',
+            key: 'Cash By Sales',
             color: 'rgb(62 91 234)',
             values:Sales
         },
         {
-            key: 'Agent',
+            key: 'Cash By Agent',
             color: 'rgb(189 133 182)',
             values: Agent
         },
         {
-          key: 'Mobile',
+          key: 'Cash By Mobile',
           color: 'rgb(62 191 234)',
           values: Mobile
       }
     ]
     const gqlship=gql`
-    query{
-        getGroupMonthLocalTicketInbr{
-        totalTicket
-        month
-      }
-      getGroupMonthAgentTicketInbr{
-        totalTicket
-        month
-      }
-      getGroupMonthMobileTicketInbr{
-        totalTicket
-        month
-      }
-      
+    query($input:SaleInputFilter){
+      getGroupLocalTicketInbr(input: $input){
+        label
+        totalPrice
+    }
+    getGroupAgentTicketInbr(input: $input){
+      label
+      totalPrice
+    }
+    getGroupMobileTicketInbr(input: $input){
+      label
+      totalPrice
+    }
+  
    }`
-       const {loading,error,data,refetch}=useQuery(gqlship)
-       const months=["jan/ጥር","feb/የካቲ","mar/መጋቢ","apr/ሚያዝ","may/ግንቦ","jun/ሰኔ","july/ሃምሌ","aug/ነሃሴ","sep/መስክ","oct/ጥቅም","nov/ህዳር","dec/ታህሳ"]
+       const {loading,error,data,refetch}=useQuery(gqlship,{
+        variables:{input:{filter:sortState
+        }
+      }})
+       const weeks=["sun/ዕሁድ","mon/ሰኞ","wen/ዕሮብ","thur/ሃሙስ","fri/አርብ","sat/ቅዳሜ"]
        useEffect(()=>{
         refetch()
         if(data)
         {
-
-          let s=[{totalTicket:20,month:3,color:'rgb(62 91 234)'},{totalTicket:40,month:2,color:'rgb(62 91 234)'}]
-          let g=[{totalTicket:40,month:3,color:'rgb(189 133 182)'},{totalTicket:30,month:2,color:'rgb(189 133 182)'}]
-          let m=[{totalTicket:20,month:3,color:'rgb(29 233 182)'},{totalTicket:10,month:2,color:'rgb(62 191 234)'}]
+          let s=data.getGroupLocalTicketInbr
+          let g=data.getGroupAgentTicketInbr
+          let m=data.getGroupMobileTicketInbr
             const sales=[...initial]
             const agent=[...initial]
             const mobile=[...initial]
             s.map(e=>{
-              sales[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(62 91 234)'}
+              sales[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(189 133 182)'}
+              agent[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[e.month+1]={label:months[e.month+1],value:e.totalTicket,color:'rgb(62 191 234'}
+              mobile[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(62 191 234'}
               return
             })
 
