@@ -52,11 +52,10 @@ const validate = (values:VALUES_TYPE) => {
   };
 
  function RouteRegistration(){
-const [serverErrorMessage,setServerErrorMessage] = React.useState('')
-const [serverError,setServerError] = React.useState(false)
-const [errorInfo,{setErrorOccured,setErrorMessage1}] = useError()
+// const [serverErrorMessage,setServerErrorMessage] = React.useState('')
+// const [serverError,setServerError] = React.useState(false)
+const [{error,errorMessage},{setErrorOccured,setErrorMessage}] = useError()
 
-console.log(errorInfo.error) 
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
@@ -150,12 +149,14 @@ React.useEffect(()=>{
               setDestination('')
               setDepPlace([])
               setSaveStatus(true)
+              setAssignedBus([])
             }
             catch(err) {
-              console.log(err)
-              setServerError(true)
+              
               setErrorOccured()
-              setServerErrorMessage(err.message)
+              setErrorMessage(err.message)
+              console.log(errorMessage)
+              console.log(error)
             }
             finally {
               setLoading(false)
@@ -399,10 +400,10 @@ React.useEffect(()=>{
             <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Route Successfully Added' />
             <SameCity open = {samecity} handleClose = {handleSameCityClose}/>
         {
-          serverError && (
+          error && (
             <Alert sx={{p:1}} severity="error">
             <AlertTitle>Error</AlertTitle>
-             <strong>{serverErrorMessage}</strong>
+             <strong>{errorMessage}</strong>
           </Alert>
           )
         }

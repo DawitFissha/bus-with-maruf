@@ -1,10 +1,15 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 export default function SeatStausBox({status}:{status:"Occupied"|"Free"}) {
     return (
-        <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
+        <Box sx={{display:'flex',gap:'6px',pt:1}}>
+        <Box>
         <div style={{width:'30px',height:'30px',backgroundColor:status==="Occupied"?'red':'green'}}/>
-        <p>{status}</p>
+        </Box>
+        <Box>
+        <p style={{color:'black'}}>{status}</p>
+        </Box>
 
-        </div>
+        </Box>
     )
 }
