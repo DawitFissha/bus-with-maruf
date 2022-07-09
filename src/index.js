@@ -17,6 +17,7 @@ const client=new ApolloClient({
     link:new HttpLink({
         uri:"https://melabus.herokuapp.com/graphql",
         credentials: "include",
+        
     })
 })
 ReactDOM.render(

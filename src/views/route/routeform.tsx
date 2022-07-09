@@ -26,7 +26,7 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import {ActiveBusses} from '../../App'
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-
+import useError from '../../utils/useError'
 type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
@@ -52,8 +52,10 @@ const validate = (values:VALUES_TYPE) => {
   };
 
  function RouteRegistration(){
-const [serverErrorMessage,setServerErrorMessage] = React.useState('')
-const [serverError,setServerError] = React.useState(false)
+// const [serverErrorMessage,setServerErrorMessage] = React.useState('')
+// const [serverError,setServerError] = React.useState(false)
+const [{error,errorMessage},{setErrorOccured,setErrorMessage}] = useError()
+
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
@@ -147,11 +149,14 @@ React.useEffect(()=>{
               setDestination('')
               setDepPlace([])
               setSaveStatus(true)
+              setAssignedBus([])
             }
             catch(err) {
-              console.log(err)
-              setServerError(true)
-              setServerErrorMessage(err.message)
+              
+              setErrorOccured()
+              setErrorMessage(err.message)
+              console.log(errorMessage)
+              console.log(error)
             }
             finally {
               setLoading(false)
@@ -395,10 +400,10 @@ React.useEffect(()=>{
             <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Route Successfully Added' />
             <SameCity open = {samecity} handleClose = {handleSameCityClose}/>
         {
-          serverError && (
+          error && (
             <Alert sx={{p:1}} severity="error">
             <AlertTitle>Error</AlertTitle>
-             <strong>{serverErrorMessage}</strong>
+             <strong>{errorMessage}</strong>
           </Alert>
           )
         }
