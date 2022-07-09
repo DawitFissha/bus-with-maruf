@@ -7,7 +7,8 @@ export const checkSession=()=>{
     return async(dispatch)=>{
         try{
             console.log("check vaidity")
-            await axios.get('https://melabus.herokuapp.com/checkauth')
+            const res= await axios.get('https://melabus.herokuapp.com/checkauth')
+            console.log(res)
         }
        catch(err)
        {

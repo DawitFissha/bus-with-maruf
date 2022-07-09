@@ -33,7 +33,7 @@ const MultiBarChartTicket = () => {
     ]
     const gqlship=gql`
     query($input:SaleInputFilter){
-      getGroupLocalTicketInbr(input: $input){
+    getGroupLocalTicketInbr(input: $input){
         label
         totalPrice
     }
@@ -63,15 +63,15 @@ const MultiBarChartTicket = () => {
             const agent=[...initial]
             const mobile=[...initial]
             s.map(e=>{
-              sales[0]={label: "today/ዛሬ",value:e.totalTicket,color:'rgb(62 91 234)'}
+              sales[0]={label: "today/ዛሬ",value:e.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[0]={label: "today/ዛሬ",value:e.totalTicket,color:'rgb(189 133 182)'}
+              agent[0]={label: "today/ዛሬ",value:e.totalPrice,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[0]={label: "today/ዛሬ",value:e.totalTicket,color:'rgb(62 191 234'}
+              mobile[0]={label: "today/ዛሬ",value:e.totalPrice,color:'rgb(62 191 234'}
               return
             })
 

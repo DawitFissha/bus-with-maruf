@@ -29,8 +29,8 @@ const MultiBarChartTicket = () => {
     const gqlship=gql`
     query($input:SaleInputFilter){
       getGroupLocalTicketInbr(input: $input){
-        label
-        totalPrice
+      label
+      totalPrice
     }
     getGroupAgentTicketInbr(input: $input){
       label
@@ -38,7 +38,7 @@ const MultiBarChartTicket = () => {
     }
     getGroupMobileTicketInbr(input: $input){
       label
-        totalPrice
+      totalPrice
     }
   
    }`
@@ -60,15 +60,15 @@ const MultiBarChartTicket = () => {
             const agent=[...initial]
             const mobile=[...initial]
             s.map(e=>{
-              sales[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(62 91 234)'}
+              sales[e.label]={label:days[e.label-1],value:e.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(189 133 182)'}
+              agent[e.label]={label:days[e.label-1],value:e.totalPrice,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[e.label]={label:days[e.label-1],value:e.totalTicket,color:'rgb(62 191 234'}
+              mobile[e.label]={label:days[e.label-1],value:e.totalPrice,color:'rgb(62 191 234'}
               return
             })
 console.log(sales)

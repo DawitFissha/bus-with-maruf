@@ -163,10 +163,10 @@ useEffect(()=>{
                <Col md={12}>
                     <Card>
                         <Card.Header>
-                        { sortState==="year" && <Card.Title as="h5">Agent Ticket Sale This Year </Card.Title>}
-                        { sortState==="month" && <Card.Title as="h5">Agent Ticket Sale This Month </Card.Title>}
-                        { sortState==="week" && <Card.Title as="h5">Agent Ticket Sale This Week</Card.Title>}
-                        { sortState==="day" && <Card.Title as="h5">Agent Ticket Sale Today</Card.Title>}
+                        { sortState==="year" && <Card.Title as="h5">Ticket Sale This Year </Card.Title>}
+                        { sortState==="month" && <Card.Title as="h5">Ticket Sale This Month </Card.Title>}
+                        { sortState==="week" && <Card.Title as="h5">Ticket Sale This Week</Card.Title>}
+                        { sortState==="day" && <Card.Title as="h5">Ticket Sale Today</Card.Title>}
                         </Card.Header>
                         <Card.Body>
                          { sortState==="year" && <MultiBarCashYear />}

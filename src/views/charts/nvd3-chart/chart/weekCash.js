@@ -76,11 +76,12 @@ const MultiBarChartTicket = () => {
         variables:{input:{filter:sortState
         }
       }})
-       const weeks=["sun/ዕሁድ","mon/ሰኞ","wen/ዕሮብ","thur/ሃሙስ","fri/አርብ","sat/ቅዳሜ"]
+       const weeks=["sun/ዕሁድ","mon/ሰኞ","tue/ማክስ","wen/ዕሮብ","thur/ሃሙስ","fri/አርብ","sat/ቅዳሜ"]
        useEffect(()=>{
         refetch()
         if(data)
         {
+          console.log(data)
           let s=data.getGroupLocalTicketInbr
           let g=data.getGroupAgentTicketInbr
           let m=data.getGroupMobileTicketInbr
@@ -88,15 +89,15 @@ const MultiBarChartTicket = () => {
             const agent=[...initial]
             const mobile=[...initial]
             s.map(e=>{
-              sales[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(62 91 234)'}
+              sales[e.label-1]={label:weeks[e.label-1],value:e.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(189 133 182)'}
+              agent[e.label-1]={label:weeks[e.label-1],value:e.totalPrice,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[e.label+1]={label:weeks[e.label+1],value:e.totalTicket,color:'rgb(62 191 234'}
+              mobile[e.label-1]={label:weeks[e.label-1],value:e.totalPrice,color:'rgb(62 191 234'}
               return
             })
 
