@@ -28,6 +28,12 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import {ActiveBusses} from '../../App'
+
+ type routeOptionsType = {
+  label : string,
+  source : string,
+  destination:string
+}
 const validate = (values:{description:string}) => {
     const errors:{description?:string} = {}
     if (!values.description) {
@@ -53,15 +59,16 @@ const [routesOpen,setRoutesOpen] = useState(false)
 const routesLoading = routesOpen && routeStatus==='idle'
 const [loading, setLoading] = React.useState(false);
 const routes = useAppSelector(state=>state.routes.routes)
-const routeOptions = routes.map(route=>(
-  {label:route._id,source:route.source,destination:route.destination}
+
+const routeOptions:routeOptionsType[] = routes.map(route=>(
+  {label:route._id as string ,source:route.source as string,destination:route.destination as string}
 ))
 
-const [route,setRoute] = useState({
+const [route,setRoute] = useState<routeOptionsType | null>({
   label:'',source:'',destination:''
 })
 const [routeValue,setRouteValue] = useState('')
-const routeId = route.label
+const routeId = route?.label
 const tarif = routes.find((r)=>r._id===routeId)?.tarif
 const departurePlaces = routes.find((r)=>r._id===routeId)?.departurePlace
 const assignedBusses = routes.find((r)=>r._id===routeId)?.bus
@@ -95,6 +102,7 @@ useEffect(()=>{
     document.title+=` - Create Schedule`
     if(routesLoading){
       dispatch(fetchRoutes())
+      
     }
     },[routesLoading,dispatch])
 
@@ -151,8 +159,7 @@ const formik = useFormik({
        
     },
   });
-  
-  console.log(route.label)
+  console.log(routeOptions)
   
   return (
    <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -205,7 +212,7 @@ const formik = useFormik({
             <FormWrapper>
         <Autocomplete
         value={route}
-        onChange={(event: any, newValue: any) => {
+        onChange = {(event: any, newValue:routeOptionsType|null) => {
           setRoute(newValue);
         }}
         id="routes"
@@ -222,7 +229,7 @@ const formik = useFormik({
           setRouteValue(newInputValue);
         }}
         options={routeOptions}
-        getOptionLabel={(option) => (Boolean(route.source)&&Boolean(route.destination)?`${option.source} to ${option.destination}`:'')}
+        getOptionLabel={(option) => (Boolean(route?.source)&&Boolean(route?.destination)?`${option?.source} to ${option?.destination}`:'')}
         // isOptionEqualToValue={(option, value) => option.label === value.label}
         renderOption = {(props,option)=>(
           <Box component={`li`} {...props}>
