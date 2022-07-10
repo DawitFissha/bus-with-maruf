@@ -28,7 +28,7 @@ const LineChart = () => {
             values:Mobile, 
         },
         {
-        key: 'All Shipment',
+        key: 'Total Sale',
         color: '#1de9b6',
         area: true,
         values:All,
