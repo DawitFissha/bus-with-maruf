@@ -109,7 +109,7 @@ const LineChart = () => {
                     }
                   },
                 yAxis: {
-                    axisLabel: 'Number Of Shipment (n)',
+                    axisLabel: 'Sale Cash In Birr (n)',
                     tickFormat: function (d) {
                         return parseFloat(d).toFixed(2);
                     }
