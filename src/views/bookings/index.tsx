@@ -87,12 +87,13 @@ const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
 const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
 const schedulesLoading = schedulesOpen && scheduleStatus==='idle'
 const [scheduleValue,setScheduleValue] = React.useState('')
+
+const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
+  {id:schedule._id as string ,label:`${schedule.source} to ${schedule.destination}`}
+))
 const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
   label:'',id:''
 })
-const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
-  {id:schedule._id as string ,label:`${schedule.source} ${schedule.destination}`}
-))
 const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule?.id))
 
 React.useEffect(()=>{
@@ -185,7 +186,7 @@ const formik = useFormik({
 
          <Box sx={{flexGrow:1}}>
            
-           <FormControl sx={{marginLeft:'6px',maxWidth:'250px',minWidth:'180px',}}>
+           <FormControl sx={{marginLeft:'6px',maxWidth:'350px',minWidth:'250px',}}>
            <Autocomplete
         value={schedule}
         onChange = {(event: any, newValue:scheduleOptionsType|null) => {
@@ -372,7 +373,7 @@ const formik = useFormik({
                         
                 </Box>
                 <Box sx={{alignSelf:'center',marginLeft:'32px'}}>
-                  <Button disabled={!Boolean(schedule)} color = "primary" variant="text" 
+                  <Button disabled={!Boolean(schedule?.id)} color = "primary" variant="text" 
                           onClick={handleClickOpenSeatPicker}
                   >
                 Choose A Seat

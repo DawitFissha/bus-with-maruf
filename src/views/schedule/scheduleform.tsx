@@ -61,7 +61,7 @@ const [loading, setLoading] = React.useState(false);
 const routes = useAppSelector(state=>state.routes.routes)
 
 const routeOptions:routeOptionsType[] = routes.map(route=>(
-  {id:route._id as string ,label:`${route.source} ${route.destination}`}
+  {id:route._id as string ,label:`${route.source} to ${route.destination}`}
 ))
 
 const [route,setRoute] = useState<routeOptionsType | null>({
