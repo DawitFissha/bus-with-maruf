@@ -31,9 +31,9 @@ import {ActiveBusses} from '../../App'
 
  type routeOptionsType = {
   label : string,
-  source : string,
-  destination:string
+  id : string,
 }
+
 const validate = (values:{description:string}) => {
     const errors:{description?:string} = {}
     if (!values.description) {
@@ -61,14 +61,15 @@ const [loading, setLoading] = React.useState(false);
 const routes = useAppSelector(state=>state.routes.routes)
 
 const routeOptions:routeOptionsType[] = routes.map(route=>(
-  {label:route._id as string ,source:route.source as string,destination:route.destination as string}
+  {id:route._id as string ,label:`${route.source} ${route.destination}`}
 ))
 
 const [route,setRoute] = useState<routeOptionsType | null>({
-  label:'',source:'',destination:''
+  label:'',id:''
 })
+
 const [routeValue,setRouteValue] = useState('')
-const routeId = route?.label
+const routeId = route?.id
 const tarif = routes.find((r)=>r._id===routeId)?.tarif
 const departurePlaces = routes.find((r)=>r._id===routeId)?.departurePlace
 const assignedBusses = routes.find((r)=>r._id===routeId)?.bus
@@ -144,7 +145,7 @@ const formik = useFormik({
               setDepPlace('')
               setAssignedBus('')
               setRoute({
-                label:'',source:'',destination:''
+                label:'',id:''
               })
               setOpen(true)
               setRequired('')
@@ -159,7 +160,6 @@ const formik = useFormik({
        
     },
   });
-  console.log(routeOptions)
   
   return (
    <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -229,14 +229,7 @@ const formik = useFormik({
           setRouteValue(newInputValue);
         }}
         options={routeOptions}
-        getOptionLabel={(option) => (Boolean(route?.source)&&Boolean(route?.destination)?`${option?.source} to ${option?.destination}`:'')}
-        // isOptionEqualToValue={(option, value) => option.label === value.label}
-        renderOption = {(props,option)=>(
-          <Box component={`li`} {...props}>
-            {`${option.source} to ${option.destination}`}
-          </Box>
-        )}
-        
+
         renderInput={(params) => (
           <TextField
           {...params}
