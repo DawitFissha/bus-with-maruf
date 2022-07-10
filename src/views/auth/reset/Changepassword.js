@@ -1,49 +1,58 @@
-import React, { useState } from 'react';
-import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
+import React, { useState,useRef,useEffect} from 'react';
+import { Row, Col, Card, Form} from 'react-bootstrap';
 import TextField from "@material-ui/core/TextField";
-import MenuItem from '@material-ui/core/MenuItem';
-import Select, { SelectChangeEvent } from '@material-ui/core/Select';
-import Box from '@material-ui/core/Box';
-import FormControls from '@material-ui/core/FormControl';
-import InputLabel from "@material-ui/core/InputLabel";
+import InputAdornment from '@material-ui/core/InputAdornment';
+import {AiOutlineCheckSquare} from "react-icons/ai"
 import PersonIcon from '@material-ui/icons/Person';
 import EnhancedEncryptionIcon from '@material-ui/icons/EnhancedEncryption';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Buttons from "@material-ui/core/Button";
+import { useDispatch,useSelector } from 'react-redux';
+import { changePassword } from '../../../store/authhttp';
+import { errorActions } from '../../../store/error-slice';
+import { loadingActions } from '../../../store/loading-slice';
+import { SaveSuccessfull } from '../../../Components/saveSuccess';
+
 const FormsElements = () => {
-   const [value,setValue]= useState()
-    const [validated, setValidated] = useState(false);
-    const [validatedTooltip, setValidatedTooltip] = useState(false);
-    const [supportedCheckbox, setSupportedCheckbox] = useState(false);
-    const [supportedRadio, setSupportedRadio] = useState(false);
-    const [supportedSelect, setSupportedSelect] = useState(0);
-    const [supportedFile, setSupportedFile] = useState(0);
-
-    const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
+    const oldPasswordref=useRef() 
+    const newPasswordref=useRef()
+    const confirmPasswordref=useRef()
+    const message=useSelector(state=>state.message.errMessage)
+    const loadingStatus=useSelector(state=>state.loading.status)
+    console.log(loadingStatus)
+    const dispatch=useDispatch()
+    useEffect(()=>{
+        message==='changed'&&setSaveStatus(true)
+        return ()=>{
+            dispatch(errorActions.Message(''))
         }
-        setValidated(true);
-    };
-
-    const handleSubmitTooltip = (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
+        },[message])
+    const [saveStatus,setSaveStatus] =useState(false)
+    const handleSaveStatusClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
         }
-        setValidatedTooltip(true);
-    };
-
-    const supportedSelectHandler = (event) => {
-        setSupportedSelect(parseInt(event.target.value));
-    };
-
-    const supportedFileHandler = (event) => {
-        setSupportedFile(!!event.target.value);
-    };
+        setSaveStatus(false);
+      };
+    const ChangeHandler=()=>{
+         dispatch(loadingActions.status('pending'))
+        const oldPassword=oldPasswordref.current.value
+        const newPassword=newPasswordref.current.value
+        const confirmPassword=confirmPasswordref.current.value
+    if(oldPassword&&newPassword&&confirmPassword)
+    {
+        if(confirmPassword===newPassword)
+        {
+            dispatch(changePassword({oldPassword,newPassword}))
+        }
+        else{
+            dispatch(errorActions.Message('Password not match'))
+            dispatch(loadingActions.status('error'))
+        }}
+    else{
+        dispatch(errorActions.Message('Please fill all field'))
+        dispatch(loadingActions.status('error'))
+    }}
 
     return (
         <React.Fragment>
@@ -54,21 +63,34 @@ const FormsElements = () => {
                             <Card.Title as="h5">Change Password</Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <Row>
-                                <Col md={6} style={{margin:'auto'}}>
+                            <Row style={{marginBottom:"60px"}}>
+                                <Col style={{marginLeft:"30px"}}>
+                                <h3 style={{marginBottom:"30px"}}>Change Password</h3>
+                                <h5><AiOutlineCheckSquare size={20}/>Password must be atleast five charcter</h5>
+                                </Col>
+                                <Col md={5} style={{margin:'auto'}}>
+                                {message!=='changed' && (
+                        <Row style={{marginLeft:'30%',marginBottom:'30px'}}>
+                        <Col sm={12} style={{alignText:'center',justifyContent:'center'}}>
+                        <small style={{alignText:'center',fontSize:"14px"}} className="text-danger form-text">{message}</small>
+                        </Col>
+                        </Row>)} 
                                         <Form.Group style={{marginBottom:'30px'}} controlId="formBasicEmail">
                                         <TextField
                                             type='password' 
                                             variant='outlined'
                                             label="Old Password"
                                             fullWidth
+                                            inputRef={oldPasswordref}
                                             required
-                                        /><div
-                                        style={{position:'absolute',
-                                            display:'inline-flex',
-                                            right:'22px',
-                                            top:'15px',
-                                            color:'#038FCF'}}><PersonIcon/></div>
+                                            InputProps={{
+                                                startAdornment: (
+                                                  <InputAdornment position="start">
+                                                    <PersonIcon color='rgb(26 17 17 / 56%)' size={20} />
+                                                  </InputAdornment>
+                                                ),
+                                              }}
+                                        />
                                         </Form.Group>
                                         <Form.Group style={{marginBottom:'30px'}} controlId="formBasicPassword">
                                         <TextField
@@ -77,12 +99,15 @@ const FormsElements = () => {
                                             label="New Password"
                                             required
                                             fullWidth
-                                        /><div
-                                        style={{position:'absolute',
-                                            display:'inline-flex',
-                                            right:'22px',
-                                            top:'100px',
-                                            color:'#038FCF'}}><EnhancedEncryptionIcon/></div>
+                                            inputRef={newPasswordref}
+                                            InputProps={{
+                                                startAdornment: (
+                                                  <InputAdornment position="start">
+                                                    <EnhancedEncryptionIcon color='rgb(26 17 17 / 56%)' size={20} />
+                                                  </InputAdornment>
+                                                ),
+                                              }}
+                                        />
                                         </Form.Group>
                                         <Form.Group style={{marginBottom:'30px'}} controlId="formBasicPassword">
                                         <TextField
@@ -91,20 +116,24 @@ const FormsElements = () => {
                                             label="Confirm password"
                                             fullWidth
                                             required
-                                        /><div
-                                        style={{position:'absolute',
-                                            display:'inline-flex',
-                                            right:'22px',
-                                            top:'187px',
-                                            color:'#038FCF'}}><EnhancedEncryptionIcon/></div>
+                                            inputRef={confirmPasswordref}
+                                            InputProps={{
+                                                startAdornment: (
+                                                  <InputAdornment position="start">
+                                                    <EnhancedEncryptionIcon color='rgb(26 17 17 / 56%)' size={20} />
+                                                  </InputAdornment>
+                                                ),
+                                              }}
+                                        />
                                         </Form.Group> 
                                            
                                         <Buttons
                             type="submit"
+                            onClick={ChangeHandler}
                             fullWidth
                             variant="contained"
                             color="primary">
-                           {'pendin'!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
+                           {loadingStatus!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
                            </Buttons>
                                
                                 </Col>
@@ -114,6 +143,7 @@ const FormsElements = () => {
                     </Card>
                 </Col>
             </Row>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Password Successfully Changed' />
         </React.Fragment>
     );
 };

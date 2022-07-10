@@ -66,3 +66,25 @@ export const loginUser=(data)=>{
 
     }
 }
+
+export const changePassword=(data)=>{
+    return async(dispatch)=>{
+        try{
+            await axios.put(`https://melabus.herokuapp.com/changepassword`,data)
+            dispatch(errorActions.Message(''))
+            dispatch(loadingActions.status('done'))
+            dispatch(errorActions.Message('changed'))
+            
+        }
+       catch(err)
+       {
+        console.log(err)
+       dispatch(loadingActions.status('done'))
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
+
