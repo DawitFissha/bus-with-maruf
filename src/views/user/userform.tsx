@@ -2,7 +2,6 @@ import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {USER} from './userSlice'
 import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
@@ -29,37 +28,37 @@ import {addUsers} from './userSlice'
 import Alert from '@mui/material/Alert'
 import { fetchDrivers,resetDriver} from './driverSlice';
 import { fetchRedats,resetRedat} from './redatSlice';
-type ERROR_TYPE = Partial<USER> & {confirmPassword?:string}
+import useError from '../../utils/useError'
 // not a DRY code should be checked later
-interface VALUES_TYPE {
+interface USER_TYPE {
   firstName:string
   lastName:string,
   phoneNumber:string,
   password:string,
   confirmPassword:string,
 }
-const validate = (values:VALUES_TYPE) => {
-    const errors:ERROR_TYPE = {};
+const validate = (values:USER_TYPE) => {
+    const errors:Partial<USER_TYPE> = {};
     if (!values.firstName) {
-      errors.firstname = 'Required';
+      errors.firstName = 'First name is Required';
     } else if (values.firstName.length > 15) {
-      errors.firstname = 'Must be 15 characters or less';
+      errors.firstName = 'Must be 15 characters or less';
     }
   
     if (!values.lastName) {
-      errors.lastname = 'Required';
+      errors.lastName = 'Required';
     } else if (values.lastName.length > 20) {
-      errors.lastname = 'Must be 20 characters or less';
+      errors.lastName = 'Must be 20 characters or less';
     }
   
     if (!values.phoneNumber) {
-      errors.phonenumber = 'Required';
+      errors.phoneNumber = 'Required';
     }
      else if (values.phoneNumber.length>10) {
-      errors.phonenumber = "Phone Number Can't Excede 10 digits";
+      errors.phoneNumber = "Phone Number Can't Excede 10 digits";
     }
     else if(!ValidatePhoneNumber(values.phoneNumber)) {
-      errors.phonenumber = "Invalid Phone Number";
+      errors.phoneNumber = "Invalid Phone Number";
     }
     if(!values.password){
         errors.password = 'Required';
@@ -81,8 +80,8 @@ const [gender,setGender] = useState('')
 const providedRoleDescription  = roles.find((role)=>role.id===providedRole)?.description 
 const [roleItem,setRoleItem] = useState(providedRole?providedRoleDescription:'')
 const roleId = roles.find((role)=>role.description===roleItem)?.id as string 
-const [genderErrorText,setGenderErrorText] = useState('')
-const [genderError,setGenderError] = useState(false)
+const [genderError,genderErrorText,setGenderError,setGenderErrorText] = useError()
+const [roleError,roleErrorText,setRoleError,setRoleErrorText] = useError()
 const [loading, setLoading] = React.useState(false);
 const [adduserError,setAddUserError] = useState('')
 const dispatch = useAppDispatch();
@@ -100,6 +99,8 @@ const handleGenderChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
 }
 const handleRoleChange = (e:SelectChangeEvent)=>{
   setRoleItem(e.target.value)
+  setRoleErrorText('')
+  setRoleError(false)
 }
 React.useEffect(()=>{
     document.title +=` - User Registration`
@@ -123,6 +124,11 @@ React.useEffect(()=>{
             if(gender==='') {
               setGenderError(true)
               setGenderErrorText('Please Select Gender')
+            }
+            else if(roleItem === ''){
+              setRoleError(true)
+              setRoleErrorText('Please Choose A Role')
+
             }
             else {
 
@@ -290,7 +296,7 @@ React.useEffect(()=>{
         />
             </FormWrapper>
             <FormWrapper>
-            <FormControl sx={{width: '100%' }}>
+            <FormControl error={roleError} sx={{width: '100%' }}>
             <InputLabel id="role-select-helper-label">Role</InputLabel>
         <Select
           disabled = {Boolean(providedRole)}
@@ -311,7 +317,7 @@ React.useEffect(()=>{
           ))
           }
         </Select>
-        
+        <FormHelperText >{roleErrorText}</FormHelperText>
         </FormControl>
             </FormWrapper>
         

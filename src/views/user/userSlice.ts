@@ -14,16 +14,6 @@ export const addUsers = createAsyncThunk('users/addNewuser',async (user: any) =>
   }
 )
 
-export interface USER {
-id:string
-firstname:string
-lastname:string
-gender:string
-phonenumber:string
-userrole:string
-password:string
-confirmpassword:string
-}
 type initialStateType = {
     users:any[],
     status:'idle' | 'loading' | 'succeeded' | 'failed'

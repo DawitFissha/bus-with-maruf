@@ -7,7 +7,7 @@ import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { FormControl, InputAdornment, InputLabel, MenuItem } from '@mui/material';
+import { Autocomplete, FormControl, InputAdornment, InputLabel, MenuItem } from '@mui/material';
 import Box from '@mui/material/Box';
 import {SavingProgress} from '../../Components/savingProgress'
 import { DatePicker } from '@mui/lab';
@@ -23,6 +23,11 @@ import SeatPicker from '../../Components/seat-picker'
 import {fetchSchedules,resetSchedule,addtoGlobalSchedules} from '../schedule/scheduleSlice'
 import {allBusses} from '../../App'
 import AuthService from '../../services/auth.service'
+import CircularProgress from '@material-ui/core/CircularProgress';
+type scheduleOptionsType = {
+  label : string,
+  id : string,
+}
 type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number}
 interface bookingProps {
   passSchedule:(schedule:string)=>void
@@ -47,7 +52,7 @@ const TextFieldForBooking = styled(TextField)({
 })
 
 function BadBooking(props:bookingProps){
-  const {passSchedule} = props
+const {passSchedule} = props
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
@@ -62,9 +67,9 @@ const handleSeatChoosing = (seat:number)=>{
 const dispatch = useAppDispatch();
 const globalSchedules = useAppSelector(state=>state.schedules.globalSchedules)
 const activeSchedule = useAppSelector(state=>state.schedules.globalSchedules[globalSchedules.length-1])
-const [schedule,setSchedule] = React.useState(globalSchedules.length>0?activeSchedule:'')
+
 const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
-const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule))
+
 const [saveStatus,setSaveStatus] = React.useState(false)
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
@@ -73,31 +78,41 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
   setSaveStatus(false);
 };
 const [seatNumber, setSeatNumber] = React.useState<number[]>([]);
-const handleScheduleChange = (e:SelectChangeEvent)=>{
-    setSchedule(e.target.value)
-    }
+
 
 const [loading, setLoading] = React.useState(false);
 const schedules = useAppSelector(state=>state.schedules.schedules)
 const scheduleStatus = useAppSelector(state=>state.schedules.status)
 const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
+const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
+const schedulesLoading = schedulesOpen && scheduleStatus==='idle'
+const [scheduleValue,setScheduleValue] = React.useState('')
+const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
+  label:'',id:''
+})
+const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
+  {id:schedule._id as string ,label:`${schedule.source} ${schedule.destination}`}
+))
+const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule?.id))
 
 React.useEffect(()=>{
 
 document.title = `X Bus - Book A Ticket`
-  if(scheduleStatus==='idle'){
+
+  if(schedulesLoading){
     dispatch(fetchSchedules())
   }
 
-if(Boolean(schedule&&(seatNumber?.length>0))){
+if(Boolean(schedule?.id&&(seatNumber?.length>0))){
   AuthService.lockSit(seatNumber,schedule)
 }
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
 }
-passSchedule(schedule)
+passSchedule(schedule?.id as string)
+
 dispatch(addtoGlobalSchedules(schedule))
-},[scheduleStatus,dispatch,schedule,seatNumber,passSchedule])
+},[schedulesLoading,dispatch,schedule,seatNumber,passSchedule])
 const formik = useFormik({
   initialValues: {
   firstName:'',
@@ -131,7 +146,7 @@ const formik = useFormik({
             setSaveStatus(true)
             dispatch(resetSchedule())
             dispatch(fetchSchedules())
-            setSchedule((prev:string)=>prev)
+            setSchedule((prev:scheduleOptionsType|null) => prev)
 }
           catch(err){
             console.log(`something happened ${err}`)
@@ -171,35 +186,47 @@ const formik = useFormik({
          <Box sx={{flexGrow:1}}>
            
            <FormControl sx={{marginLeft:'6px',maxWidth:'250px',minWidth:'180px',}}>
-           <InputLabel id="schedule-select-helper-label">Schedule</InputLabel>
-           
-           <Select
-          
-             labelId="schedule-select-helper-label"
-             id="role-select-helper"
-             value={schedule}
-             label="Schedule"
-             onChange={handleScheduleChange}
-             renderValue={(selected)=>{
-               const source = schedules?.find(sch=>sch._id===selected)?.source
-               const destination = schedules?.find(sch=>sch._id===selected)?.destination
-               return `from ${source} to ${destination}`
-             }}
-             startAdornment={
-             <InputAdornment position="start">
-             <ScheduleIcon color='primary' fontSize='large'/>
-           </InputAdornment>
-           }
-           >
-             <MenuItem value="">
-               <em>None</em>
-             </MenuItem>
-             {
-             schedules.map((schedule)=>(
-               <MenuItem  key = {schedule._id} value={schedule._id}>{`from ${schedule.source} to ${schedule.destination}`}</MenuItem>
-             ))
-             }
-           </Select>
+           <Autocomplete
+        value={schedule}
+        onChange = {(event: any, newValue:scheduleOptionsType|null) => {
+          setSchedule(newValue);
+        }}
+        id="schedules"
+        open={schedulesOpen}
+        onOpen = {()=>{
+          setSchedulesOpen(true)
+        }}
+        onClose = {()=>{
+          setSchedulesOpen(false)
+        }}
+        loading = {schedulesLoading}
+        inputValue={scheduleValue}
+        onInputChange={(event, newInputValue) => {
+          setScheduleValue(newInputValue);
+        }}
+        options={scheduleOptions}
+    
+        renderInput={(params) => (
+          <TextField
+          {...params}
+          label="Schedules"
+          InputProps={{
+            ...params.InputProps,
+            startAdornment:(
+              <InputAdornment position="start">
+              <ScheduleIcon color='primary' fontSize='large'/>
+            </InputAdornment>
+            ),
+            endAdornment: (
+              <React.Fragment>
+                {scheduleStatus==='loading' ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+            ),
+          }}
+        />
+        )}
+      />
            </FormControl>
            </Box>
            <Box>

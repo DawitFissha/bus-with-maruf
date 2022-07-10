@@ -54,7 +54,7 @@ const validate = (values:VALUES_TYPE) => {
  function RouteRegistration(){
 // const [serverErrorMessage,setServerErrorMessage] = React.useState('')
 // const [serverError,setServerError] = React.useState(false)
-const [{error,errorMessage},{setErrorOccured,setErrorMessage}] = useError()
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
@@ -153,7 +153,7 @@ React.useEffect(()=>{
             }
             catch(err) {
               
-              setErrorOccured()
+              setErrorOccured(true)
               setErrorMessage(err.message)
               console.log(errorMessage)
               console.log(error)

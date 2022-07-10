@@ -1,24 +1,22 @@
 import * as React from 'react'
-type errorState = {
-    error:boolean,
+interface errorTypes {
+    error:boolean
     errorMessage:string
-}
-type errorHandlers = {
-    setErrorOccured:()=>void,
+    setErrorOccured:(value:boolean)=>void,
     setErrorMessage :(message:string)=>void
 
 }
-export default function useError():[errorState,errorHandlers]{
+
+export default function useError():[errorTypes['error'],errorTypes['errorMessage'],errorTypes['setErrorOccured'],errorTypes['setErrorMessage']]{
     const [error,setError] = React.useState(false)
     const [errorMessage,setErrorMessage] = React.useState('')
-    const handleErrorOccured = () => {setError(true)}
+    const handleErrorOccured = (value:boolean) => {setError(value)}
     const handleErrorMessage = (message:string) => {setErrorMessage(message)}
     return [
-        {error,errorMessage},
+        error,
+        errorMessage,
+        handleErrorOccured,
+        handleErrorMessage
         
-        {
-            setErrorOccured : handleErrorOccured,
-            setErrorMessage : handleErrorMessage,
-        },
     ];
 }
