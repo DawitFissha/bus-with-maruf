@@ -24,7 +24,7 @@ const FormsElements = () => {
     useEffect(()=>{
         message==='changed'&&setSaveStatus(true)
         return ()=>{
-            dispatch(errorActions.Message(''))
+            message==='changed'&&dispatch(errorActions.Message(''))
         }
         },[message])
     const [saveStatus,setSaveStatus] =useState(false)

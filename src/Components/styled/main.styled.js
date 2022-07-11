@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { AiFillCheckCircle,AiFillCloseCircle } from "react-icons/ai";
 
 export const Plus=styled.span`
 font-size: large;
@@ -23,5 +24,9 @@ export const StyledImg=styled.div`
     transform: scale(1.1);
 
 }
-
 `
+export const StyledAiFillCloseCircle=styled(AiFillCloseCircle)`
+&:hover{
+    transform: scale(1.1);
+    cursor: pointer;
+}`
