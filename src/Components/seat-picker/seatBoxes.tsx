@@ -17,7 +17,7 @@ const SeatBoxes = (props:SeatBoxesProps)=> {
                   <Grid key = {value} item xs={2}>
                   <Tooltip title={`Seat - ${value}`}>
                   <SeatBox  variant='outlined'
-                            sx = {{backgroundColor:occupiedSeats.includes(value)?'red':'green',
+                            sx = {{color:occupiedSeats.includes(value)?'black':'white',border:'1px solid white',backgroundColor:occupiedSeats.includes(value)?'white':'black',
                                   pointerEvents:occupiedSeats.includes(value)?'none':'auto'
                                   }}
                             onClick={()=>chooseSeat(value)}>

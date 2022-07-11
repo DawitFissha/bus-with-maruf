@@ -25,7 +25,7 @@ import {allBusses} from '../../App'
 import AuthService from '../../services/auth.service'
 import CircularProgress from '@material-ui/core/CircularProgress';
 type scheduleOptionsType = {
-  label : string,
+  scheduleDescription : string,
   id : string,
 }
 type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number}
@@ -79,9 +79,9 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
 };
 const [seatNumber, setSeatNumber] = React.useState<number[]>([]);
 
-
 const [loading, setLoading] = React.useState(false);
 const schedules = useAppSelector(state=>state.schedules.schedules)
+
 const scheduleStatus = useAppSelector(state=>state.schedules.status)
 const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
 const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
@@ -89,14 +89,32 @@ const schedulesLoading = schedulesOpen && scheduleStatus==='idle'
 const [scheduleValue,setScheduleValue] = React.useState('')
 
 const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
-  {id:schedule._id as string ,label:`${schedule.source} to ${schedule.destination}`}
+  {id:schedule._id as string ,scheduleDescription:`${schedule.source} to ${schedule.destination}`}
 ))
+
 const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
-  label:'',id:''
+  scheduleDescription:'',id:''
 })
 const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule?.id))
-
-React.useEffect(()=>{
+const testOptions:scheduleOptionsType[] = [
+  {
+    id:'1',
+    scheduleDescription:'hello'
+  },
+  {
+    id:'2',
+    scheduleDescription:'world'
+  },
+  {
+    id:'3',
+    scheduleDescription:'from'
+  },
+  {
+    id:'4',
+    scheduleDescription:'dave'
+  },
+]
+React.useEffect(()=> {
 
 document.title = `X Bus - Book A Ticket`
 
@@ -104,8 +122,8 @@ document.title = `X Bus - Book A Ticket`
     dispatch(fetchSchedules())
   }
 
-if(Boolean(schedule?.id&&(seatNumber?.length>0))){
-  AuthService.lockSit(seatNumber,schedule)
+if(Boolean(schedule?.id && (seatNumber?.length>0))){
+  AuthService.lockSit(seatNumber,schedule?.id as string)
 }
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
@@ -159,7 +177,8 @@ const formik = useFormik({
      
   },
 });
-
+console.log(scheduleOptions)
+console.log(testOptions)
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SavingProgress loading={loading}/>
@@ -206,7 +225,8 @@ const formik = useFormik({
           setScheduleValue(newInputValue);
         }}
         options={scheduleOptions}
-    
+        isOptionEqualToValue={(option, value) => option.scheduleDescription === value.scheduleDescription}
+        getOptionLabel = {(option)=>option.scheduleDescription}
         renderInput={(params) => (
           <TextField
           {...params}

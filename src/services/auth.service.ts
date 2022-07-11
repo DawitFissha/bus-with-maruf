@@ -34,14 +34,14 @@ addBus(newBus){
     return axios.post(`${API_URL}registerbus`,newBus, { headers: authHeader() })
   }
 
-  updateRouteInfo(source, destination, tarif, estimatedhour, distance, id) {
+  updateRouteInfo(source:string, destination:string, tarif:string, estimatedhour:string, distance:number, id:string) {
     console.log(`${source}`)
     return axios.put(API_URL + `updaterouteinfo/${id}`, {
       source,
       destination, tarif, estimatedhour, distance,
     }, { headers: authHeader() });
   }
-  lockSit(sits,schedule) {
+  lockSit(sits:number[],schedule:string) {
     console.log(sits)
     return axios.put(API_URL + `locksit/${schedule}`, {
       sits
@@ -52,15 +52,15 @@ addBus(newBus){
   return axios.put(`${API_URL}bookticketfromschedule/${schedule}`,passengerInfo, { headers: authHeader() })
  }
  
-  updateBusInfo(busplateno, bussideno, driversuername, isactive, totalsit, id) {
+  updateBusInfo(busplateno:string, bussideno:string, driversuername:string, isactive:boolean, totalsit:number, id:string) {
 
     return axios.put(API_URL + `updateorganizationbus/${id}`, {
       busplateno,
       bussideno, driversuername, isactive, totalsit,
     }, { headers: authHeader() });
   }
-  getCurrentUser() {
-    return JSON.parse(localStorage.getItem('user'));;
-  }
+  // getCurrentUser() {
+  //   return JSON.parse(localStorage.getItem('user'));;
+  // }
 }
 export default new AuthService();

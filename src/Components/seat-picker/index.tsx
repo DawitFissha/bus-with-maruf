@@ -21,7 +21,7 @@ export default function SeatPicker(props:SeatPickerProps) {
       
             {/* <DialogContent sx = {{backgroundColor:'#F2BDF4'}} dividers> */}
           <InfoBox total={numberOfSeat} availabel={occupiedSeats?numberOfSeat-occupiedSeats.length:numberOfSeat} plateNo = {busPlateNo}/>
-        <Grid sx={{m:.6,marginTop:'10px',border:'1px solid black'}} container rowSpacing={.5} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid sx={{m:.6,marginTop:'10px',border:'1px solid black',backgroundColor:'black'}} container rowSpacing={.5} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
             <SeatBoxes occupiedSeats = {occupiedSeats} noOfSeat = {numberOfSeat} chooseSeat = {handleSeatChoosing}/>
         </Grid>
         </DialogRenderer>
