@@ -144,7 +144,7 @@ const formik = useFormik({
               passname:`${values.firstName} ${values.lastName}`,
               passphone:values.phoneNumber,
               sits:seatNumber
-            },schedule)
+            },schedule?.id)
             
             resetForm({values:{
               seatNumber:1,

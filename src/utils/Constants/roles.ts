@@ -20,10 +20,7 @@ export const roles:ROLE[] = [
         id:'redat',
         description:'Redat'
     },
-    {
-        id:'firstadmin',
-        description:'Super Admin'
-    },
+ 
     {
         id:'agent',
         description:'Agent'

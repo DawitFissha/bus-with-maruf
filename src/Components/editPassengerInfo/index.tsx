@@ -74,7 +74,8 @@ export default function EditPassengerInfo(props:editPassengerProps) {
         <Box sx={{dipslay:'flex',flexDirection:"column",m:2}}>
         <Box >
         <TextField 
-        id="first-name" name = "firstName" label="First Name" variant="standard" 
+        
+        id="first-name" name = "firstName" label="First Name" variant="outlined" 
         value={formik.values.firstName}
         onChange = {formik.handleChange}
         error={formik.touched.firstName && Boolean(formik.errors.firstName)}

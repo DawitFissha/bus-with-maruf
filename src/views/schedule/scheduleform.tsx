@@ -1,8 +1,9 @@
 import React,{useState,useEffect} from 'react';
-import {format} from 'date-fns'
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import {fetchRoutes} from '../route/routeSlice'
@@ -185,7 +186,7 @@ const formik = useFormik({
                <TextField 
                sx={{maxWidth:'200px',minWidth:'150px'}}
                size = 'small'
-               value={format(new Date(),'MM/dd/yyyy')}
+               value={new Date().toLocaleDateString()}
                />
                <h4 style = {{marginTop:'10px'}}>Price - {tarif?`${tarif} Birr`:''}</h4>
            </Box>

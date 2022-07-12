@@ -29,7 +29,7 @@ import Alert from '@mui/material/Alert'
 import { fetchDrivers,resetDriver} from './driverSlice';
 import { fetchRedats,resetRedat} from './redatSlice';
 import useError from '../../utils/useError'
-// not a DRY code should be checked later
+import {ValidateTextFields} from '../../utils/regex-validators'
 interface USER_TYPE {
   firstName:string
   lastName:string,
@@ -44,7 +44,9 @@ const validate = (values:USER_TYPE) => {
     } else if (values.firstName.length > 15) {
       errors.firstName = 'Must be 15 characters or less';
     }
-  
+     if (!ValidateTextFields(values.firstName)){
+      errors.firstName = "Please Enter a valid first name"
+    }
     if (!values.lastName) {
       errors.lastName = 'Required';
     } else if (values.lastName.length > 20) {
