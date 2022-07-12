@@ -13,7 +13,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import {RegistrationHeader} from '../../Components/registrationHeader'
 import {SavingProgress} from '../../Components/savingProgress'
 import {SaveSuccessfull} from '../../Components/saveSuccess'
-import {InputAdornment, ListItemText } from '@mui/material';
+import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
 import {AddButton} from '../../Components/addbutton'
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -27,6 +27,7 @@ import {fetchDrivers} from '../user/driverSlice'
 import {fetchRedats} from '../user/redatSlice'
 import CircularProgress from '@mui/material/CircularProgress';
 import DialogRenderer from '../../Components/dialog/dialogRenderer'
+import useError from '../../utils/useError'
 const RoleData = {
     DRIVER:'driver',
     REDAT:'redat',
@@ -92,7 +93,7 @@ const isEdit = Boolean(providedsideNo)||Boolean(providedNumberOfSeat)||Boolean(p
 
 const [open,setOpen] = useState(false)
 const [loading, setLoading] = React.useState(false);
-
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 const driverStatus = useAppSelector(state=>state.drivers.status)
 const redatStatus = useAppSelector(state=>state.redats.status)
 const initialDrivers = useAppSelector(state=>state.drivers.drivers)
@@ -181,21 +182,23 @@ useEffect(()=>{
               }})
              setDriver('')
              setRedat('')
-              setOpen(true)
+            setOpen(true)
+              setErrorOccured(false)
             if(DialogClose){
                 DialogClose()
               }
           
             }
             catch (err:any) {
-              console.log(err.message)
+              
               const resMessage =
               (err.response &&
                 err.response.data &&
                 err.response.data.message) ||
                 err.message ||
                 err.toString();
-
+              setErrorOccured(true)
+               setErrorMessage(resMessage) 
             }
             finally {
               setLoading(false)
@@ -417,7 +420,14 @@ useEffect(()=>{
           </DialogRenderer>
           
     </form>
-    
+    {
+          error && (
+            <Alert sx={{p:1}} severity="error">
+            <AlertTitle>Error</AlertTitle>
+             <strong>{errorMessage}</strong>
+          </Alert>
+          )
+        }
     </Box>
 
   </div>

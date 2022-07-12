@@ -89,31 +89,16 @@ const schedulesLoading = schedulesOpen && scheduleStatus==='idle'
 const [scheduleValue,setScheduleValue] = React.useState('')
 
 const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
-  {id:schedule._id as string ,scheduleDescription:`${schedule.source} to ${schedule.destination}`}
+  {id:schedule._id as string ,scheduleDescription:`${schedule.source} to ${schedule.destination} departing on ${new Date(schedule?.departureDateAndTime).toLocaleDateString()}
+  from ${schedule?.departurePlace}
+  `}
 ))
 
 const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
   scheduleDescription:'',id:''
 })
 const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule?.id))
-const testOptions:scheduleOptionsType[] = [
-  {
-    id:'1',
-    scheduleDescription:'hello'
-  },
-  {
-    id:'2',
-    scheduleDescription:'world'
-  },
-  {
-    id:'3',
-    scheduleDescription:'from'
-  },
-  {
-    id:'4',
-    scheduleDescription:'dave'
-  },
-]
+
 React.useEffect(()=> {
 
 document.title = `X Bus - Book A Ticket`
@@ -122,16 +107,24 @@ document.title = `X Bus - Book A Ticket`
     dispatch(fetchSchedules())
   }
 
-if(Boolean(schedule?.id && (seatNumber?.length>0))){
-  AuthService.lockSit(seatNumber,schedule?.id as string)
-}
+
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
 }
 passSchedule(schedule?.id as string)
+if(Boolean(schedule?.id && (seatNumber?.length>0))){
+  AuthService.lockSit(seatNumber,schedule?.id as string)
+}
 
 dispatch(addtoGlobalSchedules(schedule))
 },[schedulesLoading,dispatch,schedule,seatNumber,passSchedule])
+
+React.useEffect(()=>{
+  if(Boolean(seatNumber)){
+    setSeatNumber([])
+  }
+},[schedule])
+
 const formik = useFormik({
   initialValues: {
   firstName:'',
@@ -177,8 +170,7 @@ const formik = useFormik({
      
   },
 });
-console.log(scheduleOptions)
-console.log(testOptions)
+
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SavingProgress loading={loading}/>

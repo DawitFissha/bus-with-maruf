@@ -112,7 +112,8 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
 
 React.useEffect(()=>{
     document.title+=` - Route Registration`
-    },[])
+    setDepPlace([])
+    },[source])
   const formik = useFormik({
     initialValues: {
       price: 0,
@@ -145,6 +146,7 @@ React.useEffect(()=>{
                 distance:0,
                 estimatedHour: 0,
               }})
+              setErrorOccured(false)
               setSource('')
               setDestination('')
               setDepPlace([])
