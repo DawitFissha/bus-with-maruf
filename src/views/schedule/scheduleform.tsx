@@ -29,7 +29,7 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import {ActiveBusses} from '../../App'
-
+import useError from '../../utils/useError'
  type routeOptionsType = {
   label : string,
   id : string,
@@ -82,9 +82,7 @@ const [depPlace, setDepPlace] = React.useState('');
 const [assignedBus, setAssignedBus] = React.useState('');
 const [departureDate,setDepartureDate] = useState<Date|null>(null)
 const [departureTime,setDepartureTime] = useState<Date|null>(null)
-const canSave = Boolean(route)&&Boolean(departureDate)&&Boolean(departureTime)&&Boolean(depPlace)
-// better if its handled using refs ...
-const [required,setRequired] = useState('')
+const [routeError,routeErrorMessage,setRouteErrorOccured,setRouteErrorMessage] = useError()
 const handleDepPlaceChange = (e: SelectChangeEvent) => {
 setDepPlace(e.target.value);
 };
@@ -114,11 +112,12 @@ const formik = useFormik({
     },
     validate,
     onSubmit: async (values,{resetForm}) => {
-       if(!canSave){
-        setRequired('required')
-        return
 
+       if(route?.id===""){
+        setRouteErrorOccured(true)
+        setRouteErrorMessage('required')
        }
+       else {
         if(!loading){
             setLoading(true)
             try {
@@ -149,7 +148,7 @@ const formik = useFormik({
                 label:'',id:''
               })
               setOpen(true)
-              setRequired('')
+              setRouteErrorMessage('')
             }
             catch(err){
               console.log(err)
@@ -158,7 +157,7 @@ const formik = useFormik({
               setLoading(false)
             }
               }
-       
+            }
     },
   });
   
@@ -211,6 +210,7 @@ const formik = useFormik({
       />
             </FormWrapper>
             <FormWrapper>
+              <FormControl fullWidth error={routeError}>
         <Autocomplete
         value={route}
         onChange = {(event: any, newValue:routeOptionsType|null) => {
@@ -252,6 +252,10 @@ const formik = useFormik({
         />
         )}
       />
+      {
+        routeError && (<FormHelperText>{routeErrorMessage}</FormHelperText>)
+      }
+      </FormControl>
         </FormWrapper>
         <FormWrapper>
             <DatePicker
@@ -274,7 +278,7 @@ const formik = useFormik({
         }}
         
       />
-      <FormHelperText sx={{color:'red'}}>{required}</FormHelperText>
+      {/* <FormHelperText sx={{color:'red'}}>{required}</FormHelperText> */}
             </FormWrapper>
         <FormWrapper>
         <TimePicker
@@ -296,7 +300,7 @@ const formik = useFormik({
           )
         }}
       />
-      <FormHelperText sx={{color:'red'}}>{required}</FormHelperText>
+      {/* <FormHelperText sx={{color:'red'}}>{required}</FormHelperText> */}
         </FormWrapper>
         <FormWrapper>
           <FormControl sx={{width: '100%' }}>
@@ -360,7 +364,7 @@ const formik = useFormik({
               value={assignedBus}
             >
               
-              <ListItemText primary={ActiveBusses.find(activeBus=>(activeBus._id === assignedBus)).busPlateNo} />
+              <ListItemText primary={ActiveBusses?.find(activeBus=>(activeBus?._id === assignedBus))?.busPlateNo} />
             </MenuItem>
           )):null
           }
