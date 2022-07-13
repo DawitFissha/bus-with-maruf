@@ -56,6 +56,13 @@ const menuItems = {
                     url: '/addbus',
                     icon: 'feather icon-life-buoy'
                 },
+                {
+                    id: 'city',
+                    title: 'Manage City',
+                    type: 'item',
+                    url: '/city',
+                    icon: 'feather icon-map'
+                },
             ]
         }]};
 

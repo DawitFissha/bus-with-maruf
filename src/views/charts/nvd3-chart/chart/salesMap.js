@@ -28,7 +28,7 @@ const LineChart = () => {
             values:Mobile, 
         },
         {
-        key: 'All Shipment',
+        key: 'Total Sale',
         color: '#1de9b6',
         area: true,
         values:All,
@@ -36,22 +36,26 @@ const LineChart = () => {
 
     const gqlship=gql`
     query($input:SaleInputFilter){    
-        getDaysAgentTicketInbr(input: $input) {
-            bookedAt
-            totalPrice
-           }
-        getDaysLocalTicketInbr(input: $input) {
-            bookedAt
-            totalPrice
-        }
-        getDaysMobileTicketInbr(input: $input) {
-            bookedAt
-            totalPrice
-        }
-        getDaysAllTicketInbr(input: $input) {
-            bookedAt
-            totalPrice
+        getDaysInbr(input: $input) {
+            AgentTicket{
+                bookedAt
+                totalPrice
             }
+            MobileTicket{
+                bookedAt
+                totalPrice
+            }
+            LocalTicket{
+                bookedAt
+                totalPrice
+            }
+            AllTicket{
+                bookedAt
+                totalPrice
+            }
+            
+           }
+        
  
        }`
        const {loading,error,data,refetch}=useQuery(gqlship,{
@@ -63,55 +67,64 @@ const LineChart = () => {
         if(data)
         {
             console.log(data)
-            let sales=data.getDaysLocalTicketInbr?.map((e)=>{
-                let day=new Date(e.bookedAt)
+            let localbirr=data.getDaysInbr?.filter(e=>e.LocalTicket!==null).map(e=>e.LocalTicket)
+            let agentbirr=data.getDaysInbr?.filter(e=>e.AgentTicket!==null).map(e=>e.AgentTicket)
+            let mobilebirr=data.getDaysInbr?.filter(e=>e.MobileTicket!==null).map(e=>e.MobileTicket)
+            let allbirr=data.getDaysInbr?.filter(e=>e.AllTicket!==null).map(e=>e.AllTicket)
+            console.log(localbirr.flat())
+            let sales=localbirr.flat().map((e)=>{
+                let day=new Date(e?.bookedAt)
+                console.log(day)
                 return ({
                     x:day.getTime(),
-                    y:e.totalPrice,
+                    y:e?.totalPrice,
                 })
             })
-            let agent=data.getDaysAgentTicketInbr?.map((e)=>{
-                let day=new Date(e.bookedAt)
+            let agent=agentbirr?.flat().map((e)=>{
+                let day=new Date(e?.bookedAt)
                 return ({
                     x:day.getTime(),
-                    y:e.totalPrice,
+                    y:e?.totalPrice,
                 })
             })
-            let mobile=data.getDaysMobileTicketInbr?.map((e)=>{
-                let day=new Date(e.bookedAt)
+            let mobile=mobilebirr?.flat().map((e)=>{
+                let day=new Date(e?.bookedAt)
                 return ({
                     x:day.getTime(),
-                    y:e.totalPrice,
+                    y:e?.totalPrice,
                 })
             })
-            let all=data.getDaysAllTicketInbr?.map((e)=>{
-                let day=new Date(e.bookedAt)
+            let all=allbirr?.flat().map((e)=>{
+                let day=new Date(e?.bookedAt)
                 return ({
                     x:day.getTime(),
-                    y:e.totalPrice,
+                    y:e?.totalPrice,
                 })
             })
-            setAll(all)
-            setSales(sales)
-            setAgent(agent)
-            setMobile(mobile)   
+           
+              console.log(sales)
+                setSales(sales)
+                setAgent(agent)
+                setMobile(mobile) 
+                setAll(all)
+             
         }
     },[data,sortState])
     return (
         <React.Fragment>
             {React.createElement(NVD3Chart, {
                 xAxis: {
-                    axisLabel:('Date'),
+                    axisLabel:('Sale Date'),
                     tickFormat: function(d) {
                      let D=new Date(d)
-                     console.log(d)
+                     console.log(moment(D.getTime()).format("YYYY-MM-DD"))
                     return moment(D.getTime()).format("YYYY-MM-DD");
                     }
                   },
                 yAxis: {
-                    axisLabel: 'Number Of Shipment (n)',
+                    axisLabel: 'Sale Cash In Birr (n)',
                     tickFormat: function (d) {
-                        return parseFloat(d).toFixed(2);
+                        return d;
                     }
                 },
                 type: 'lineChart',

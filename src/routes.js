@@ -64,6 +64,13 @@ const routes = [
         layout: AdminLayout,
         guard: AuthGuard,
         routes: [
+//test
+{
+    exact: true,
+    path: '/table',
+    component: lazy(() => import('./Components/tickethistory/tickethistory'))
+},
+
             {
                 exact: true,
                 path: '/dashboard',
@@ -105,6 +112,11 @@ const routes = [
                 exact: true,
                 path: '/schedule',
                 component: lazy(() => import('./views/schedule/scheduleform'))
+            },
+            {
+                exact: true,
+                path: '/city',
+                component: lazy(() => import('./views/city/city'))
             },
             {
                 path: '*',
