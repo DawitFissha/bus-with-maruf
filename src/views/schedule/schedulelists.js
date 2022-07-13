@@ -118,7 +118,7 @@ const handleSaveStatusClose = (event, reason) => {
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Manage Route</Card.Title>
+                            <Card.Title as="h5">Manage Scedule</Card.Title>
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
@@ -126,18 +126,23 @@ const handleSaveStatusClose = (event, reason) => {
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title="Route List"
+      title="Schedule"
       columns={columns}
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
-        columnsButton:true,
-        headerStyle: {
-          zIndex: 0
-        }
+        columnsButton:true
       }}
       localization={{
         body: {

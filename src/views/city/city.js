@@ -62,14 +62,19 @@ const handleSaveStatusClose = (event, reason) => {
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         exportDelimiter:true,
         columnsButton:true,
         filtering:true,
-        headerStyle: {
-          zIndex: 0
-        }
       }}
       actions={[
         {

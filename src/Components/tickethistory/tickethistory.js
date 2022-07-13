@@ -115,13 +115,18 @@ const ScheduleHandler=(e)=>{
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
-        columnsButton:true,
-        headerStyle: {
-          zIndex: 0
-        }
+        columnsButton:true
       }}
       localization={{
         body: {
