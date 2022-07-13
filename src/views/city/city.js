@@ -66,6 +66,7 @@ const handleSaveStatusClose = (event, reason) => {
         exportButton:true,
         exportDelimiter:true,
         columnsButton:true,
+        filtering:true,
         headerStyle: {
           zIndex: 0
         }

@@ -68,7 +68,7 @@ const routes = [
 {
     exact: true,
     path: '/table',
-    component: lazy(() => import('./views/schedule/schedulelists'))
+    component: lazy(() => import('./Components/tickethistory/tickethistory'))
 },
 
             {

@@ -1,19 +1,56 @@
-import { routeActions } from "./route-slice"
+import { scheduleActions } from "./schedule-slice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
 axios.defaults.withCredentials = true
 
-export const getRoute=()=>{
+export const getSchedule=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getOrganizationRoute')
+            const res=await axios.get('https://melabus.herokuapp.com/getdetailschedule')
             console.log(res.data)
-            dispatch(routeActions.setTableData(res.data))
+            dispatch(scheduleActions.setTableData(res.data))
             
         }
        catch(err)
        {
-        console.log(err)
+    console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
+
+export const getSalesSchedule=()=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.get('https://melabus.herokuapp.com/getallfilterschedule')
+            console.log(res.data)
+            dispatch(scheduleActions.setScheudleData(res.data))
+            
+        }
+       catch(err)
+       {
+    console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
+export const getOneSchedule=(id)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.get(`https://melabus.herokuapp.com/getschedulebyid/${id}`)
+            console.log(res.data)
+            dispatch(scheduleActions.setTableData(res.data))
+            
+        }
+       catch(err)
+       {
+    console.log(err)
      !!err.response&&dispatch(errorActions.Message(err.response.data.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
 
@@ -26,7 +63,7 @@ export const getActiveBus=()=>{
         try{
             const res=await axios.get('https://melabus.herokuapp.com/getorganizationactivebus')
             console.log(res.data)
-            dispatch(routeActions.setBusData(res.data))
+            dispatch(scheduleActions.setBusData(res.data))
             
         }
        catch(err)
@@ -39,39 +76,78 @@ export const getActiveBus=()=>{
 
     }
 }
-export const updateRoute=(id,data,resolve)=>{
+export const getAllDepPlace=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/updaterouteinfo/${id}`,data)
-            dispatch(routeActions.setFetch())
-            console.log(res)
-            resolve()
+            const res=await axios.get('https://melabus.herokuapp.com/getalldepartureplace')
+            console.log(res.data)
+            dispatch(scheduleActions.setDepData(res.data))
+            
         }
        catch(err)
        {
         console.log(err)
      !!err.response&&dispatch(errorActions.Message(err.response.data.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
-     resolve()
 
        }
 
     }
 }
-export const deleteRoute=(id,resolve)=>{
+
+export const assignBus=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.delete(`https://melabus.herokuapp.com/deleteroute/${id}`)
-            dispatch(routeActions.setFetch())
-            console.log(res)
-            resolve()
+            const res=await axios.put(`https://melabus.herokuapp.com/assignbustoschedule/${id}`,data)
+            console.log(res.data)
+            dispatch(scheduleActions.setFetch())  
+            resolve()          
+            
         }
        catch(err)
        {
         console.log(err)
      !!err.response&&dispatch(errorActions.Message(err.response.data.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
-     resolve()
+     resolve()          
+
+       }
+
+    }
+}
+
+export const updatePassInfo=(id,data,resolve)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.put(`https://melabus.herokuapp.com/updatepassinfo/${id}`,data)
+            console.log(res.data)
+            dispatch(scheduleActions.setFetch())  
+            resolve()          
+            
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+     resolve()          
+
+       }
+
+    }
+}
+export const cancelShcedule=(data)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.put(`https://melabus.herokuapp.com/cancelschedule/${data.id}`)
+            dispatch(scheduleActions.setFetch())
+            dispatch(errorActions.Message("schedule canceled"))
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
 
        }
 

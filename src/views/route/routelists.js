@@ -57,18 +57,7 @@ export default function RouteList() {
                         <MaterialTable
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
-                          Action: props => {
-                            //If isn't the add action
-                            console.log(props)
-                            if (typeof props.action === typeof Function || props.action.tooltip !== 'Add') {
-                              console.log("not done")
-                                  return <MTableAction {...props} />
-                            } 
-                            else {
-                              console.log("done")
-                                  return <div ref={addActionRef} onClick={props.action.onClick}/>;
-                            }
-                          }
+                        
                      }}
       responsive
       title="Route List"

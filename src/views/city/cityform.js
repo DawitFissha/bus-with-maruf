@@ -93,8 +93,12 @@ else
         dispatch(cityActions.setModal(false))
       } 
 useEffect(()=>{
-    message==='city'&&setCity('')
-    message==='city'&&setTags([])  
+    if(!update)
+    {
+        message==='city'&&setCity('')
+        message==='city'&&setTags([]) 
+    }
+   
 },[message])
     return (
         <React.Fragment>

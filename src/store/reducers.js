@@ -20,7 +20,7 @@ import drivers from '../views/user/driverSlice'
 import busSlice from './bus-slice';
 import routeSlice from './route-slice';
 import userSlice from './user-slice';
-import scheduleSlice from '../views/schedule/scheduleSlice';
+import scheduleSlice from './schedule-slice';
 import citySlice from './city-slice';
 
 const reducers = combineReducers({

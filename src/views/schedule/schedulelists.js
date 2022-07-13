@@ -1,53 +1,109 @@
 import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
-import MaterialTable,{ MTableAction,MTableEditField} from "material-table";
+import MaterialTable from "material-table";
+import {MdOutlineFreeCancellation} from "react-icons/md"
 import {tableIcons} from '../Table/Tableicon'
-import { } from '../../store/scheduleHttp';
+import { assignBus, getActiveBus, getAllDepPlace, getSchedule } from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
+import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
+import { SaveSuccessfull } from '../../Components/saveSuccess';
+import { errorActions } from '../../store/error-slice';
+import CancelForm from "./cancelshcedule"
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
   const busdata=useSelector(state=>state.schedule.busData)
+  const depdata=useSelector(state=>state.schedule.depData)
   const data=tabledata?.map(o => ({ ...o }));
   const activebus=busdata?.map(o => ({ ...o }));
+  const depData=depdata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.schedule.updated)
-  const dispatch=useDispatch()
-  const addActionRef = React.useRef();
+  const profile=useSelector(state=>state.userinfo)
+  let actions=[]
+  if(profile.role===role.SUPERADMIN||profile.role===role.ADMIN)
+  {
+   actions= [
+      (rowData)=>({
+        icon:() => <MdOutlineFreeCancellation style={{color:"red"}} size={25}/>,
+        tooltip: 'cancel schedule',
+        position:'row',
+        disabled:rowData.status!=="Not Departed",
+        onClick: (evt, Data) => {
+          dispatch(scheduleActions.setModalData({id:Data._id}))
+          dispatch(scheduleActions.setModal(true))
+        }
+      }),
+    ]
+  }
 
+  const dispatch=useDispatch()
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
     { title: 'Source', field: 'source',editable:'never'},
     { title: 'Destination', field: 'destination',editable:'never'},
-    { title: 'Total Sit Reserved', field: 'totalSit',editable:'never'},
-    { title: 'Status', field: 'status',editable:'never',lookup:{}},
-    { title: 'Tarif', field: 'tarif',editable:'never'},
-    { title: 'Ass.Bus', field: 'bus',lookup:{}},
-    { title: 'Departure Place', field: 'departurePlace',editable:'never',lookup:{}},
+    { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
+    { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
+    { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+    { title: 'Ass.Bus', field: 'bus',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+    { title: 'Departure Place', field: 'departurePlace',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+    { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
   ]);
   useEffect(()=>{
-    // dispatch(getRoute())
-    // dispatch(getActiveBus())
+    dispatch(getSchedule())
+    dispatch(getActiveBus())
+    dispatch(getAllDepPlace())
       },[fetched])
-      let looks
+      let buslooks
+      let deplooks
       useEffect(()=>{
+        if(depData.length>0)
+        {
+          const res=depData?.map(e=>e.departurePlace).flat()
+          console.log(res)
+          deplooks = res?.reduce(function(acc, cur, i) {
+            acc[cur] = cur;
+            return acc;
+            }, {});
+            console.log(deplooks)
+        }
+     
      if(busdata.length>0)
      {
-      looks = activebus?.reduce(function(acc, cur, i) {
-        acc[cur._id] = cur.busPlateNo;
+      buslooks = activebus?.reduce(function(acc, cur, i) {
+        acc[cur._id] = cur.busSideNo;
         return acc;
         }, {});
       setColumns([
         {title: "id", field: "_id",hidden:true},
-        { title: 'Source', field: 'source'},
-        { title: 'Destination', field: 'destination'},
-        { title: 'Tarif', field: 'tarif'},
-        { title: 'Estimated Hour', field: 'estimatedHour'},
-        { title: 'Distance', field: 'distance'},
+        { title: 'Source', field: 'source',editable:'never'},
+        { title: 'Destination', field: 'destination',editable:'never'},
+        { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
+        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+        { title: 'Ass.Bus', field: 'bus',lookup:buslooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Place', field: 'departurePlace',lookup:deplooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+
       ])
      }
-      },[busdata])
+      },[busdata,depdata])
+      const message=useSelector(state=>state.message.errMessage)
+      useEffect(()=>{
+   message==="schedule canceled"&&setSaveStatus(true)
+return ()=>{
+    message==='city'&&dispatch(errorActions.Message(''))
+}
+      },[message])
+      const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
   return (
     <React.Fragment>
+      <CancelForm/>
             <Row>
                 <Col>
                     <Card>
@@ -58,18 +114,6 @@ export default function ScheduleList() {
                         <MaterialTable
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
-                          Action: props => {
-                            //If isn't the add action
-                            console.log(props)
-                            if (typeof props.action === typeof Function || props.action.tooltip !== 'Add') {
-                              console.log("not done")
-                                  return <MTableAction {...props} />
-                            } 
-                            else {
-                              console.log("done")
-                                  return <div ref={addActionRef} onClick={props.action.onClick}/>;
-                            }
-                          }
                      }}
       responsive
       title="Route List"
@@ -87,18 +131,15 @@ export default function ScheduleList() {
       }}
       localization={{
         body: {
-          editTooltip: 'Edit Route Info',
+          editTooltip: 'Assign Bus',
           deleteTooltip: 'Delete Route',
        }
 }}
+actions={actions}
       editable={{
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
-              // dispatch(updateRoute(oldData._id,newData,resolve))
-          }),
-        onRowDelete: oldData =>
-          new Promise((resolve, reject) => {
-              // dispatch(deleteRoute(oldData._id,resolve))
+              dispatch(assignBus(oldData._id,newData,resolve))
           }),
       }}
     />
@@ -106,6 +147,7 @@ export default function ScheduleList() {
         </Card>
         </Col>
          </Row>
+         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule Canceled' />
         </React.Fragment>
   )
 }
