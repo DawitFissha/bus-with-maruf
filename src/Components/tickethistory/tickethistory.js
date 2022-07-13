@@ -84,7 +84,7 @@ const ScheduleHandler=(e)=>{
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Manage Route</Card.Title>
+                            <Card.Title as="h5">Manage Ticket</Card.Title>
                             <Row style={{justifyContent:"end",marginBottom:"10px"}}>
                             <Select
                                 value={schedule}
@@ -110,7 +110,7 @@ const ScheduleHandler=(e)=>{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title="Route List"
+      title="Booked Ticket"
       columns={columns}
       data={data}
       icons={tableIcons}
