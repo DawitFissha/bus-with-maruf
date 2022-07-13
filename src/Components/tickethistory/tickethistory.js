@@ -135,6 +135,7 @@ const ScheduleHandler=(e)=>{
        }
 }}
       editable={{
+        isEditable: rowData => rowData.status === 'To Be Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
               dispatch(updatePassInfo(oldData._id,newData,resolve))

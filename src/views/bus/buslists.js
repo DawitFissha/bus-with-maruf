@@ -74,10 +74,10 @@ dispatch(getBus())
           new Promise((resolve, reject) => {
               dispatch(updateBus(oldData._id,newData,resolve))
           }),
-        onRowDelete: oldData =>
-          new Promise((resolve, reject) => {
-              dispatch(deleteBus(oldData._id,resolve))
-          }),
+        // onRowDelete: oldData =>
+        //   new Promise((resolve, reject) => {
+        //       dispatch(deleteBus(oldData._id,resolve))
+        //   }),
       }}
     />
   </Card.Body>

@@ -143,7 +143,7 @@ const handleSaveStatusClose = (event, reason) => {
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -159,6 +159,7 @@ const handleSaveStatusClose = (event, reason) => {
 }}
 actions={actions}
       editable={{
+        isEditable: rowData => rowData.status === 'Not Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
               dispatch(assignBus(oldData._id,newData,resolve))
