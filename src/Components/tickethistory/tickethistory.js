@@ -31,7 +31,7 @@ export default function ScheduleList() {
         icon:() => <BsCashCoin style={{color:"brown"}} size={25}/>,
         tooltip: 'create refund',
         position:'row',
-        disabled:rowData.status!=="Not Departed",
+        disabled:rowData.status==="Refunded",
         onClick: (evt, Data) => {
           console.log({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit})
           dispatch(scheduleActions.setModalData({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit}))
@@ -43,7 +43,7 @@ export default function ScheduleList() {
         icon:() => <FiPrinter style={{color:"Salmon"}} size={25}/>,
         tooltip: 'Print Ticket',
         position:'row',
-        disabled:rowData.status!=="Not Departed",
+        disabled:rowData.status!=="To Be Departed",
         onClick: (evt, Data) => {
           // dispatch(scheduleActions.setModalData({id:Data._id}))
           // dispatch(scheduleActions.setModal(true))
@@ -58,8 +58,8 @@ const handleChange=()=>{
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
     { title: 'Passanger ID', field: 'passangerId',editable:'never'},
-    { title: 'Passanger Name', field: 'passangerName'},
-    { title: 'Phone Number', field: 'phoneNumber'},
+    { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+    { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
     { title: 'Sit', field: 'sit',editable:'never'},
     { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
     { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded"}},
