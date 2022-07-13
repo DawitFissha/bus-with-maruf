@@ -85,7 +85,7 @@ const ScheduleHandler=(e)=>{
                     <Card>
                         <Card.Header>
                             <Card.Title as="h5">Manage Route</Card.Title>
-                            <Row style={{justifyContent:"center",marginBottom:"10px"}}>
+                            <Row style={{justifyContent:"end",marginBottom:"10px"}}>
                             <Select
                                 value={schedule}
                                 label="Schedule"
@@ -102,7 +102,7 @@ const ScheduleHandler=(e)=>{
                             </Select>
                           
                             </Row>
-                            <Row style={{justifyContent:"center",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row>
+                            <Row style={{justifyContent:"end",marginRight:"20px",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row>
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
