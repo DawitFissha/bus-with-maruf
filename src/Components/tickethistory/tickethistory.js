@@ -12,6 +12,8 @@ import {MdToday} from "react-icons/md"
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import { errorActions } from '../../store/error-slice';
+import RefundForm from "./refundpop"
+
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
   const scheduledata=useSelector(state=>state.schedule.scheduleData)
@@ -31,8 +33,10 @@ export default function ScheduleList() {
         position:'row',
         disabled:rowData.status!=="Not Departed",
         onClick: (evt, Data) => {
-        //   dispatch(scheduleActions.setModalData({id:Data._id}))
-        //   dispatch(scheduleActions.setModal(true))
+          console.log({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit})
+          dispatch(scheduleActions.setModalData({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit}))
+          dispatch(scheduleActions.setModal(true))
+         
         }
       }),
       (rowData)=>({
@@ -41,8 +45,8 @@ export default function ScheduleList() {
         position:'row',
         disabled:rowData.status!=="Not Departed",
         onClick: (evt, Data) => {
-        //   dispatch(scheduleActions.setModalData({id:Data._id}))
-        //   dispatch(scheduleActions.setModal(true))
+          // dispatch(scheduleActions.setModalData({id:Data._id}))
+          // dispatch(scheduleActions.setModal(true))
         }
       }),
     ]
@@ -75,6 +79,7 @@ const ScheduleHandler=(e)=>{
 }
   return (
     <React.Fragment>
+      <RefundForm/>
             <Row>
                 <Col>
                     <Card>

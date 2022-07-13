@@ -68,7 +68,7 @@ const routes = [
 {
     exact: true,
     path: '/table',
-    component: lazy(() => import('./Components/tickethistory/tickethistory'))
+    component: lazy(() => import('./views/user/usertab'))
 },
 
             {
@@ -91,12 +91,12 @@ const routes = [
             {
                 exact: true,
                 path: '/addroute',
-                component: lazy(() => import('./views/route/routeform'))
+                component: lazy(() => import('./views/route/routetab'))
             },
             {
                 exact: true,
                 path: '/addbus',
-                component: lazy(() => import('./views/bus/busform'))
+                component: lazy(() => import('./views/bus/bustab'))
             },
             {
                 exact: true,
@@ -106,12 +106,12 @@ const routes = [
             {
                 exact: true,
                 path: '/user',
-                component: lazy(() => import('./views/user/userform'))
+                component: lazy(() => import('./views/user/usertab'))
             },
             {
                 exact: true,
                 path: '/schedule',
-                component: lazy(() => import('./views/schedule/scheduleform'))
+                component: lazy(() => import('./views/schedule/scheduletab'))
             },
             {
                 exact: true,

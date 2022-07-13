@@ -76,6 +76,23 @@ export const getActiveBus=()=>{
 
     }
 }
+export const getAllCity=()=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.get('https://melabus.herokuapp.com/getcityonly')
+            console.log(res.data)
+            dispatch(scheduleActions.setCityData(res.data))
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
 export const getAllDepPlace=()=>{
     return async(dispatch)=>{
         try{
@@ -136,6 +153,24 @@ export const updatePassInfo=(id,data,resolve)=>{
 
     }
 }
+export const refundTicket=(data)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.put(`https://melabus.herokuapp.com/refundrequest/${data.id}`)
+            dispatch(scheduleActions.setFetch())
+            dispatch(errorActions.Message("schedule canceled"))
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
+
 export const cancelShcedule=(data)=>{
     return async(dispatch)=>{
         try{

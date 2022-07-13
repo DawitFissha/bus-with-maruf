@@ -5,19 +5,21 @@ import {tableIcons} from '../Table/Tableicon'
 import { getRoute,updateRoute,deleteRoute, getActiveBus} from '../../store/routeHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {role} from "../../role"
+import { getAllCity } from '../../store/scheduleHttp';
 export default function RouteList() {
   const tabledata=useSelector(state=>state.route.tableData)
   const busdata=useSelector(state=>state.route.busData)
+  const citydata=useSelector(state=>state.schedule.cityData)
+  console.log(citydata)
   const data=tabledata?.map(o => ({ ...o }));
   const activebus=busdata?.map(o => ({ ...o }));
+  const cityData=citydata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.route.updated)
   const dispatch=useDispatch()
-  const addActionRef = React.useRef();
-
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
-    { title: 'Source', field: 'source'},
-    { title: 'Destination', field: 'destination'},
+    { title: 'Source', field: 'source',lookup:{},editable:"never"},
+    { title: 'Destination', field: 'destination',lookup:{},editable:"never"},
     { title: 'Tarif', field: 'tarif'},
     { title: 'Estimated Hour', field: 'estimatedHour'},
     { title: 'Distance', field: 'distance'},
@@ -26,8 +28,10 @@ export default function RouteList() {
   useEffect(()=>{
     dispatch(getRoute())
     dispatch(getActiveBus())
+    dispatch(getAllCity())
       },[fetched])
       let looks
+      let citylooks
       useEffect(()=>{
      if(busdata.length>0)
      {
@@ -35,16 +39,20 @@ export default function RouteList() {
         acc[cur._id] = cur.busPlateNo;
         return acc;
         }, {});
+    citylooks = cityData?.reduce(function(acc, cur, i) {
+      acc[cur.cityName] = cur.cityName;
+      return acc;
+      }, {});
       setColumns([
         {title: "id", field: "_id",hidden:true},
-        { title: 'Source', field: 'source'},
-        { title: 'Destination', field: 'destination'},
-        { title: 'Tarif', field: 'tarif'},
+        { title: 'Source', field: 'source',lookup:citylooks,editable:"never"},
+        { title: 'Destination', field: 'destination',lookup:citylooks,editable:"never"},
+        { title: 'Tarif In Birr', field: 'tarif'},
         { title: 'Estimated Hour', field: 'estimatedHour'},
         { title: 'Distance', field: 'distance'},
       ])
      }
-      },[busdata])
+      },[busdata,citydata])
   return (
     <React.Fragment>
             <Row>
