@@ -124,6 +124,7 @@ dispatch(getUser())
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
+        pageSize:10,
         columnsButton:true,
        
       }}

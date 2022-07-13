@@ -60,6 +60,7 @@ dispatch(getBus())
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
+        pageSize:10,
         columnsButton:true
       }}
       localization={{

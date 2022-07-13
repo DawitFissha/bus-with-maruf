@@ -73,6 +73,7 @@ const handleSaveStatusClose = (event, reason) => {
         actionsColumnIndex: -1,
         exportButton:true,
         exportDelimiter:true,
+        pageSize:10,
         columnsButton:true,
         filtering:true,
       }}
