@@ -21,6 +21,25 @@ export const getBus=()=>{
 
     }
 }
+export const getUserByRole=(role)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios.get(`https://melabus.herokuapp.com/getuserbyrole?role=${role}`)
+            console.log(res.data)
+            role==="driver"&&dispatch(busActions.setDriverData(res.data))
+            role==="redat"&&dispatch(busActions.setRedatData(res.data))
+
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
 export const updateBus=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
