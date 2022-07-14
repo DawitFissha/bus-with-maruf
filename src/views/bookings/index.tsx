@@ -28,7 +28,7 @@ type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
 }
-type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number}
+type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number,additionalPassengerFirstName:string,additionalPassengerLastName:string}
 interface bookingProps {
   passSchedule:(schedule:string)=>void
 }
@@ -44,6 +44,13 @@ const validate = (values:FormTypes) => {
     if (!values.phoneNumber) {
       errors.phoneNumber = 'Please Enter Phone Number of the Passenger'
     } 
+    if (!values.additionalPassengerFirstName) {
+      errors.firstName = 'Please Enter First Name of the Passenger'
+    } 
+    if (!values.additionalPassengerLastName) {
+      errors.lastName = 'Please Enter Lasst Name of the Passenger'
+    } 
+
     return errors;
   };
 const TextFieldForBooking = styled(TextField)({
@@ -130,6 +137,8 @@ const formik = useFormik({
   firstName:'',
   lastName:'',
   phoneNumber:'',
+  additionalPassengerFirstName:'',
+  additionalPassengerLastName:'',
   },
   validate,
   onSubmit: async (values,{resetForm}) => {
@@ -151,6 +160,8 @@ const formik = useFormik({
               firstName:'',
               lastName:'',
               phoneNumber:'',
+              additionalPassengerFirstName:'',
+              additionalPassengerLastName:'',
             }})
             
             setSeatNumberRequired(false)
@@ -464,6 +475,63 @@ const formik = useFormik({
                 </Box>
                  </Box>
                  <Divider/>
+                 {
+                 seatNumber.length>1 && (
+                  <Box sx={{display:'flex',flexDirection:'column',m:2}}>
+                  <Box>
+                      <h5>Additonal Passenger Information</h5>
+                  </Box>
+                  {
+                    seatNumber.slice(1).map((sNo:number)=>(
+                      <>
+                      <Box sx={{m:1,display:'flex',flexDirection:"row"}}>
+                      <Box sx={{mr:4}}>
+                          <TextField
+                          id={`firstname ${sNo}`}
+                          name='additionalPassengerFirstName'
+                          label={`First Name for seat ${sNo}`}
+                          sx={{width:'300px'}}
+                          InputProps={{
+                            startAdornment:(
+                              <InputAdornment position="start">
+                              <SvgIcon color='primary' fontSize='medium'>
+                              <path fill="currentColor" d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.09 20.21,11.09 20.42,11.3L21.7,12.58C21.91,12.79 21.91,13.14 21.7,13.35M12,18.94L18.06,12.88L20.11,14.93L14.06,21H12V18.94M12,14C7.58,14 4,15.79 4,18V20H10V18.11L14,14.11C13.34,14.03 12.67,14 12,14M12,4A4,4 0 0,0 8,8A4,4 0 0,0 12,12A4,4 0 0,0 16,8A4,4 0 0,0 12,4Z" />
+                              </SvgIcon>
+                              </InputAdornment>
+                            )
+                          }}
+                          error={formik.touched.additionalPassengerFirstName && Boolean(formik.errors.additionalPassengerFirstName)}
+                          helperText={formik.touched.additionalPassengerFirstName && formik.errors.additionalPassengerFirstName}
+                          />
+                      </Box>
+                      <Box>
+                      <TextField
+                          id={`lastname ${sNo}`}
+                          name='additionalPassengerLastName'
+                          label={`Last Name for seat ${sNo}`}
+                          sx={{width:'300px'}}
+                          InputProps={{
+                            startAdornment:(
+                              <InputAdornment position="start">
+                              <SvgIcon color='primary' fontSize='medium'>
+                              <path fill="currentColor" d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.09 20.21,11.09 20.42,11.3L21.7,12.58C21.91,12.79 21.91,13.14 21.7,13.35M12,18.94L18.06,12.88L20.11,14.93L14.06,21H12V18.94M12,14C7.58,14 4,15.79 4,18V20H10V18.11L14,14.11C13.34,14.03 12.67,14 12,14M12,4A4,4 0 0,0 8,8A4,4 0 0,0 12,12A4,4 0 0,0 16,8A4,4 0 0,0 12,4Z" />
+                              </SvgIcon>
+                              </InputAdornment>
+                            )
+                          }}
+                          error={formik.touched.additionalPassengerLastName && Boolean(formik.errors.additionalPassengerLastName)}
+                          helperText={formik.touched.additionalPassengerLastName && formik.errors.additionalPassengerLastName}
+                          />
+                      </Box>
+                      
+                  </Box>
+                  <Divider/>
+                  </>
+                    ))
+                  }
+              </Box>
+                 )
+                 }
               <Box sx={{p:2}}>
               <Button 
               type="submit"
