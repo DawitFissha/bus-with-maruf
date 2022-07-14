@@ -44,6 +44,7 @@
         "react-chartjs-2": "^4.1.0",
         "react-cookie": "^4.1.1",
         "react-copy-to-clipboard": "^5.0.3",
+        "react-dnd": "^16.0.1",
         "react-dom": "^17.0.1",
         "react-draggable": "^4.4.5",
         "react-hot-toast": "^2.2.0",
@@ -91,4 +92,5 @@
     "devDependencies": {
         "@types/react-router-dom": "^5.3.3"
     }
+    
 }
