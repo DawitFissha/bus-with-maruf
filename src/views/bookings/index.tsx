@@ -7,7 +7,7 @@ import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { Autocomplete, FormControl, InputAdornment, InputLabel, MenuItem } from '@mui/material';
+import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import Box from '@mui/material/Box';
 import {SavingProgress} from '../../Components/savingProgress'
 import { DatePicker } from '@mui/lab';
@@ -44,12 +44,7 @@ const validate = (values:FormTypes) => {
     if (!values.phoneNumber) {
       errors.phoneNumber = 'Please Enter Phone Number of the Passenger'
     } 
-    if (!values.additionalPassengerFirstName) {
-      errors.firstName = 'Please Enter First Name of the Passenger'
-    } 
-    if (!values.additionalPassengerLastName) {
-      errors.lastName = 'Please Enter Lasst Name of the Passenger'
-    } 
+  
 
     return errors;
   };
@@ -108,16 +103,14 @@ const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>s
 
 React.useEffect(()=> {
 
-document.title = `X Bus - Book A Ticket`
-
   if(schedulesLoading){
     dispatch(fetchSchedules())
   }
 
-
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
 }
+
 passSchedule(schedule?.id as string)
 if(Boolean(schedule?.id && (seatNumber?.length>0))){
   AuthService.lockSit(seatNumber,schedule?.id as string)
@@ -149,12 +142,44 @@ const formik = useFormik({
       if(!loading){
           setLoading(true)
           try {
-            await AuthService.bookTicket({
+            await AuthService.bookTicket(
+              
+              [
+                {
+                passname:`${values.firstName} ${values.lastName}`,
+                passphone:values.phoneNumber,
+                sits:seatNumber[0],
+              }
+              ,
+              ...seatNumber.slice(1).map((seatNo)=>(
+                {
+                  passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
+                  passphone:values.phoneNumber,
+                  sits:seatNo,
+                }
+              )
+              )
+            ]
+            ,schedule?.id as string)
+            
+            console.log(
+              [
+              {
               passname:`${values.firstName} ${values.lastName}`,
               passphone:values.phoneNumber,
-              sits:seatNumber
-            },schedule?.id)
-            
+              sits:seatNumber[0],
+            }
+            ,
+            ...seatNumber.slice(1).map((seatNo)=>(
+              {
+                passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
+                passphone:values.phoneNumber,
+                sits:seatNo,
+              }
+            )
+            )
+          ]
+          )
             resetForm({values:{
               seatNumber:1,
               firstName:'',
@@ -181,6 +206,7 @@ const formik = useFormik({
      
   },
 });
+
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -490,6 +516,8 @@ const formik = useFormik({
                           id={`firstname ${sNo}`}
                           name='additionalPassengerFirstName'
                           label={`First Name for seat ${sNo}`}
+                          value={formik.values.additionalPassengerFirstName}
+                          onChange={formik.handleChange}
                           sx={{width:'300px'}}
                           InputProps={{
                             startAdornment:(
@@ -500,7 +528,7 @@ const formik = useFormik({
                               </InputAdornment>
                             )
                           }}
-                          error={formik.touched.additionalPassengerFirstName && Boolean(formik.errors.additionalPassengerFirstName)}
+                          error={seatNumber.length>1 && formik.touched.additionalPassengerFirstName && Boolean(formik.errors.additionalPassengerFirstName)}
                           helperText={formik.touched.additionalPassengerFirstName && formik.errors.additionalPassengerFirstName}
                           />
                       </Box>
@@ -509,6 +537,8 @@ const formik = useFormik({
                           id={`lastname ${sNo}`}
                           name='additionalPassengerLastName'
                           label={`Last Name for seat ${sNo}`}
+                          value = {formik.values.additionalPassengerLastName}
+                          onChange={formik.handleChange}
                           sx={{width:'300px'}}
                           InputProps={{
                             startAdornment:(
@@ -519,7 +549,7 @@ const formik = useFormik({
                               </InputAdornment>
                             )
                           }}
-                          error={formik.touched.additionalPassengerLastName && Boolean(formik.errors.additionalPassengerLastName)}
+                          error={seatNumber.length > 1 && formik.touched.additionalPassengerLastName && Boolean(formik.errors.additionalPassengerLastName)}
                           helperText={formik.touched.additionalPassengerLastName && formik.errors.additionalPassengerLastName}
                           />
                       </Box>
