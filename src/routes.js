@@ -64,6 +64,13 @@ const routes = [
         layout: AdminLayout,
         guard: AuthGuard,
         routes: [
+//test
+{
+    exact: true,
+    path: '/table',
+    component: lazy(() => import('./views/user/usertab'))
+},
+
             {
                 exact: true,
                 path: '/dashboard',
@@ -84,12 +91,12 @@ const routes = [
             {
                 exact: true,
                 path: '/addroute',
-                component: lazy(() => import('./views/route/routeform'))
+                component: lazy(() => import('./views/route/routetab'))
             },
             {
                 exact: true,
                 path: '/addbus',
-                component: lazy(() => import('./views/bus/busform'))
+                component: lazy(() => import('./views/bus/bustab'))
             },
             {
                 exact: true,
@@ -99,12 +106,17 @@ const routes = [
             {
                 exact: true,
                 path: '/user',
-                component: lazy(() => import('./views/user/userform'))
+                component: lazy(() => import('./views/user/usertab'))
             },
             {
                 exact: true,
                 path: '/schedule',
-                component: lazy(() => import('./views/schedule/scheduleform'))
+                component: lazy(() => import('./views/schedule/scheduletab'))
+            },
+            {
+                exact: true,
+                path: '/city',
+                component: lazy(() => import('./views/city/city'))
             },
             {
                 path: '*',

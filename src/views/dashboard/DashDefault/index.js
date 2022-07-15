@@ -16,6 +16,7 @@ import { dashboardActions } from '../../../store/dashboard-slice';
 const DashDefault = () => {
     const dispatch=useDispatch()
     const sortState=useSelector(state=>state.dashboard.sort)
+    const active=useSelector(state=>state.dashboard.active)
     const gqlship=gql`
     query($input:SaleInputFilter){       
           getLocalTotalSale(input: $input) {
@@ -32,7 +33,7 @@ const DashDefault = () => {
     variables:{input:{filter:sortState
     }
   }})
-    const [active ,setActive]=useState(1)
+    // const [active ,setActive]=useState(1)
     const [localSale ,setLocalSale]=useState(1)
     const [agentSale,setAgentSale]=useState(1)
     const [mobileSale,setMobileSale]=useState(1)
@@ -58,13 +59,13 @@ useEffect(()=>{
         <React.Fragment>
             <Row style={{justifyContent:'end',marginBottom:'4px'}}>
              <Row style={{paddingRight:"20px"}}><SortBy filter>Filter<MdPlayArrow size={20}/></SortBy>
-              <SortBy active={active===1?true:false} onClick={()=>{setActive(1) 
+              <SortBy active={active===1?true:false} onClick={()=>{dispatch(dashboardActions.setActive(1)) 
                 dispatch(dashboardActions.setFiltering("day"))}}>Today</SortBy> 
-              <SortBy active={active===2?true:false} onClick={()=>{setActive(2)
+              <SortBy active={active===2?true:false} onClick={()=>{dispatch(dashboardActions.setActive(2))
             dispatch(dashboardActions.setFiltering("week"))}}>This Week</SortBy>
-              <SortBy active={active===3?true:false} onClick={()=>{setActive(3)
+              <SortBy active={active===3?true:false} onClick={()=>{dispatch(dashboardActions.setActive(3))
             dispatch(dashboardActions.setFiltering("month"))}}>This Month</SortBy>
-              <SortBy active={active===4?true:false} onClick={()=>{setActive(4)
+              <SortBy active={active===4?true:false} onClick={()=>{dispatch(dashboardActions.setActive(4))
             dispatch(dashboardActions.setFiltering("year"))}}>This Year</SortBy></Row>
              </Row>
             <Row>
@@ -163,10 +164,10 @@ useEffect(()=>{
                <Col md={12}>
                     <Card>
                         <Card.Header>
-                        { sortState==="year" && <Card.Title as="h5">Ticket Sale This Year </Card.Title>}
-                        { sortState==="month" && <Card.Title as="h5">Ticket Sale This Month </Card.Title>}
-                        { sortState==="week" && <Card.Title as="h5">Ticket Sale This Week</Card.Title>}
-                        { sortState==="day" && <Card.Title as="h5">Ticket Sale Today</Card.Title>}
+                        { sortState==="year" && <Card.Title as="h5">This Year Cash Sale In Birr</Card.Title>}
+                        { sortState==="month" && <Card.Title as="h5">This Month Cash Sale In Birr </Card.Title>}
+                        { sortState==="week" && <Card.Title as="h5">This Week Cash Sale In Birr</Card.Title>}
+                        { sortState==="day" && <Card.Title as="h5">Today Cash Sale In Birr</Card.Title>}
                         </Card.Header>
                         <Card.Body>
                          { sortState==="year" && <MultiBarCashYear />}

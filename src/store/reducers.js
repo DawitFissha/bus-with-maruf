@@ -16,6 +16,13 @@ import busses from '../views/bus/busSlice';
 import cashiers from '../views/user/cashierSlice'
 import redats from '../views/user/redatSlice'
 import drivers from '../views/user/driverSlice'
+//Maruf
+import busSlice from './bus-slice';
+import routeSlice from './route-slice';
+import userSlice from './user-slice';
+import scheduleSlice from './schedule-slice';
+import citySlice from './city-slice';
+
 const reducers = combineReducers({
     login: persistReducer(
         {
@@ -28,6 +35,11 @@ const reducers = combineReducers({
    loading:loadingSlice,
    message:errorSlice,
    dashboard:dashboardSlice,
+   bus:busSlice,
+   route:routeSlice,
+   userlist:userSlice,
+   schedule:scheduleSlice,
+   city:citySlice,
    userinfo:persistReducer(
     {
         key: 'user',
