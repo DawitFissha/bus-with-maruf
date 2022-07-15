@@ -6,7 +6,9 @@ import { getUser, updateUser} from '../../store/userHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {RiLockUnlockLine} from "react-icons/ri";
 import {role} from "../../role"
-
+import { userActions } from '../../store/user-slice';
+import { errorActions } from '../../store/error-slice';
+import ResetForm from './resetform'
 export default function UserList() {
   const tabledata=useSelector(state=>state.userlist.tableData)
   const data=tabledata.map(o => ({ ...o }));
@@ -14,6 +16,7 @@ export default function UserList() {
   const dispatch=useDispatch()
   const addActionRef = React.useRef();
   const profile=useSelector(state=>state.userinfo)
+  const [id,setResetId]=useState()
 console.log(profile)
 let lookups
 let cols
@@ -37,6 +40,8 @@ actions=[
     position:'row',
     disabled:rowData.userRole==="redat",
     onClick: (evt, Data) => {
+      setResetId(Data._id)
+      dispatch(userActions.setModal(true))
     }
   }),
 ]
@@ -60,6 +65,7 @@ cols=  [
       position:'row',
       disabled:rowData.userRole==="redat",
       onClick: (evt, Data) => {
+        dispatch(userActions.setModal(true))
       }
     }),
   ]
@@ -80,10 +86,14 @@ if(profile.role===role.CASHER)
 }
   useEffect(()=>{
 dispatch(getUser())
+return ()=>{
+  dispatch(errorActions.Message(''))
+}
   },[fetched])
   const [columns, setColumns] = useState(cols);
   return (
     <React.Fragment>
+      <ResetForm id={id}/>
             <Row>
                 <Col>
                     <Card>

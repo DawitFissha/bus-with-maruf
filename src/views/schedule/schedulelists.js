@@ -59,10 +59,7 @@ export default function ScheduleList() {
     dispatch(getAllDepPlace())
     dispatch(getAllCity())
     return ()=>{
-      dispatch(scheduleActions.setDepData([]))
-      dispatch(scheduleActions.setTableData([]))
-      dispatch(scheduleActions.setBusData([]))
-      dispatch(scheduleActions.setCityData([]))
+      dispatch(errorActions.Message(''))
     }
       },[fetched])
       let buslooks

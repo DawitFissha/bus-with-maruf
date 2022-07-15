@@ -6,6 +6,9 @@ import { getRoute,updateRoute,deleteRoute, getActiveBus} from '../../store/route
 import { useSelector,useDispatch } from 'react-redux';
 import {role} from "../../role"
 import { getAllCity } from '../../store/scheduleHttp';
+import { errorActions } from '../../store/error-slice';
+import { routeActions } from '../../store/route-slice';
+import { scheduleActions } from '../../store/schedule-slice';
 export default function RouteList() {
   const tabledata=useSelector(state=>state.route.tableData)
   const busdata=useSelector(state=>state.route.busData)
@@ -21,7 +24,7 @@ export default function RouteList() {
     { title: 'Source', field: 'source',lookup:{},editable:"never",},
     { title: 'Destination', field: 'destination',lookup:{},editable:"never"},
     { title: 'Tarif', field: 'tarif'},
-    { title: 'Estimated Hour', field: 'estimatedHour',cellStyle:{backgroundColor: "blue",color: "black"}},
+    { title: 'Estimated Hour', field: 'estimatedHour'},
     { title: 'Distance', field: 'distance'},
     { title: 'Departure Place', field: 'departurePlace',editable:'never',lookup:{}},
   ]);
@@ -29,6 +32,9 @@ export default function RouteList() {
     dispatch(getRoute())
     dispatch(getActiveBus())
     dispatch(getAllCity())
+    return ()=>{
+      dispatch(errorActions.Message(''))
+    }
       },[fetched])
       let looks
       let citylooks
