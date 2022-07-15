@@ -1,7 +1,6 @@
 import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable from "material-table";
-import {MdOutlineFreeCancellation} from "react-icons/md"
 import { tableIcons } from '../../views/Table/Tableicon';
 import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
@@ -17,7 +16,6 @@ import RefundForm from "./refundpop"
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
   const scheduledata=useSelector(state=>state.schedule.scheduleData)
-  const depdata=useSelector(state=>state.schedule.depData)
   const data=tabledata?.map(o => ({ ...o }));
   const filterData=scheduledata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.schedule.updated)
@@ -51,9 +49,7 @@ export default function ScheduleList() {
       }),
     ]
 //   }
-const handleChange=()=>{
 
-}
   const dispatch=useDispatch()
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
@@ -71,6 +67,9 @@ const handleChange=()=>{
 useEffect(()=>{
    dispatch(getSalesSchedule())
 //    schedule&&dispatch(getOneSchedule(schedule))
+return ()=>{
+  dispatch(errorActions.Message(''))
+}
 },[fetched])
 
 const ScheduleHandler=(e)=>{

@@ -4,6 +4,8 @@ import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
 import { getBus,updateBus,deleteBus,getUserByRole} from '../../store/busHttp';
 import { useSelector,useDispatch } from 'react-redux';
+import { busActions } from '../../store/bus-slice';
+import { errorActions } from '../../store/error-slice';
 export default function BusList() {
   const tabledata=useSelector(state=>state.bus.tableData)
   const data=tabledata.map(o => ({ ...o }));
@@ -18,6 +20,9 @@ useEffect(()=>{
 dispatch(getBus())
 dispatch(getUserByRole("driver"))
 dispatch(getUserByRole("redat"))
+return ()=>{
+  dispatch(errorActions.Message(''))
+}
   },[fetched])
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},

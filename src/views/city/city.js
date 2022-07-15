@@ -21,6 +21,9 @@ export default function Location() {
   const dispatch=useDispatch()
   useEffect(()=>{
   dispatch(getCity())
+  return ()=>{
+    dispatch(errorActions.Message(''))
+  }
   },[fetched])
   useEffect(()=>{
     message==='city'&&setSaveStatus(true)
@@ -80,12 +83,12 @@ const handleSaveStatusClose = (event, reason) => {
       }}
       actions={[
         {
-          icon:() => <MdAddLocationAlt size={25}/>,
+          icon:() => <MdAddLocationAlt size={35}/>,
           tooltip: 'Add new city',
           position:'toolbar',
           onClick: (evt, Data) => {
-            console.log("clicked")
             setUpdate(false)
+            dispatch(errorActions.Message(''))
             dispatch(cityActions.setModal(true))
 
           }
@@ -97,6 +100,7 @@ const handleSaveStatusClose = (event, reason) => {
           onClick: (evt, Data) => {
             console.log(Data)
             setUpdate(true)
+            dispatch(errorActions.Message(''))
             dispatch(cityActions.setUpdateData(Data))
             dispatch(cityActions.setModal(true))
 
