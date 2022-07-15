@@ -5,6 +5,9 @@ import { BASENAME } from './config/constant';
 import {useAppSelector} from './app/hooks'
 import {useAppDispatch} from './app/hooks'
 import {fetchBusses} from './views/bus/busSlice'
+import { useEffect } from 'react';
+import { checkSession } from './store/authhttp';
+
 export let allBusses:any
 export let ActiveBusses:any[]
 const App = () => {
@@ -17,6 +20,10 @@ const App = () => {
        busPlateNo:ab.busPlateNo
      }
    )) 
+   useEffect(()=>{
+    console.log("sehafgshdgkas")
+       dispatch(checkSession())
+   },[])
   React.useEffect(()=>{
     if(busStatus === 'idle'){
       dispatch(fetchBusses())

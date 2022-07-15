@@ -3,17 +3,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import {Booking} from '../../views/bookings'
-import BookingHistory from '../mySale/sales'
-import FilterPanel from '../mySale/bookingFilterPanel'
-import {TodaysSalesSummary} from '../mySale/todaySales'
-import TicketHistory from "../tickethistory/tickethistory"
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-function TabPanel(props: TabPanelProps) {
+import RouteForm from "./routeform"
+import RouteList from "./routelists"
+function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
     <div
@@ -31,21 +23,17 @@ function TabPanel(props: TabPanelProps) {
     </div>
   );
 }
-
-function a11yProps(index:number) {
+//
+function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
-
+//
 export default function MainCashierPage() {
   const [value, setValue] = React.useState(0);
-  const [scheduleValue,setScheduleValue] = React.useState('')
-  const getSchedule = (sch:string)=>{
-    setScheduleValue(sch)
-  }
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (event, newValue) => {
     setValue(newValue);
   };
   // console.log(scheduleValue)
@@ -53,19 +41,18 @@ export default function MainCashierPage() {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs indicatorColor='secondary' value={value} onChange={handleChange} aria-label="cashier tabs">
-          <Tab  label="Booking" {...a11yProps(0)} />
-          <Tab label="Ticket History" {...a11yProps(1)} />
+          <Tab  label="Schedule Info" {...a11yProps(0)} />
+          <Tab style={{marginLeft:"20px"}} label="Add Route" {...a11yProps(1)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <Booking passSchedule={getSchedule}/>
+       <RouteList/>
       </TabPanel>
       <TabPanel value={value} index={1}>
         <Box sx={{display:'flex'}}>
                 <Box sx={{flexGrow:1}}>
-                <TicketHistory/>
+                <RouteForm/>
                 </Box>
-        
         </Box>
         
       </TabPanel>
