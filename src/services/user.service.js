@@ -11,7 +11,7 @@ class UserService {
     return axios.get(API_URL + 'getreservedsit/6214d859b3778328889ce30a',  { headers: authHeader() });
   }
   getBusList() {
-    return axios.get(API_URL + 'getallorganizationbus',  { headers: authHeader() });
+    return axios.get(API_URL + 'getorganizationactivebus',  { headers: authHeader() });
   }
   getUserList() {
     return axios.get(API_URL + 'getallorganizationuser', { headers: authHeader() });

@@ -41,18 +41,24 @@ const validate = (values:USER_TYPE) => {
     const errors:Partial<USER_TYPE> = {};
     if (!values.firstName) {
       errors.firstName = 'First name is Required';
-    } else if (values.firstName.length > 15) {
+    } 
+    
+    if (values.firstName.length > 15) {
       errors.firstName = 'Must be 15 characters or less';
     }
      if (!ValidateTextFields(values.firstName)){
       errors.firstName = "Please Enter a valid first name"
     }
+
     if (!values.lastName) {
       errors.lastName = 'Required';
-    } else if (values.lastName.length > 20) {
+    }
+      if (values.lastName.length > 20) {
       errors.lastName = 'Must be 20 characters or less';
     }
-  
+    if (!ValidateTextFields(values.lastName)){
+      errors.lastName = "Please Enter a valid last name"
+    }
     if (!values.phoneNumber) {
       errors.phoneNumber = 'Required';
     }

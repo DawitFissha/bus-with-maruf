@@ -14,20 +14,19 @@ const App = () => {
     const dispatch = useAppDispatch()
     const busStatus = useAppSelector(state=>state.busses.status)
     allBusses = useAppSelector(state=>state.busses.busses)
-    ActiveBusses = allBusses.filter((bus:any)=>bus.busState==="Active") .map((ab:any)=>(
+    ActiveBusses = allBusses.map((ab:any)=>(
      {
        _id:ab._id,
        busPlateNo:ab.busPlateNo
      }
    )) 
-   useEffect(()=>{
-    console.log("sehafgshdgkas")
-       dispatch(checkSession())
-   },[])
+ 
   React.useEffect(()=>{
     if(busStatus === 'idle'){
       dispatch(fetchBusses())
     }
+    console.log("sehafgshdgkas")
+    dispatch(checkSession())
   },[busStatus,dispatch])
     return (
         <React.Fragment>

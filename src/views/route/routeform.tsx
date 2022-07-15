@@ -16,7 +16,7 @@ import {SameCity} from './samecity'
 import Autocomplete from '@mui/material/Autocomplete';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
-import { InputAdornment, ListItemText } from '@mui/material';
+import { FormHelperText, InputAdornment, ListItemText } from '@mui/material';
 import {FormWrapper} from '../../Components/formWrapper'
 import PlaceIcon from '@mui/icons-material/Place';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -52,10 +52,10 @@ const validate = (values:VALUES_TYPE) => {
   };
 
  function RouteRegistration(){
-// const [serverErrorMessage,setServerErrorMessage] = React.useState('')
-// const [serverError,setServerError] = React.useState(false)
-const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 
+
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
+const [busError,busErrorMessage,setBusErrorOccured,setBusErrorMessage] = useError()
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
@@ -75,6 +75,7 @@ const handleAssignedBusChange = (event: SelectChangeEvent<typeof assignedBus>) =
     
     typeof value === 'string' ? value.split(',') : value,
   );
+  setBusErrorOccured(false)
 };
 
 const [saveStatus,setSaveStatus] = useState(false)
@@ -122,8 +123,13 @@ React.useEffect(()=>{
     },
     validate,
     onSubmit: async (values,{resetForm}) => {
+
         if(source===destination){
             setSameCity(true)
+        }
+        else if (assignedBus.length === 0){
+            setBusErrorOccured(true)
+            setBusErrorMessage('Please Select a bus first')
         }
          else {
           if(!loading){
@@ -271,7 +277,7 @@ React.useEffect(()=>{
             </FormWrapper>
             <FormWrapper>
             
-            <FormControl sx={{width: '100%' }}>
+            <FormControl error = {busError} sx={{width: '100%' }}>
         <InputLabel id="assign-bus">Assign Bus</InputLabel>
         <Select
           
@@ -307,6 +313,9 @@ React.useEffect(()=>{
           )):null
           }
         </Select>
+        {
+        busError && (<FormHelperText>{busErrorMessage}</FormHelperText>)
+        }
       </FormControl>
 
             </FormWrapper>
