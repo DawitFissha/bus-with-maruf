@@ -12,6 +12,8 @@ import {MdToday} from "react-icons/md"
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import { errorActions } from '../../store/error-slice';
+import RefundForm from "./refundpop"
+
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
   const scheduledata=useSelector(state=>state.schedule.scheduleData)
@@ -29,20 +31,22 @@ export default function ScheduleList() {
         icon:() => <BsCashCoin style={{color:"brown"}} size={25}/>,
         tooltip: 'create refund',
         position:'row',
-        disabled:rowData.status!=="Not Departed",
+        disabled:rowData.status==="Refunded",
         onClick: (evt, Data) => {
-        //   dispatch(scheduleActions.setModalData({id:Data._id}))
-        //   dispatch(scheduleActions.setModal(true))
+          console.log({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit})
+          dispatch(scheduleActions.setModalData({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit}))
+          dispatch(scheduleActions.setModal(true))
+         
         }
       }),
       (rowData)=>({
         icon:() => <FiPrinter style={{color:"Salmon"}} size={25}/>,
         tooltip: 'Print Ticket',
         position:'row',
-        disabled:rowData.status!=="Not Departed",
+        disabled:rowData.status!=="To Be Departed",
         onClick: (evt, Data) => {
-        //   dispatch(scheduleActions.setModalData({id:Data._id}))
-        //   dispatch(scheduleActions.setModal(true))
+          // dispatch(scheduleActions.setModalData({id:Data._id}))
+          // dispatch(scheduleActions.setModal(true))
         }
       }),
     ]
@@ -54,8 +58,8 @@ const handleChange=()=>{
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
     { title: 'Passanger ID', field: 'passangerId',editable:'never'},
-    { title: 'Passanger Name', field: 'passangerName'},
-    { title: 'Phone Number', field: 'phoneNumber'},
+    { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+    { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
     { title: 'Sit', field: 'sit',editable:'never'},
     { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
     { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded"}},
@@ -75,12 +79,13 @@ const ScheduleHandler=(e)=>{
 }
   return (
     <React.Fragment>
+      <RefundForm/>
             <Row>
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Manage Route</Card.Title>
-                            <Row style={{justifyContent:"center",marginBottom:"10px"}}>
+                            <Card.Title as="h5">Manage Ticket</Card.Title>
+                            <Row style={{justifyContent:"end",marginBottom:"10px"}}>
                             <Select
                                 value={schedule}
                                 label="Schedule"
@@ -97,7 +102,7 @@ const ScheduleHandler=(e)=>{
                             </Select>
                           
                             </Row>
-                            <Row style={{justifyContent:"center",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row>
+                            <Row style={{justifyContent:"end",marginRight:"20px",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row>
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
@@ -105,18 +110,24 @@ const ScheduleHandler=(e)=>{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title="Route List"
+      title="Booked Ticket"
       columns={columns}
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
-        columnsButton:true,
-        headerStyle: {
-          zIndex: 0
-        }
+        pageSize:10,
+        columnsButton:true
       }}
       localization={{
         body: {
@@ -124,6 +135,7 @@ const ScheduleHandler=(e)=>{
        }
 }}
       editable={{
+        isEditable: rowData => rowData.status === 'To Be Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
               dispatch(updatePassInfo(oldData._id,newData,resolve))

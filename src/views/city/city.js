@@ -4,7 +4,8 @@ import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
 import { useSelector,useDispatch } from 'react-redux';
 import {cityActions} from '../../store/city-slice'
-import {MdAddLocationAlt,MdModeEditOutline} from 'react-icons/md'
+import {MdAddLocationAlt,} from 'react-icons/md'
+import {FaEdit} from "react-icons/fa";
 import CityForm from "./cityform"
 import { getCity } from '../../store/cityHttp';
 import { SaveSuccessfull } from '../../Components/saveSuccess';
@@ -62,14 +63,20 @@ const handleSaveStatusClose = (event, reason) => {
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         exportDelimiter:true,
+        pageSize:10,
         columnsButton:true,
         filtering:true,
-        headerStyle: {
-          zIndex: 0
-        }
       }}
       actions={[
         {
@@ -84,7 +91,7 @@ const handleSaveStatusClose = (event, reason) => {
           }
         },
         {
-          icon:() => <MdModeEditOutline style={{color:"blue"}} size={20}/>,
+          icon:() => <FaEdit style={{color:"blue"}} size={24}/>,
           tooltip: 'update info',
           position:'row',
           onClick: (evt, Data) => {

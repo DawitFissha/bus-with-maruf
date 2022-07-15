@@ -3,17 +3,20 @@ import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable from "material-table";
 import {MdOutlineFreeCancellation} from "react-icons/md"
 import {tableIcons} from '../Table/Tableicon'
-import { assignBus, getActiveBus, getAllDepPlace, getSchedule } from '../../store/scheduleHttp';
+import { assignBus, getActiveBus, getAllDepPlace, getSchedule,getAllCity } from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
 import { SaveSuccessfull } from '../../Components/saveSuccess';
 import { errorActions } from '../../store/error-slice';
 import CancelForm from "./cancelshcedule"
+
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
   const busdata=useSelector(state=>state.schedule.busData)
   const depdata=useSelector(state=>state.schedule.depData)
+  const citydata=useSelector(state=>state.schedule.cityData)
+  const cityData=citydata?.map(o => ({ ...o }));
   const data=tabledata?.map(o => ({ ...o }));
   const activebus=busdata?.map(o => ({ ...o }));
   const depData=depdata?.map(o => ({ ...o }));
@@ -39,22 +42,32 @@ export default function ScheduleList() {
   const dispatch=useDispatch()
   const [columns, setColumns] = useState([
     {title: "id", field: "_id",hidden:true},
-    { title: 'Source', field: 'source',editable:'never'},
-    { title: 'Destination', field: 'destination',editable:'never'},
+    { title: 'Source', field: 'source',lookup:{},editable:'never'},
+    { title: 'Destination', field: 'destination',lookup:{},editable:'never'},
     { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
     { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
     { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
     { title: 'Ass.Bus', field: 'bus',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
     { title: 'Departure Place', field: 'departurePlace',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
     { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+    { title: 'Departure Date', field: 'departureDateAndTime',type:"time",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+
   ]);
   useEffect(()=>{
     dispatch(getSchedule())
     dispatch(getActiveBus())
     dispatch(getAllDepPlace())
+    dispatch(getAllCity())
+    return ()=>{
+      dispatch(scheduleActions.setDepData([]))
+      dispatch(scheduleActions.setTableData([]))
+      dispatch(scheduleActions.setBusData([]))
+      dispatch(scheduleActions.setCityData([]))
+    }
       },[fetched])
       let buslooks
       let deplooks
+      let citylooks
       useEffect(()=>{
         if(depData.length>0)
         {
@@ -64,8 +77,10 @@ export default function ScheduleList() {
             acc[cur] = cur;
             return acc;
             }, {});
-            console.log(deplooks)
-        }
+            citylooks = cityData?.reduce(function(acc, cur, i) {
+              acc[cur.cityName] = cur.cityName;
+              return acc;
+              }, {});        }
      
      if(busdata.length>0)
      {
@@ -75,14 +90,15 @@ export default function ScheduleList() {
         }, {});
       setColumns([
         {title: "id", field: "_id",hidden:true},
-        { title: 'Source', field: 'source',editable:'never'},
-        { title: 'Destination', field: 'destination',editable:'never'},
+        { title: 'Source', field: 'source',lookup:citylooks,editable:'never'},
+        { title: 'Destination', field: 'destination',lookup:citylooks,editable:'never'},
         { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
         { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
         { title: 'Ass.Bus', field: 'bus',lookup:buslooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
         { title: 'Departure Place', field: 'departurePlace',lookup:deplooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
         { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Time', field: 'departureDateAndTime',type:"time",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
 
       ])
      }
@@ -108,7 +124,7 @@ const handleSaveStatusClose = (event, reason) => {
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Manage Route</Card.Title>
+                            <Card.Title as="h5">Manage Scedule</Card.Title>
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
@@ -116,18 +132,24 @@ const handleSaveStatusClose = (event, reason) => {
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title="Route List"
+      title="Schedule"
       columns={columns}
       data={data}
       icons={tableIcons}
       options={{
+        rowStyle:  (rowData, i) => {
+          if (i % 2) {
+              return {backgroundColor: "#f2f2f2"}
+          }
+      },
+      headerStyle: {
+        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"16px"
+      },
         actionsColumnIndex: -1,
         exportButton:true,
         filtering:true,
-        columnsButton:true,
-        headerStyle: {
-          zIndex: 0
-        }
+        pageSize:10,
+        columnsButton:true
       }}
       localization={{
         body: {
@@ -137,6 +159,7 @@ const handleSaveStatusClose = (event, reason) => {
 }}
 actions={actions}
       editable={{
+        isEditable: rowData => rowData.status === 'Not Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
               dispatch(assignBus(oldData._id,newData,resolve))
