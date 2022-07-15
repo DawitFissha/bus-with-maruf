@@ -2,7 +2,7 @@ import * as React from 'react'
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import Divider from '@mui/material/Divider';
-import Select,{SelectChangeEvent} from '@mui/material/Select';
+import Remove from '../../utils/remove'
 import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField'
@@ -56,6 +56,7 @@ const TextFieldForBooking = styled(TextField)({
 function BadBooking(props:bookingProps){
 const {passSchedule} = props
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
+
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
 }
@@ -63,7 +64,17 @@ const handleCloseSeatPickcer = ()=>{
   setSeatPickerOpen(false)
 }
 const handleSeatChoosing = (seat:number)=>{
-  setSeatNumber(prev=>[...prev,seat])
+  console.log(seat)
+  setSeatNumber(prev=>{
+    let newSelectedSeats = prev
+    if(prev.includes(seat)) {
+      const selectedSeatIndex = prev.indexOf(seat)
+      newSelectedSeats = Remove(prev,selectedSeatIndex)
+    }
+    else { newSelectedSeats = [...prev,seat]}
+    return newSelectedSeats
+  })
+
   setSeatPickerOpen(false)
 }
 const dispatch = useAppDispatch();
@@ -139,7 +150,8 @@ const formik = useFormik({
       setSeatNumberRequired(true)
       return 
     }
-      if(!loading){
+
+      if(!loading) {
           setLoading(true)
           try {
             await AuthService.bookTicket(
@@ -207,6 +219,7 @@ const formik = useFormik({
   },
 });
 
+// console.log(Remove([1,2,3,4],1))
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -577,7 +590,7 @@ const formik = useFormik({
         </div>
         </form>
         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Successfully Booked' />
-        {seatPickerOpen&&(<SeatPicker busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
+        {seatPickerOpen&&(<SeatPicker selectedSeat = {seatNumber} busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
         </LocalizationProvider>
     )
 }

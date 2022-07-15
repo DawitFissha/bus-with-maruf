@@ -7,9 +7,10 @@ interface SeatBoxesProps {
     chooseSeat:(seat:number)=>void
     noOfSeat?:number
     occupiedSeats:number[]
+    selected:number[]
   }
 const SeatBoxes = (props:SeatBoxesProps)=> {
-    const {chooseSeat,noOfSeat,occupiedSeats} = props
+    const {chooseSeat,noOfSeat,occupiedSeats,selected} = props
       return (
           <>
           {
@@ -17,8 +18,14 @@ const SeatBoxes = (props:SeatBoxesProps)=> {
                   <Grid key = {value} item xs={2}>
                   <Tooltip title={`Seat - ${value}`}>
                   <SeatBox  variant='outlined'
-                            sx = {{color:occupiedSeats.includes(value)?'black':'white',border:'1px solid white',backgroundColor:occupiedSeats.includes(value)?'white':'black',
-                                  pointerEvents:occupiedSeats.includes(value)?'none':'auto'
+                            sx = {{color:occupiedSeats.includes(value)?'black':'white',
+                            border:'1px solid white',
+                            backgroundColor:()=>{
+                              if(occupiedSeats.includes(value)) return 'white'
+                              if(selected?.includes(value)) return '#3a69b5'
+                              return 'black'
+                            },
+                            pointerEvents:occupiedSeats.includes(value)?'none':'auto'
                                   }}
                             onClick={()=>chooseSeat(value)}>
                     {value}
