@@ -163,8 +163,8 @@ useEffect(()=>{
                   bussideno:values.sideNo,
                 busplateno:values.plateNo,
                 bus_state:"Active",
-                redatid:driver,
-                driverid:redat,
+                redatid:redat,
+                driverid:driver,
 
                 totalsit:values.NoOfSeat,
                 serviceyear:values.serviceYear,

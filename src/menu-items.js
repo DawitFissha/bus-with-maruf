@@ -30,14 +30,14 @@ const menuItems = {
                 },
                 {
                     id: 'route',
-                    title: 'Add Route',
+                    title: 'Manage Route',
                     type: 'item',
                     url: '/addroute',
                     icon: 'feather icon-corner-up-right'
                 },
                 {
                     id: 'shedule',
-                    title: 'Add Schedule',
+                    title: 'Manage Schedule',
                     type: 'item',
                     url: '/schedule',
                     icon: 'feather icon-grid'
@@ -55,6 +55,13 @@ const menuItems = {
                     type: 'item',
                     url: '/addbus',
                     icon: 'feather icon-life-buoy'
+                },
+                {
+                    id: 'city',
+                    title: 'Manage City',
+                    type: 'item',
+                    url: '/city',
+                    icon: 'feather icon-map'
                 },
             ]
         }]};

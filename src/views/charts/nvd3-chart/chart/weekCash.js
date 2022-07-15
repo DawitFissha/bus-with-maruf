@@ -41,17 +41,17 @@ const MultiBarChartTicket = () => {
     const sortState=useSelector(state=>state.dashboard.sort)
     const datum = [
         {
-            key: 'Cash By Sales',
+            key: 'Cash Sale In Birr By Sales',
             color: 'rgb(62 91 234)',
             values:Sales
         },
         {
-            key: 'Cash By Agent',
+            key: 'Cash Sale In Birr By Agent',
             color: 'rgb(189 133 182)',
             values: Agent
         },
         {
-          key: 'Cash By Mobile',
+          key: 'Cash Sale In Birr By Mobile',
           color: 'rgb(62 191 234)',
           values: Mobile
       }
