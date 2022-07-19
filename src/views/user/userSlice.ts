@@ -18,19 +18,30 @@ type initialStateType = {
     users:any[],
     status:'idle' | 'loading' | 'succeeded' | 'failed'
     error:string|undefined
+    tableData:any[]
+    isEditing:boolean
+    updated:boolean
+    isModalOpen:boolean
 }
 
 const initialState:initialStateType = {
         users:[],
         status:'idle',
-        error:""
+        error:"",
+        tableData:[],
+        isEditing:false,
+        updated:false,
+        isModalOpen:false
         } as initialStateType
 
 const usersSlice = createSlice({
     name:'users',
     initialState,
     reducers:{
-       
+      setTableData(state,action){state.tableData=action.payload},
+      setEditing(state,action){state.isEditing=action.payload},
+      setFetch(state){state.updated=!state.updated},
+      setModal(state,action){state.isModalOpen=action.payload},
     },
     extraReducers(builder) {
         builder
@@ -55,3 +66,4 @@ const usersSlice = createSlice({
 })
 // export const {addUser} = usersSlice.actions
 export default usersSlice.reducer
+export const userActions = usersSlice.actions;

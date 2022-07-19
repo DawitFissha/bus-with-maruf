@@ -17,10 +17,7 @@ import cashiers from '../views/user/cashierSlice'
 import redats from '../views/user/redatSlice'
 import drivers from '../views/user/driverSlice'
 //Maruf
-import busSlice from './bus-slice';
-import routeSlice from './route-slice';
-import userSlice from './user-slice';
-import scheduleSlice from './schedule-slice';
+
 import citySlice from './city-slice';
 
 const reducers = combineReducers({

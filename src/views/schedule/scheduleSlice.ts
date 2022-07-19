@@ -25,12 +25,30 @@ type initialStateType = {
     globalSchedules:any[]
     status:'idle' | 'loading' | 'succeeded' | 'failed'
     error:string|undefined
+    tableData:any[]
+    isEditing:boolean
+    updated:boolean
+    scheduleData:any[]
+    busData:any[]
+    cityData:any[]
+    depData:any[]
+    isModalOpen:boolean
+    modalData:{}
 }
 const initialState:initialStateType = {
     schedules:[],
     globalSchedules:[],
     status:'idle',
-    error:""
+    error:"",
+    tableData:[],
+    isEditing:false,
+    updated:false,
+    scheduleData:[],
+    busData:[],
+    cityData:[],
+    depData:[],
+    isModalOpen:false,
+    modalData:{}
     } as initialStateType
 
 const scheduleSlice = createSlice({
@@ -52,7 +70,16 @@ const scheduleSlice = createSlice({
                 existingPassengerDetail.passangerName[0] = `${newPassengerDetails.firstName} ${newPassengerDetails.lastName}`
                 existingPassengerDetail.passangerPhone = newPassengerDetails.phoneNumber
             }
-        }
+        },
+        setTableData(state,action){state.tableData=action.payload},
+        setBusData(state,action){state.busData=action.payload},
+        setScheudleData(state,action){state.scheduleData=action.payload},
+        setDepData(state,action){state.depData=action.payload},
+        setCityData(state,action){state.cityData=action.payload},
+        setEditing(state,action){state.isEditing=action.payload},
+        setFetch(state){state.updated=!state.updated},
+        setModal(state,action){state.isModalOpen=action.payload},
+        setModalData(state,action){state.modalData=action.payload}
      },
      extraReducers(builder){
         builder
@@ -74,3 +101,4 @@ const scheduleSlice = createSlice({
 })
 export default scheduleSlice.reducer
 export const {resetSchedule,addtoGlobalSchedules,updatePassenger} = scheduleSlice.actions
+export const scheduleActions = scheduleSlice.actions;

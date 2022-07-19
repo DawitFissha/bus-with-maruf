@@ -6,7 +6,7 @@ import { getUser, updateUser} from '../../store/userHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {RiLockUnlockLine} from "react-icons/ri";
 import {role} from "../../role"
-import { userActions } from '../../store/user-slice';
+import { userActions } from './userSlice';
 import { errorActions } from '../../store/error-slice';
 import ResetForm from './resetform'
 export default function UserList() {

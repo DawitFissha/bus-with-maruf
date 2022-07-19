@@ -24,18 +24,30 @@ type initialStateType = {
     routes:any[],
     status:'idle' | 'loading' | 'succeeded' | 'failed'
     error:string|undefined
+    tableData:any[]
+    busData:any[]
+    updated:boolean
+    isEditing:boolean
+    
 }
 const initialState:initialStateType = {
     routes:[],
     status:'idle',
-    error:""
+    error:"",
+    tableData:[],
+    isEditing:false,
+    updated:false,
+    busData:[]
     } as initialStateType
 
 const routesSlice = createSlice({
     name:'routes',
     initialState,
     reducers:{
-
+        setTableData(state,action){state.tableData=action.payload},
+        setBusData(state,action){state.busData=action.payload},
+        setEditing(state,action){state.isEditing=action.payload},
+        setFetch(state){state.updated=!state.updated},
     },
     extraReducers(builder) {
         builder
@@ -57,3 +69,4 @@ const routesSlice = createSlice({
 })
 
 export default routesSlice.reducer
+export const routeActions=routesSlice.actions;

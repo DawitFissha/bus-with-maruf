@@ -1,4 +1,4 @@
-import { scheduleActions } from "./schedule-slice"
+import { scheduleActions } from "../views/schedule/scheduleSlice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
 axios.defaults.withCredentials = true

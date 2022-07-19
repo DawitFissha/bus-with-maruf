@@ -1,6 +1,7 @@
-import { routeActions } from "./route-slice"
+import { routeActions } from "../views/route/routeSlice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
+
 axios.defaults.withCredentials = true
 
 export const getRoute=()=>{

@@ -4,7 +4,7 @@ import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, 
 import { useDispatch, useSelector } from 'react-redux';
 import { Cancel, Proceed, StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import Modal from "react-modal";
-import { scheduleActions } from '../../store/schedule-slice';
+import { scheduleActions } from './scheduleSlice';
 import { cancelShcedule } from '../../store/scheduleHttp';
 
 const customStyles = {

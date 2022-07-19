@@ -1,4 +1,4 @@
-import { busActions } from "./bus-slice"
+import { busActions } from "../views/bus/busSlice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
 axios.defaults.withCredentials = true

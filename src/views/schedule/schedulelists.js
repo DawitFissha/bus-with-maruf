@@ -5,7 +5,7 @@ import {MdOutlineFreeCancellation} from "react-icons/md"
 import {tableIcons} from '../Table/Tableicon'
 import { assignBus, getActiveBus, getAllDepPlace, getSchedule,getAllCity } from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
-import { scheduleActions } from '../../store/schedule-slice';
+import { scheduleActions } from './scheduleSlice';
 import {role} from "../../role"
 import { SaveSuccessfull } from '../../Components/saveSuccess';
 import { errorActions } from '../../store/error-slice';

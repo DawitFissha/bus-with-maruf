@@ -11,9 +11,19 @@ interface BussesState {
     busses:any[]
     status:'idle' | 'loading' | 'succeeded' | 'failed'
     error:string|undefined
+    isEditing: boolean
+    updated:boolean
+    driverData:any[]
+    redatData:any[]
+    tableData:any[]
 } 
 const initialState = {
     busses:[],
+    tableData:[],
+    isEditing:false,
+    updated:false,
+    driverData:[],
+    redatData:[],
     status:"idle",
     error:undefined
     
@@ -26,7 +36,11 @@ const busSlice = createSlice({
     name:'busses',
     initialState,
     reducers:{
-
+      setTableData(state,action){state.tableData=action.payload},
+      setEditing(state,action){state.isEditing=action.payload},
+      setDriverData(state,action){state.driverData=action.payload},
+      setRedatData(state,action){state.redatData=action.payload},
+      setFetch(state){state.updated=!state.updated},
        }
     ,
     extraReducers(builder) {
@@ -49,3 +63,4 @@ const busSlice = createSlice({
       }
 })
 export default busSlice.reducer
+export const busActions=busSlice.actions;

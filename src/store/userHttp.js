@@ -1,4 +1,4 @@
-import { userActions } from "./user-slice"
+import { userActions } from "../views/user/userSlice"
 import axios from "axios"
 import { errorActions } from "./error-slice"
 axios.defaults.withCredentials = true

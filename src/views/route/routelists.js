@@ -7,7 +7,7 @@ import { useSelector,useDispatch } from 'react-redux';
 import {role} from "../../role"
 import { getAllCity } from '../../store/scheduleHttp';
 import { errorActions } from '../../store/error-slice';
-import { routeActions } from '../../store/route-slice';
+import { routeActions } from './routeSlice';
 import { scheduleActions } from '../../store/schedule-slice';
 export default function RouteList() {
   const tabledata=useSelector(state=>state.route.tableData)

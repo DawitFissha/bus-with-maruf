@@ -4,7 +4,7 @@ import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
 import { getBus,updateBus,deleteBus,getUserByRole} from '../../store/busHttp';
 import { useSelector,useDispatch } from 'react-redux';
-import { busActions } from '../../store/bus-slice';
+import { busActions } from './busSlice';
 import { errorActions } from '../../store/error-slice';
 export default function BusList() {
   const tabledata=useSelector(state=>state.bus.tableData)
