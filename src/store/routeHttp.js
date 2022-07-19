@@ -1,12 +1,11 @@
 import { routeActions } from "./route-slice"
-import axios from "axios"
+import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
-axios.defaults.withCredentials = true
 
 export const getRoute=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getorganizationroute')
+            const res=await axios_instance.get('getorganizationroute')
             console.log(res.data)
             dispatch(routeActions.setTableData(res.data))
             
@@ -24,7 +23,7 @@ export const getRoute=()=>{
 export const getActiveBus=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getorganizationactivebus')
+            const res=await axios_instance.get('getorganizationactivebus')
             console.log(res.data)
             dispatch(routeActions.setBusData(res.data))
             
@@ -42,7 +41,7 @@ export const getActiveBus=()=>{
 export const updateRoute=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/updaterouteinfo/${id}`,data)
+            const res=await axios_instance.put(`updaterouteinfo/${id}`,data)
             dispatch(routeActions.setFetch())
             console.log(res)
             resolve()
@@ -61,7 +60,7 @@ export const updateRoute=(id,data,resolve)=>{
 export const deleteRoute=(id,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.delete(`https://melabus.herokuapp.com/deleteroute/${id}`)
+            const res=await axios_instance.delete(`deleteroute/${id}`)
             dispatch(routeActions.setFetch())
             console.log(res)
             resolve()

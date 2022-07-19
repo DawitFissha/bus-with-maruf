@@ -1,38 +1,35 @@
-import axios from 'axios';
-import authHeader from './auth-header';
-axios.defaults.withCredentials = true
-const API_URL = "https://melabus.herokuapp.com/";
+import axios_instance from "./lib-config";
 
 class UserService {
   getPublicContent() {
-    return axios.get(API_URL + 'getorganizationroute',  { headers: authHeader() });
+    return axios_instance.get('getorganizationroute');
   }
   getReservedSit() {
-    return axios.get(API_URL + 'getreservedsit/6214d859b3778328889ce30a',  { headers: authHeader() });
+    return axios_instance.get('getreservedsit/6214d859b3778328889ce30a');
   }
   getBusList() {
-    return axios.get(API_URL + 'getorganizationactivebus',  { headers: authHeader() });
+    return axios_instance.get('getorganizationactivebus');
   }
   getUserList() {
-    return axios.get(API_URL + 'getallorganizationuser', { headers: authHeader() });
+    return axios_instance.get('getallorganizationuser');
   }
   getBookedList() {
-    return axios.get(API_URL + 'bookedList', { headers: authHeader() });
+    return axios_instance.get('bookedList');
   }
   getDrivers() {
-    return axios.get(API_URL + `getuserbyrole?role=driver`, { headers: authHeader() });
+    return axios_instance.get(`getuserbyrole?role=driver`);
   }
   getRedats() {
-    return axios.get(API_URL + `getuserbyrole?role=redat`, { headers: authHeader() });
+    return axios_instance.get( `getuserbyrole?role=redat`);
   }
   getCashiers() {
-    return axios.get(API_URL + `getuserbyrole?role=casher`, { headers: authHeader() });
+    return axios_instance.get(`getuserbyrole?role=casher`);
   }
   getRoutes() {
-    return axios.get(API_URL + `getorganizationroute`, { headers: authHeader() });
+    return axios_instance.get(`getorganizationroute`);
   }
   getSchedules() {
-    return axios.get(API_URL + `getallschedule`, { headers: authHeader() });
+    return axios_instance.get(`getallschedule`);
   }
 }
 
