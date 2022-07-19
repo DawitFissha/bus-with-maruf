@@ -1,12 +1,12 @@
 import { scheduleActions } from "./schedule-slice"
-import axios from "axios"
+import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
-axios.defaults.withCredentials = true
+
 
 export const getSchedule=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getdetailschedule')
+            const res=await axios_instance.get('getdetailschedule')
             console.log(res.data)
             dispatch(scheduleActions.setTableData(res.data))
             
@@ -25,7 +25,7 @@ export const getSchedule=()=>{
 export const getSalesSchedule=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getallfilterschedule')
+            const res=await axios_instance.get('getallfilterschedule')
             console.log(res.data)
             dispatch(scheduleActions.setScheudleData(res.data))
             
@@ -43,7 +43,7 @@ export const getSalesSchedule=()=>{
 export const getOneSchedule=(id)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get(`https://melabus.herokuapp.com/getschedulebyid/${id}`)
+            const res=await axios_instance.get(`getschedulebyid/${id}`)
             console.log(res.data)
             dispatch(scheduleActions.setTableData(res.data))
             
@@ -61,7 +61,7 @@ export const getOneSchedule=(id)=>{
 export const getActiveBus=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getorganizationactivebus')
+            const res=await axios_instance.get('getorganizationactivebus')
             console.log(res.data)
             dispatch(scheduleActions.setBusData(res.data))
             
@@ -79,7 +79,7 @@ export const getActiveBus=()=>{
 export const getAllCity=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getcityonly')
+            const res=await axios_instance.get('getcityonly')
             console.log(res.data)
             dispatch(scheduleActions.setCityData(res.data))
         }
@@ -96,7 +96,7 @@ export const getAllCity=()=>{
 export const getAllDepPlace=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getalldepartureplace')
+            const res=await axios_instance.get('getalldepartureplace')
             console.log(res.data)
             dispatch(scheduleActions.setDepData(res.data))
             
@@ -115,7 +115,7 @@ export const getAllDepPlace=()=>{
 export const assignBus=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/assignbustoschedule/${id}`,data)
+            const res=await axios_instance.put(`assignbustoschedule/${id}`,data)
             console.log(res.data)
             dispatch(scheduleActions.setFetch())  
             resolve()          
@@ -136,7 +136,7 @@ export const assignBus=(id,data,resolve)=>{
 export const updatePassInfo=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/updatepassinfo/${id}`,data)
+            const res=await axios_instance.put(`updatepassinfo/${id}`,data)
             console.log(res.data)
             dispatch(scheduleActions.setFetch())  
             resolve()          
@@ -156,7 +156,7 @@ export const updatePassInfo=(id,data,resolve)=>{
 export const refundTicket=(data)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/refundrequest/${data.id}`)
+            const res=await axios_instance.put(`refundrequest/${data.id}`)
             dispatch(scheduleActions.setFetch())
             dispatch(errorActions.Message("schedule canceled"))
         }
@@ -174,7 +174,7 @@ export const refundTicket=(data)=>{
 export const cancelShcedule=(data)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/cancelschedule/${data.id}`)
+            const res=await axios_instance.put(`cancelschedule/${data.id}`)
             dispatch(scheduleActions.setFetch())
             dispatch(errorActions.Message("schedule canceled"))
         }

@@ -1,14 +1,13 @@
 import { cityActions } from "./city-slice"
-import axios from "axios"
+import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
 import {loadingActions} from "./loading-slice"
-axios.defaults.withCredentials = true
 
 export const addCity=(data)=>{
     return async(dispatch)=>{
         try{
             console.log(data)
-            const res=await axios.post('https://melabus.herokuapp.com/registercity',data)
+            const res=await axios_instance.post('registercity',data)
             console.log(res.data)
             dispatch(cityActions.setFetch())
             dispatch(errorActions.Message('city'))
@@ -30,7 +29,7 @@ export const addCity=(data)=>{
 export const getCity=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getallorganizationcity')
+            const res=await axios_instance.get('getallorganizationcity')
             console.log(res.data)
             dispatch(cityActions.setTableData(res.data))
             dispatch(loadingActions.status("done"))
@@ -51,7 +50,7 @@ export const updateCity=(data)=>{
     return async(dispatch)=>{
         try{
             console.log(data)
-            const res=await axios.put(`https://melabus.herokuapp.com/updatecityinfo/${data.id}`,data)
+            const res=await axios_instance.put(`updatecityinfo/${data.id}`,data)
             console.log(res.data)
             dispatch(cityActions.setFetch())
             dispatch(errorActions.Message('city'))

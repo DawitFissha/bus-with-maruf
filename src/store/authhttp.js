@@ -1,13 +1,13 @@
 import { loginActions } from "./login-slice"
 import { loadingActions } from "./loading-slice"
-import axios from "axios"
+import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
 import { userinfoActions } from "./userinfo-slice"
 export const checkSession=()=>{
     return async(dispatch)=>{
         try{
             console.log("check vaidity")
-            const res= await axios.get('https://melabus.herokuapp.com/checkauth')
+            const res= await axios_instance.get('checkauth')
             console.log(res)
         }
        catch(err)
@@ -23,7 +23,7 @@ export const Organization=(data)=>{
     return async(dispatch)=>{
         try{
             console.log(data)
-            const res=await axios.post('https://melabus.herokuapp.com/getorganizationbycode',data,{ withCredentials: true })
+            const res=await axios_instance.post('getorganizationbycode',data)
             console.log(res)
             dispatch(loginActions.organization(res.data.organizationName))
             dispatch(loginActions.organizationCode(res.data.organizationCode))
@@ -46,7 +46,7 @@ export const loginUser=(data)=>{
     console.log(data)
     return async(dispatch)=>{
         try{
-            const res=await axios.post('https://melabus.herokuapp.com/loginorganizationuser',data,{ withCredentials: true })
+            const res=await axios_instance.post('loginorganizationuser',data)
             console.log(res)
             dispatch(loginActions.isLoged(true))
             dispatch(loginActions.setCookie(res.data.token))
@@ -70,7 +70,7 @@ export const loginUser=(data)=>{
 export const changePassword=(data)=>{
     return async(dispatch)=>{
         try{
-            await axios.put(`https://melabus.herokuapp.com/changepassword`,data)
+            await axios_instance.put(`changepassword`,data)
             dispatch(errorActions.Message(''))
             dispatch(loadingActions.status('done'))
             dispatch(errorActions.Message('changed'))
