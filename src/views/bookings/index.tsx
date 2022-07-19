@@ -52,15 +52,16 @@ const validate = (values:FormTypes) => {
     if((!ValidatePhoneNumber(values.phoneNumber))) {
       errors.phoneNumber = "Please Enter a valid PhoneNumber"
     }
-  if((!ValidatePhoneNumber(values.additionalPassengerPhoneNumber))) {
-      errors.additionalPassengerPhoneNumber = "Please Enter a valid PhoneNumber"
+
+    if(values.additionalPassengerPhoneNumber){
+      if((!ValidatePhoneNumber(values.additionalPassengerPhoneNumber))) {
+        errors.additionalPassengerPhoneNumber = "Please Enter a valid PhoneNumber"
+      }
+  
     }
     return errors;
   };
-const TextFieldz = styled(TextField)({
-    maxWidth:'190px',
-    minWidth:'140px'
-})
+
 
 export function Booking(props:bookingProps){
 const {passSchedule} = props
@@ -231,7 +232,6 @@ const formik = useFormik({
   },
 });
 
-// console.log(Remove([1,2,3,4],1))
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -240,11 +240,11 @@ const formik = useFormik({
         <div
         style = {{
             maxWidth:"850px",
-            // marginTop:'2px',
+            
             marginLeft:'12%',
             height:'auto',
             background:'#FFFF',
-            // marginBottom:'5px',
+            
         }}
         >
            <Box sx ={{
