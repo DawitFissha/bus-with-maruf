@@ -162,9 +162,9 @@ React.useEffect(()=>{
             catch(err) {
               
               setErrorOccured(true)
+              // setErrorMessage(err.message)
+              // console.log(errorMessage)
               setErrorMessage(err.message)
-              console.log(errorMessage)
-              console.log(error)
             }
             finally {
               setLoading(false)
