@@ -3,17 +3,17 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 // import { LocalizationProvider } from '@mui/x-date-pickers'
 import Divider from '@mui/material/Divider';
-import Select,{SelectChangeEvent} from '@mui/material/Select';
+import Remove from '../../utils/remove'
 import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import Box from '@mui/material/Box';
-import {SavingProgress} from '../../Components/savingProgress'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
 import { DatePicker } from '@mui/lab';
 import { useFormik } from 'formik';
-import {SaveSuccessfull} from '../../Components/saveSuccess'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import PlaceIcon from '@mui/icons-material/Place';
 import EventIcon from '@mui/icons-material/Event';
@@ -25,11 +25,14 @@ import {fetchSchedules,resetSchedule,addtoGlobalSchedules} from '../schedule/sch
 import {allBusses} from '../../App'
 import AuthService from '../../services/auth.service'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@mui/material/Grid';
+import {ValidatePhoneNumber} from '../../utils/regex-validators'
+import useSmallScreen from '../../utils/hooks/useSmallScreen'
 type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
 }
-type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number,additionalPassengerFirstName:string,additionalPassengerLastName:string}
+type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number,additionalPassengerFirstName:string,additionalPassengerLastName:string,additionalPassengerPhoneNumber:string}
 interface bookingProps {
   passSchedule:(schedule:string)=>void
 }
@@ -45,18 +48,27 @@ const validate = (values:FormTypes) => {
     if (!values.phoneNumber) {
       errors.phoneNumber = 'Please Enter Phone Number of the Passenger'
     } 
-  
 
+    if((!ValidatePhoneNumber(values.phoneNumber))) {
+      errors.phoneNumber = "Please Enter a valid PhoneNumber"
+    }
+
+    if(values.additionalPassengerPhoneNumber){
+      if((!ValidatePhoneNumber(values.additionalPassengerPhoneNumber))) {
+        errors.additionalPassengerPhoneNumber = "Please Enter a valid PhoneNumber"
+      }
+  
+    }
     return errors;
   };
-const TextFieldForBooking = styled(TextField)({
-    maxWidth:'190px',
-    minWidth:'140px'
-})
 
-function BadBooking(props:bookingProps){
+
+export function Booking(props:bookingProps){
 const {passSchedule} = props
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
+
+const smallScreen = useSmallScreen()
+console.log(smallScreen)
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
 }
@@ -64,12 +76,21 @@ const handleCloseSeatPickcer = ()=>{
   setSeatPickerOpen(false)
 }
 const handleSeatChoosing = (seat:number)=>{
-  setSeatNumber(prev=>[...prev,seat])
+  console.log(seat)
+  setSeatNumber(prev=>{
+    let newSelectedSeats = prev
+    if(prev.includes(seat)) {
+      const selectedSeatIndex = prev.indexOf(seat)
+      newSelectedSeats = Remove(prev,selectedSeatIndex)
+    }
+    else { newSelectedSeats = [...prev,seat]}
+    return newSelectedSeats
+  })
+
   setSeatPickerOpen(false)
 }
 const dispatch = useAppDispatch();
 const globalSchedules = useAppSelector(state=>state.schedules.globalSchedules)
-const activeSchedule = useAppSelector(state=>state.schedules.globalSchedules[globalSchedules.length-1])
 
 const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
 
@@ -133,6 +154,7 @@ const formik = useFormik({
   phoneNumber:'',
   additionalPassengerFirstName:'',
   additionalPassengerLastName:'',
+  additionalPassengerPhoneNumber:'',
   },
   validate,
   onSubmit: async (values,{resetForm}) => {
@@ -140,7 +162,8 @@ const formik = useFormik({
       setSeatNumberRequired(true)
       return 
     }
-      if(!loading){
+
+      if(!loading) {
           setLoading(true)
           try {
             await AuthService.bookTicket(
@@ -155,7 +178,7 @@ const formik = useFormik({
               ...seatNumber.slice(1).map((seatNo)=>(
                 {
                   passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
-                  passphone:values.phoneNumber,
+                  passphone:values.additionalPassengerPhoneNumber!==''?values.additionalPassengerPhoneNumber:values.phoneNumber,
                   sits:seatNo,
                 }
               )
@@ -163,24 +186,24 @@ const formik = useFormik({
             ]
             ,schedule?.id as string)
             
-            console.log(
-              [
-              {
-              passname:`${values.firstName} ${values.lastName}`,
-              passphone:values.phoneNumber,
-              sits:seatNumber[0],
-            }
-            ,
-            ...seatNumber.slice(1).map((seatNo)=>(
-              {
-                passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
-                passphone:values.phoneNumber,
-                sits:seatNo,
-              }
-            )
-            )
-          ]
-          )
+          //   console.log(
+          //     [
+          //     {
+          //     passname:`${values.firstName} ${values.lastName}`,
+          //     passphone:values.phoneNumber,
+          //     sits:seatNumber[0],
+          //   }
+          //   ,
+          //   ...seatNumber.slice(1).map((seatNo)=>(
+          //     {
+          //       passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
+          //       passphone:values.phoneNumber,
+          //       sits:seatNo,
+          //     }
+          //   )
+          //   )
+          // ]
+          // )
             resetForm({values:{
               seatNumber:1,
               firstName:'',
@@ -188,6 +211,7 @@ const formik = useFormik({
               phoneNumber:'',
               additionalPassengerFirstName:'',
               additionalPassengerLastName:'',
+              additionalPassengerPhoneNumber:'',
             }})
             
             setSeatNumberRequired(false)
@@ -215,12 +239,12 @@ const formik = useFormik({
           <form onSubmit={formik.handleSubmit}>
         <div
         style = {{
-            maxWidth:"850px",
-            // marginTop:'2px',
-            marginLeft:'12%',
+            
+            width:"100%",
+            // marginLeft:'12%',
             height:'auto',
             background:'#FFFF',
-            // marginBottom:'5px',
+            
         }}
         >
            <Box sx ={{
@@ -231,11 +255,10 @@ const formik = useFormik({
             }}>Book A Ticket</h3>
            </Box>
             <Divider/>
-         <Box sx={{display:'flex',m:1,paddingBottom:'6px'}}>
-
-         <Box sx={{flexGrow:1}}>
-           
-           <FormControl sx={{marginLeft:'6px',maxWidth:'350px',minWidth:'250px',}}>
+            <Box sx={{m:2}}>
+         <Grid container spacing = {2} > 
+         <Grid item xs={12} md={6} >
+           <FormControl fullWidth = {smallScreen} sx={smallScreen?{}:{maxWidth:'350px',minWidth:'250px',}}>
            <Autocomplete
         value={schedule}
         onChange = {(event: any, newValue:scheduleOptionsType|null) => {
@@ -279,33 +302,32 @@ const formik = useFormik({
         )}
       />
            </FormControl>
-           </Box>
-           <Box>
+           
+           </Grid>
+
+           <Grid item xs={12} md={6}>
            <DatePicker
+           
             disabled
             label="Booking Date"
             value={bookingDate}
             onChange={(newValue) => {
             setBookingDate(newValue);
         }}
-        renderInput={(params) => <TextFieldForBooking {...params} />}
+        renderInput={(params) => <TextField sx={smallScreen?{}:{maxWidth:'190px',minWidth:'140px'}} fullWidth = {smallScreen} {...params} />}
       />
-           </Box>
+           </Grid>
+         </Grid>
          </Box>
          <Divider/>
-         <Box sx={{m:1}}>
+         <Box sx={{m:2}}>
          < h5>Route information</ h5>
-         </Box>
-                  <Box sx={
-               {
-                 display:'flex',
-                 m:1,
-                 justifyContent:'space-around',
-                 }
-               }>
-                <Box >
+         
+                  <Grid container spacing={2}>
+                
+                <Grid item xs={12} md={3} lg={3}>
                     {/* source text field goes here  */}
-                    <TextFieldForBooking
+                    <TextField
                     disabled
                     id="source-city"
                     name="Source city"
@@ -319,10 +341,10 @@ const formik = useFormik({
                       )
                     }}
                         />
-                </Box>
-                <Box>
+                </Grid>
+                <Grid item xs={12} md={3} lg={3}>
                     {/* destination text field goes here  */}
-                    <TextFieldForBooking
+                    <TextField
                     disabled
                     id="destination-city"
                     name="Destination"
@@ -336,10 +358,10 @@ const formik = useFormik({
                     }}
                     value ={scheduleInfo?scheduleInfo.destination:''}
                         />
-                </Box>
-                <Box>
+                </Grid>
+                <Grid item xs={12} md={3} lg={3}>
                     {/* departure date text field goes here  */}
-                    <TextFieldForBooking
+                    <TextField
                     disabled
                     id="departure-date"
                     name="Departure Date"
@@ -354,10 +376,10 @@ const formik = useFormik({
                       
                     value ={scheduleInfo?new Date(scheduleInfo?.departureDateAndTime).toLocaleDateString():''}
                         />
-                </Box>
-                <Box>
+                </Grid>
+                <Grid item xs={12} md={3} lg={3}>
                     {/* departure time text field goes here  */}
-                    <TextFieldForBooking
+                    <TextField
                     disabled
                     id="departure-time"
                     name="Departure Time"
@@ -371,18 +393,14 @@ const formik = useFormik({
                     }}
                     value ={scheduleInfo?new Date(scheduleInfo?.departureDateAndTime).toLocaleTimeString():''}
                         />
-                </Box>
-             </Box>
-             <Box sx={{display:'flex',m:1,paddingTop:'10px'}}>
-             <Box sx={{marginLeft:'6px'}}>
+                </Grid>
+             
+             <Grid item xs={12} md={3} lg={3} >
 
-                    {/* departure place select goes here  */}
-                    <FormControl sx={{maxWidth:'250px',minWidth:'200px',}}>
-           
-              <TextFieldForBooking
+              <TextField
                     disabled
-                    id="departure-date"
-                    name="Departure Date"
+                    id="departure-place"
+                    name="Departure Place"
                     label="Departure Place"
                     InputProps={{
                       startAdornment:(
@@ -396,11 +414,11 @@ const formik = useFormik({
                       
                     value ={scheduleInfo?.departurePlace?scheduleInfo?.departurePlace:''}
                         />
-           </FormControl>
-                </Box>
-                <Box sx={{marginLeft:"7px"}}>
+           
+                </Grid >
+                <Grid item xs={12} md={3} lg={3}>
                     
-                    <TextFieldForBooking
+                    <TextField
                     id="seat-number"
                     name="seatNumber"
                     label="Seat Number"
@@ -421,31 +439,30 @@ const formik = useFormik({
 
                         /> 
                         
-                </Box>
-                <Box sx={{alignSelf:'center',marginLeft:'32px'}}>
+                </Grid>
+                <Grid item xs={12} md={3} lg={3} mt={1}>
                   <Button disabled={!Boolean(schedule?.id)} color = "primary" variant="text" 
                           onClick={handleClickOpenSeatPicker}
                   >
                 Choose A Seat
               </Button>
-                </Box>  
+                </Grid>  
+                </Grid>
                 </Box>
                 <Divider/>
-                <Box sx={{m:1}}>
+                <Box sx={{m:2}}>
          <  h5>Passenger information</h5>
-         </Box>
-         <Box sx={
-               {
-                 display:'flex',
-                 m:1,
-                 }
-               }>
-                 <Box sx={{marginLeft:'6px'}}>
+         
                     
-                    <TextFieldForBooking
+                  <Grid container spacing = {2}>
+          
+                 <Grid item xs={12} md={4} lg={4}>
+                    
+                    <TextField
                     id="first-name"
                     name="firstName"
                     label="First Name"
+                    sx={smallScreen?{}:{width:"250px"}}
                     value={formik.values.firstName}
                     onChange={formik.handleChange}
                     InputProps={{
@@ -460,13 +477,14 @@ const formik = useFormik({
                     error={formik.touched.firstName && Boolean(formik.errors.firstName)}
                     helperText={formik.touched.firstName && formik.errors.firstName}
                                     />
-                </Box>
-                <Box sx={{marginLeft:'7px'}}>
+                </Grid>
+                <Grid item xs={12} md={4} lg={4}>
             
-                    <TextFieldForBooking
+                    <TextField
                     id="last-name"
                     name="lastName"
                     label="Last Name"
+                    sx={smallScreen?{}:{width:"250px"}}
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
                     InputProps={{
@@ -481,12 +499,14 @@ const formik = useFormik({
                     error={formik.touched.lastName && Boolean(formik.errors.lastName)}
                     helperText={formik.touched.lastName && formik.errors.lastName}
                                     />
-                </Box>
-                <Box sx={{marginLeft:'7px'}}>
-                    <TextFieldForBooking
+                </Grid>
+                <Grid item xs={12} md={4} lg={4}>
+
+                    <TextField
                     id="phone-number"
                     name="phoneNumber"
                     label="Phone Number"
+                    sx={smallScreen?{}:{width:"250px"}}
                     value={formik.values.phoneNumber}
                     onChange={formik.handleChange}
                     InputProps={{
@@ -499,27 +519,28 @@ const formik = useFormik({
                     error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
                     helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
                     />
-                </Box>
+                </Grid>
+                 </Grid>
                  </Box>
                  <Divider/>
                  {
                  seatNumber.length>1 && (
-                  <Box sx={{display:'flex',flexDirection:'column',m:2}}>
+                  <Box sx={{m:2}}>
                   <Box>
                       <h5>Additonal Passenger Information</h5>
                   </Box>
                   {
                     seatNumber.slice(1).map((sNo:number)=>(
                       <>
-                      <Box sx={{m:1,display:'flex',flexDirection:"row"}}>
-                      <Box sx={{mr:4}}>
+                      <Grid container spacing = {2}>
+                      <Grid item xs={12} md={4} lg={4}>
                           <TextField
                           id={`firstname ${sNo}`}
                           name='additionalPassengerFirstName'
                           label={`First Name for seat ${sNo}`}
                           value={formik.values.additionalPassengerFirstName}
                           onChange={formik.handleChange}
-                          sx={{width:'300px'}}
+                          sx={smallScreen?{}:{width:"250px"}}
                           InputProps={{
                             startAdornment:(
                               <InputAdornment position="start">
@@ -532,15 +553,15 @@ const formik = useFormik({
                           error={seatNumber.length>1 && formik.touched.additionalPassengerFirstName && Boolean(formik.errors.additionalPassengerFirstName)}
                           helperText={formik.touched.additionalPassengerFirstName && formik.errors.additionalPassengerFirstName}
                           />
-                      </Box>
-                      <Box>
+                      </Grid>
+                      <Grid item xs={12} md={4} lg={4}>
                       <TextField
                           id={`lastname ${sNo}`}
                           name='additionalPassengerLastName'
                           label={`Last Name for seat ${sNo}`}
                           value = {formik.values.additionalPassengerLastName}
                           onChange={formik.handleChange}
-                          sx={{width:'300px'}}
+                          sx={smallScreen?{}:{width:"250px"}}
                           InputProps={{
                             startAdornment:(
                               <InputAdornment position="start">
@@ -553,9 +574,27 @@ const formik = useFormik({
                           error={seatNumber.length > 1 && formik.touched.additionalPassengerLastName && Boolean(formik.errors.additionalPassengerLastName)}
                           helperText={formik.touched.additionalPassengerLastName && formik.errors.additionalPassengerLastName}
                           />
-                      </Box>
-                      
-                  </Box>
+                      </Grid>
+                      <Grid item xs={12} md={4} lg={4}>
+                          <TextField
+                          id={`phonenumber ${sNo}`}
+                          name='additionalPassengerPhoneNumber'
+                          label={`Optional Phone Number for seat ${sNo}`}
+                          value={formik.values.additionalPassengerPhoneNumber}
+                          onChange={formik.handleChange}
+                          sx={smallScreen?{}:{width:"250px"}}
+                          InputProps={{
+                            startAdornment:(
+                              <InputAdornment position="start">
+                        <LocalPhoneIcon color='primary' fontSize='large'/>
+                        </InputAdornment>
+                            )
+                          }}
+                          error={seatNumber.length > 1 && formik.touched.additionalPassengerPhoneNumber && Boolean(formik.errors.additionalPassengerPhoneNumber)}
+                          helperText={formik.touched.additionalPassengerPhoneNumber && formik.errors.additionalPassengerPhoneNumber}
+                          />
+                      </Grid>
+                  </Grid>
                   <Divider/>
                   </>
                     ))
@@ -566,7 +605,7 @@ const formik = useFormik({
               <Box sx={{p:2}}>
               <Button 
               type="submit"
-              sx={{
+              sx={smallScreen?{}:{
                    display:'block',
                    marginLeft: 'auto',
                    marginRight: 'auto',
@@ -578,8 +617,7 @@ const formik = useFormik({
         </div>
         </form>
         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Successfully Booked' />
-        {seatPickerOpen&&(<SeatPicker busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
+        {seatPickerOpen&&(<SeatPicker selectedSeat = {seatNumber} busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
         </LocalizationProvider>
     )
 }
-export const Booking = React.memo(BadBooking)

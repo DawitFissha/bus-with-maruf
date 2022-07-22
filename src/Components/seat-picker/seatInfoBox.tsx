@@ -26,7 +26,8 @@ export default function InfoBox(props:InfoBoxProps) {
             style={{display:'flex',columnGap:'30px',marginLeft:'15px'}}
             >
                 <SeatStausBox status="Occupied"/>
-                <SeatStausBox status="Free"/>           
+                <SeatStausBox status="Free"/> 
+                <SeatStausBox status="Selected"/>           
             </div>
         </Box>
     )

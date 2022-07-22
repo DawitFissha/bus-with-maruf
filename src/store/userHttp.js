@@ -1,13 +1,11 @@
 import { userActions } from "./user-slice"
-import axios from "axios"
+import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
-import { loadingActions } from "./loading-slice"
-axios.defaults.withCredentials = true
 
 export const getUser=()=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.get('https://melabus.herokuapp.com/getallorganizationuser')
+            const res=await axios_instance.get('getallorganizationuser')
             console.log(res.data)
             dispatch(userActions.setTableData(res.data))
             
@@ -27,7 +25,7 @@ export const updateUser=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
             console.log("send request")
-            const res=await axios.put(`https://melabus.herokuapp.com/updateorganizationuser/${id}`,data)
+            const res=await axios_instance.put(`updateorganizationuser/${id}`,data)
             dispatch(userActions.setFetch())
             console.log(res)
             resolve()
@@ -46,8 +44,8 @@ export const updateUser=(id,data,resolve)=>{
 export const resetPassword=(data)=>{
     return async(dispatch)=>{
         try{
-            console.log(data)
-            await axios.put(`https://melabus.herokuapp.com/resetpassword/${data.id}`,data)
+            console.log("send request")
+            const res=await axios_instance.put(`resetpassword/${id}`,data)
             dispatch(userActions.setFetch())
             dispatch(errorActions.Message('password reset'))
             dispatch(loadingActions.status("done"))
@@ -66,7 +64,7 @@ export const resetPassword=(data)=>{
 export const deleteRoute=(id,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.delete(`https://melabus.herokuapp.com/deleteroute/${id}`)
+            const res=await axios_instance.delete(`deleteroute/${id}`)
             dispatch(userActions.setFetch())
             console.log(res)
             resolve()

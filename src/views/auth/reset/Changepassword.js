@@ -11,7 +11,7 @@ import { useDispatch,useSelector } from 'react-redux';
 import { changePassword } from '../../../store/authhttp';
 import { errorActions } from '../../../store/error-slice';
 import { loadingActions } from '../../../store/loading-slice';
-import { SaveSuccessfull } from '../../../Components/saveSuccess';
+import { SaveSuccessfull } from '../../../Components/common-registration-form/saveSuccess';
 
 const FormsElements = () => {
     const oldPasswordref=useRef() 

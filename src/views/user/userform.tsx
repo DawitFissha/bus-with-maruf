@@ -14,10 +14,10 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormHelperText from '@mui/material/FormHelperText';
 import {roles} from '../../utils/Constants/roles'
-import {RegistrationHeader} from '../../Components/registrationHeader'
-import {SavingProgress} from '../../Components/savingProgress'
-import {SaveSuccessfull} from '../../Components/saveSuccess'
-import {FormWrapper} from '../../Components/formWrapper'
+import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
+import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import PersonIcon from '@mui/icons-material/Person';
 import InputAdornment from '@mui/material/InputAdornment';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
@@ -28,8 +28,10 @@ import {addUsers} from './userSlice'
 import Alert from '@mui/material/Alert'
 import { fetchDrivers,resetDriver} from './driverSlice';
 import { fetchRedats,resetRedat} from './redatSlice';
-import useError from '../../utils/useError'
+import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
+import useSmallScreen from '../../utils/hooks/useSmallScreen';
+import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 interface USER_TYPE {
   firstName:string
   lastName:string,
@@ -110,6 +112,8 @@ const handleRoleChange = (e:SelectChangeEvent)=>{
   setRoleErrorText('')
   setRoleError(false)
 }
+const smallScreen = useSmallScreen()
+
 React.useEffect(()=>{
     document.title +=` - User Registration`
   },[])
@@ -206,13 +210,7 @@ React.useEffect(()=>{
   });
 
   return (
-    <div style ={{
-      width:providedRole?'100%':"600px",
-      marginLeft:providedRole?'0':'25%',
-      height:'auto',
-     background:'#FFFF',
-     marginBottom:'5px',
-    }}>
+ <RegistrationParent customeCondition = {Boolean(providedRole)}>
     <SavingProgress loading={loading}/>
         <Box sx={{
            display:'flex',
@@ -387,7 +385,7 @@ React.useEffect(()=>{
             </Alert>
             </FormWrapper>)}
       </Box>
-    </div>
+      </RegistrationParent>
   );
 };
 
