@@ -18,16 +18,8 @@ export default function RouteList() {
   const activebus=busdata?.map(o => ({ ...o }));
   const cityData=citydata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.route.updated)
+  const [cityLooks,setCityLooks] =useState({})
   const dispatch=useDispatch()
-  const [columns, setColumns] = useState([
-    {title: "id", field: "_id",hidden:true},
-    { title: 'Source', field: 'source',lookup:{},editable:"never",},
-    { title: 'Destination', field: 'destination',lookup:{},editable:"never"},
-    { title: 'Tarif', field: 'tarif'},
-    { title: 'Estimated Hour', field: 'estimatedHour'},
-    { title: 'Distance', field: 'distance'},
-    { title: 'Departure Place', field: 'departurePlace',editable:'never',lookup:{}},
-  ]);
   useEffect(()=>{
     dispatch(getRoute())
     dispatch(getActiveBus())
@@ -49,14 +41,7 @@ export default function RouteList() {
       acc[cur.cityName] = cur.cityName;
       return acc;
       }, {});
-      setColumns([
-        {title: "id", field: "_id",hidden:true},
-        { title: 'Source', field: 'source',lookup:citylooks,editable:"never"},
-        { title: 'Destination', field: 'destination',lookup:citylooks,editable:"never"},
-        { title: 'Tarif In Birr', field: 'tarif'},
-        { title: 'Estimated Hour', field: 'estimatedHour'},
-        { title: 'Distance', field: 'distance'},
-      ])
+      setCityLooks(citylooks)
      }
       },[busdata,citydata])
   return (
@@ -75,7 +60,14 @@ export default function RouteList() {
                      }}
       responsive
       title="Route List"
-      columns={columns}
+      columns={[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Source', field: 'source',lookup:cityLooks,editable:"never"},
+        { title: 'Destination', field: 'destination',lookup:cityLooks,editable:"never"},
+        { title: 'Tarif In Birr', field: 'tarif'},
+        { title: 'Estimated Hour', field: 'estimatedHour'},
+        { title: 'Distance', field: 'distance'},
+      ]}
       data={data}
       icons={tableIcons}
       options={{
@@ -85,7 +77,7 @@ export default function RouteList() {
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,

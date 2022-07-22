@@ -9,7 +9,7 @@ type passengerInfo = {
   sits:number,
 }
 class AuthService {
-  login(phonenumber, organizationcode, password) {
+  login(phonenumber:any, organizationcode:any, password:any) {
     return axios
       .post(API_URL + `loginorganizationuser`, {
         phonenumber,
@@ -26,17 +26,17 @@ class AuthService {
   logout() {
     localStorage.removeItem("user");
   }
-  addUser(newUser){
+  addUser(newUser:any){
     return axios.post(`${API_URL}registerorganizationuser`,newUser, { headers: authHeader() })
   }
 
-  addRoute(newRoute){
+  addRoute(newRoute:any){
     return axios.post(`${API_URL}addroute`,newRoute, { headers: authHeader() })
   }
-  addSchedule(newSchedule){
+  addSchedule(newSchedule:any){
     return axios.post(`${API_URL}addschedule`,newSchedule, { headers: authHeader() })
   }
-addBus(newBus){
+addBus(newBus:any){
     return axios.post(`${API_URL}registerbus`,newBus, { headers: authHeader() })
   }
 

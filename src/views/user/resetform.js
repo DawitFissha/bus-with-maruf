@@ -39,15 +39,22 @@ const FormsReset = ({id}) => {
 
 const PasswordResetHandler=()=>{
 if(password&&confirmPassword)
-{     
-    dispatch(errorActions.Message(''))
-    dispatch(loadingActions.status("pending"))
-    dispatch(resetPassword({id,password,confirmPassword}))
+{  
+    if(password===confirmPassword)
+    {
+        dispatch(errorActions.Message(''))
+        dispatch(loadingActions.status("pending"))
+        dispatch(resetPassword({id,password,confirmPassword}))
+    }
+    else
+    {
+        dispatch(errorActions.Message('password must match'))
+    }
+  
 }
 else
 {
     dispatch(errorActions.Message('please fill all field'))
-    dispatch(loadingActions.status('done'))
 }
 }
 // const profile=useSelector(state=>state.userinfo)

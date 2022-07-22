@@ -156,9 +156,10 @@ export const updatePassInfo=(id,data,resolve)=>{
 export const refundTicket=(data)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios.put(`https://melabus.herokuapp.com/refundrequest/${data.id}`)
+            const res=await axios.put(`https://melabus.herokuapp.com/refundrequest/${data.id}`,data)
+            console.log(res)
             dispatch(scheduleActions.setFetch())
-            dispatch(errorActions.Message("schedule canceled"))
+            dispatch(errorActions.Message("ticket canceled"))
         }
        catch(err)
        {

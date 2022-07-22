@@ -38,21 +38,11 @@ export default function ScheduleList() {
       }),
     ]
   }
+  const [cityLooks,setCityLooks] =useState({})
+  const [depLooks,setDepLooks] =useState({})
+  const [busyLooks,setBusLooks] =useState({})
 
   const dispatch=useDispatch()
-  const [columns, setColumns] = useState([
-    {title: "id", field: "_id",hidden:true},
-    { title: 'Source', field: 'source',lookup:{},editable:'never'},
-    { title: 'Destination', field: 'destination',lookup:{},editable:'never'},
-    { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
-    { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
-    { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
-    { title: 'Ass.Bus', field: 'bus',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-    { title: 'Departure Place', field: 'departurePlace',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-    { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-    { title: 'Departure Date', field: 'departureDateAndTime',type:"time",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-
-  ]);
   useEffect(()=>{
     dispatch(getSchedule())
     dispatch(getActiveBus())
@@ -62,49 +52,37 @@ export default function ScheduleList() {
       dispatch(errorActions.Message(''))
     }
       },[fetched])
-      let buslooks
-      let deplooks
-      let citylooks
       useEffect(()=>{
         if(depData.length>0)
         {
           const res=depData?.map(e=>e.departurePlace).flat()
           console.log(res)
-          deplooks = res?.reduce(function(acc, cur, i) {
+          const deplooks = res?.reduce(function(acc, cur, i) {
             acc[cur] = cur;
             return acc;
             }, {});
-            citylooks = cityData?.reduce(function(acc, cur, i) {
+            setDepLooks(deplooks)
+            const citylooks = cityData?.reduce(function(acc, cur, i) {
               acc[cur.cityName] = cur.cityName;
               return acc;
-              }, {});        }
+              }, {}); 
+             setCityLooks(citylooks)
+            }
      
      if(busdata.length>0)
      {
-      buslooks = activebus?.reduce(function(acc, cur, i) {
+      const buslooks = activebus?.reduce(function(acc, cur, i) {
         acc[cur._id] = cur.busSideNo;
         return acc;
         }, {});
-      setColumns([
-        {title: "id", field: "_id",hidden:true},
-        { title: 'Source', field: 'source',lookup:citylooks,editable:'never'},
-        { title: 'Destination', field: 'destination',lookup:citylooks,editable:'never'},
-        { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
-        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
-        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
-        { title: 'Ass.Bus', field: 'bus',lookup:buslooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-        { title: 'Departure Place', field: 'departurePlace',lookup:deplooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-        { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-        { title: 'Departure Time', field: 'departureDateAndTime',type:"time",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-
-      ])
+        setBusLooks(buslooks)
      }
       },[busdata,depdata])
       const message=useSelector(state=>state.message.errMessage)
       useEffect(()=>{
    message==="schedule canceled"&&setSaveStatus(true)
 return ()=>{
-    message==='city'&&dispatch(errorActions.Message(''))
+    dispatch(errorActions.Message(''))
 }
       },[message])
       const [saveStatus,setSaveStatus] =useState(false)
@@ -130,7 +108,19 @@ const handleSaveStatusClose = (event, reason) => {
                      }}
       responsive
       title="Schedule"
-      columns={columns}
+      columns={[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Source', field: 'source',lookup:cityLooks,editable:'never'},
+        { title: 'Destination', field: 'destination',lookup:cityLooks,editable:'never'},
+        { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
+        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+        { title: 'Ass.Bus', field: 'bus',lookup:busyLooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Time', field: 'departureDateAndTime',type:"time",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+
+      ]}
       data={data}
       icons={tableIcons}
       options={{
@@ -140,7 +130,7 @@ const handleSaveStatusClose = (event, reason) => {
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"16px"
+        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,

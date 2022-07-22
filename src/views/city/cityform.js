@@ -7,11 +7,12 @@ import TextField from "@material-ui/core/TextField";
 import Buttons from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Modal from "react-modal";
+import { Autocomplete} from '@mui/material';
 import {cityActions} from '../../store/city-slice'
 import { addCity, updateCity} from '../../store/cityHttp';
 import { errorActions } from '../../store/error-slice';
 import { loadingActions } from '../../store/loading-slice';
-
+const options=["Mekelle", "Adama", "Awassa", "Bahir Dar", "Dire Dawa", "Dessie", "Jimma", "Jijiga", "Shashamane", "Bishoftu", "Sodo", "Arba Minch", "Hosaena", "Harar", "Dilla", "Nekemte", "Debre Birhan", "Asella", "Debre Mark'os", "Kombolcha", "Debre Tabor", "Adigrat", "Areka", "Weldiya", "Sebeta", "Burayu", "Shire (Inda Selassie)", "Ambo", "Arsi Negele", "Aksum", "Gambela", "Bale Robe", "Butajira", "Batu", "Boditi", "Adwa", "Yirgalem", "Waliso", "Welkite", "Gode", "Meki", "Negele Borana", "Alaba Kulito", "Alamata", "Chiro", "Tepi", "Durame", "Goba", "Assosa", "Gimbi", "Wukro", "Haramaya", "Mizan Teferi", "Sawla", "Mojo", "Dembi Dolo", "Aleta Wendo", "Metu", "Mota", "Fiche", "Finote Selam", "Bule Hora Town", "Bonga", "Kobo", "Jinka", "Dangila", "Degehabur", "Dimtu", "Agaro"].sort()
 const customStyles = {
     content: {
       top: '57%',
@@ -125,36 +126,48 @@ useEffect(()=>{
                         )} 
                     
                         <Row style={{justifyContent:'start'}}>
-                         <Form.Group style={{marginLeft:'10px',marginTop:'15px'}} controlId="formBasicEmail">
-                                        <TextField
-                                            value={city}
-                                            onChange={(e)=>setCity(e.target.value)}
-                                            type='text' 
-                                            variant='outlined'
-                                            label="City Name"
-                                            style={{width:"300px"}}
-                                            required
-                                        /><div
-                                        style={{position:'absolute',
-                                            display:'inline-flex',
-                                            right:'22px',
-                                            top:'15px',
-                                            color:'#038FCF'}}></div>
-                                        </Form.Group>  
+                         <Form.Group style={{marginLeft:'10px',marginTop:'1px'}} controlId="formBasicEmail">
+                         <Autocomplete
+                                disablePortal
+                                id="select-city"
+                                value={city}
+                                onChange={(event, newValue) => {
+                                setCity(newValue);
+                                }}
+                                options={options}
+                                sx={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="Select City" />}
+                              />
+                                </Form.Group>  
                                    </Row>
                                    <Row style={{justifyContent:'start'}}>
+                                    {update?
+                                               <Form.Group style={{marginLeft:'10px',marginTop:'15px'}} controlId="formBasicEmail">
+                                               <ReactTags
+                                                   inputFieldPosition="bottom"
+                                                   tags={tags}
+                                                   delimiters={delimiters}
+                                                   handleAddition={handleAddition}
+                                                   placeholder="Departure Place *"
+                                                   autocomplete
+                                                   editable
+                                               />
+                                          </Form.Group> :
+                                          
                                    <Form.Group style={{marginLeft:'10px',marginTop:'15px'}} controlId="formBasicEmail">
-                                        <ReactTags
-                                            inputFieldPosition="bottom"
-                                            tags={tags}
-                                            delimiters={delimiters}
-                                            handleDelete={handleDelete}
-                                            handleAddition={handleAddition}
-                                            placeholder="Departure Place *"
-                                            autocomplete
-                                            editable
-                                        />
-                                   </Form.Group> 
+                                   <ReactTags
+                                       inputFieldPosition="bottom"
+                                       tags={tags}
+                                       delimiters={delimiters}
+                                       handleDelete={handleDelete}
+                                       handleAddition={handleAddition}
+                                       placeholder="Departure Place *"
+                                       autocomplete
+                                       editable
+                                   />
+                              </Form.Group> 
+                                    }
+
                                    </Row>
                              <Col style={{marginBottom:'50px',marginTop:'20px',marginLeft:"-26px"}}>
                             <Buttons 

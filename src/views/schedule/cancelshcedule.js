@@ -33,10 +33,7 @@ const CancelForm = () => {
 dispatch(cancelShcedule(ModalData))
 dispatch(scheduleActions.setModal(false))
  }
-
-console.log(isModalOpen)
 function toggleModal() {
-   console.log("close")
    dispatch(scheduleActions.setModal(false))
  } 
     return (

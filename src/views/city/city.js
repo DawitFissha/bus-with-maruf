@@ -38,11 +38,6 @@ const handleSaveStatusClose = (event, reason) => {
     }
     setSaveStatus(false);
   };
-  const [columns, setColumns] = useState([
-    {title: "id", field: "_id", hidden: true},
-    { title: 'City', field: 'cityName'},
-    { title: 'Departure Plcae', field: 'departurePlace',render:Data=>Data?.departurePlace?.join()},
-  ]);
 
   return (
     <React.Fragment>
@@ -62,7 +57,11 @@ const handleSaveStatusClose = (event, reason) => {
                      }}
                          responsive
       title="Manage City & departure Place"
-      columns={columns}
+      columns={[
+        {title: "id", field: "_id", hidden: true},
+        { title: 'City', field: 'cityName'},
+        { title: 'Departure Plcae', field: 'departurePlace',render:Data=>Data?.departurePlace?.join()},
+      ]}
       data={data}
       icons={tableIcons}
       options={{
@@ -72,7 +71,7 @@ const handleSaveStatusClose = (event, reason) => {
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -114,7 +113,7 @@ const handleSaveStatusClose = (event, reason) => {
         </Col>
          </Row>
          {!update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Added Successfully' />}
-         {update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Info Changed' />}
+         {update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Info Updated' />}
         </React.Fragment>
   )
 }

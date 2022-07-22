@@ -6,12 +6,16 @@ import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/sch
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import Select from "@material-ui/core/Select";
+import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
+import TextField from '@mui/material/TextField'
 import MenuItem from "@material-ui/core/MenuItem";
 import {MdToday} from "react-icons/md"
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import { errorActions } from '../../store/error-slice';
 import RefundForm from "./refundpop"
+import { SaveSuccessfull } from '../saveSuccess';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function ScheduleList() {
   const tabledata=useSelector(state=>state.schedule.tableData)
@@ -19,6 +23,7 @@ export default function ScheduleList() {
   const data=tabledata?.map(o => ({ ...o }));
   const filterData=scheduledata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.schedule.updated)
+  const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
   const profile=useSelector(state=>state.userinfo)
   const [schedule,setSchedule]=useState([])
   let actions=[]
@@ -50,32 +55,47 @@ export default function ScheduleList() {
     ]
 //   }
 
-  const dispatch=useDispatch()
-  const [columns, setColumns] = useState([
-    {title: "id", field: "_id",hidden:true},
-    { title: 'Passanger ID', field: 'passangerId',editable:'never'},
-    { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
-    { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
-    { title: 'Sit', field: 'sit',editable:'never'},
-    { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
-    { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded"}},
-    { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
-    // { title: 'Ass.Bus', field: 'bus',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-    // { title: 'Departure Place', field: 'departurePlace',lookup:{},editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-    // { title: 'Departure Date', field: 'departureDateAndTime',type:"date",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-  ]);
+const dispatch=useDispatch()
 useEffect(()=>{
-   dispatch(getSalesSchedule())
-//    schedule&&dispatch(getOneSchedule(schedule))
+  let isComponentMounted = true;
+  if(isComponentMounted){
+    dispatch(getSalesSchedule())
+  }
 return ()=>{
   dispatch(errorActions.Message(''))
+  isComponentMounted = false;
+
 }
 },[fetched])
+useEffect(()=>{
+  let isComponentMounted = true;
+  if(isComponentMounted){
+    console.log(schedule)
+    dispatch(getOneSchedule(schedule.id))
+  }
+return ()=>{
+  dispatch(errorActions.Message(''))
+  isComponentMounted = false;
 
-const ScheduleHandler=(e)=>{
-    setSchedule(e.target.value)
-    dispatch(getOneSchedule(e.target.value))
 }
+},[schedule])
+
+const message=useSelector(state=>state.message.errMessage)
+const options=filterData?.map(e=>({id:e._id,label:`from ${e?.source} to ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))
+console.log(options)
+useEffect(()=>{
+message==="ticket canceled"&&setSaveStatus(true)
+return ()=>{
+dispatch(errorActions.Message(''))
+}
+},[message])
+const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+if (reason === 'clickaway') {
+return;
+}
+setSaveStatus(false);
+};
   return (
     <React.Fragment>
       <RefundForm/>
@@ -84,24 +104,20 @@ const ScheduleHandler=(e)=>{
                     <Card>
                         <Card.Header>
                             <Card.Title as="h5">Manage Ticket</Card.Title>
-                            <Row style={{justifyContent:"end",marginBottom:"10px"}}>
-                            <Select
+                            <Row style={{justifyContent:"end",marginBottom:"0px"}}>
+                            <Autocomplete
+                                disablePortal
+                                id="select-schedule"
                                 value={schedule}
-                                label="Schedule"
-                                variant='outlined'
-                                style={{width:"250px"}}
-                                onChange={ScheduleHandler}
-                            >
-                                <MenuItem value="">
-                                <em>None</em>
-                                </MenuItem>
-                                {filterData?.map(e=><MenuItem key={e._id} value={e?._id}>
-                                   {`from ${e?.source} to ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}
-                                    </MenuItem>)} 
-                            </Select>
-                          
+                                onChange={(event, newValue) => {
+                                  newValue !== null&&setSchedule(newValue);
+                                }}
+                                options={options}
+                                sx={{ width: 450 }}
+                                renderInput={(params) => <TextField {...params} label="Select Schedule" />}
+                              />
                             </Row>
-                            <Row style={{justifyContent:"end",marginRight:"20px",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row>
+                            {/* <Row style={{justifyContent:"end",marginRight:"20px",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row> */}
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
@@ -110,7 +126,16 @@ const ScheduleHandler=(e)=>{
                      }}
       responsive
       title="Booked Ticket"
-      columns={columns}
+      columns={[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Passanger ID', field: 'passangerId',editable:'never'},
+        { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+        { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+        { title: 'Sit', field: 'sit',editable:'never'},
+        { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded"}},
+        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+      ]}
       data={data}
       icons={tableIcons}
       options={{
@@ -120,7 +145,7 @@ const ScheduleHandler=(e)=>{
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"18px"
+        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -147,6 +172,8 @@ const ScheduleHandler=(e)=>{
         </Card>
         </Col>
          </Row>
+         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Refunded Successfully' />
+
         </React.Fragment>
   )
 }

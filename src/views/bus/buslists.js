@@ -14,6 +14,9 @@ export default function BusList() {
   const redatdata=useSelector(state=>state.bus.redatData)
   const redatData=redatdata.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.bus.updated)
+  const [driverLooks,setDriverLooks] =useState({})
+  const [redatLooks,setRedatLooks] =useState({})
+
   const dispatch=useDispatch()
 
 useEffect(()=>{
@@ -24,19 +27,6 @@ return ()=>{
   dispatch(errorActions.Message(''))
 }
   },[fetched])
-  const [columns, setColumns] = useState([
-    {title: "id", field: "_id",hidden:true},
-    { title: 'Plate No', field: 'busPlateNo',editable:'never'},
-    { title: 'Driver Name', field: 'driverId',lookup:{}},
-    { title: 'Driver Phone', field: 'drverPhone',editable:'never'},
-    { title: 'Redat Name', field: 'redatId',lookup:{}},
-    { title: 'Redat Phone', field: 'redatPhone',editable:'never'},
-    { title: 'On Duty', field: 'onDuty',lookup: { true: 'Yes', false: 'No'},editable:'never'},
-    { title: 'Total Sit', field: 'totalNoOfSit'},
-    { title: 'Bus State', field: 'busState',lookup:{"Active":"Active","Inactive":"Inactive","On-Repair":"On-Repair","Damaged":"Damaged"}},
-    { title: 'Service Year', field: 'serviceYear'},
-
-  ]);
   
   useEffect(()=>{
    
@@ -44,24 +34,13 @@ return ()=>{
       acc[cur._id] = `${cur.firstName} ${cur.lastName}`;
       return acc;
       }, {});
-      console.log(driverlooks)
+      setDriverLooks(driverlooks)
       let redatlooks = redatData?.reduce(function(acc, cur, i) {
         acc[cur._id] = `${cur.firstName} ${cur.lastName}`;
         return acc;
         }, {});
+        setRedatLooks(redatlooks)
 
-        setColumns([
-          {title: "id", field: "_id",hidden:true},
-    { title: 'Plate No', field: 'busPlateNo',editable:'never'},
-    { title: 'Driver Name', field: 'driverId',lookup:driverlooks},
-    { title: 'Driver Phone', field: 'drverPhone',editable:'never'},
-    { title: 'Redat Name', field: 'redatId',lookup:redatlooks},
-    { title: 'Redat Phone', field: 'redatPhone',editable:'never'},
-    { title: 'On Duty', field: 'onDuty',lookup: { true: 'Yes', false: 'No'},editable:'never'},
-    { title: 'Total Sit', field: 'totalNoOfSit'},
-    { title: 'Bus State', field: 'busState',lookup:{"Active":"Active","Inactive":"Inactive","On-Repair":"On-Repair","Damaged":"Damaged"}},
-    { title: 'Service Year', field: 'serviceYear'},
-        ])
 
   },[driverdata,redatdata])
 
@@ -81,7 +60,19 @@ return ()=>{
                      }}
                          responsive
       title="Buses List"
-      columns={columns}
+      columns={[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Plate No', field: 'busPlateNo',editable:'never'},
+        { title: 'Driver Name', field: 'driverId',lookup:driverLooks},
+        { title: 'Driver Phone', field: 'drverPhone',editable:'never'},
+        { title: 'Redat Name', field: 'redatId',lookup:redatLooks},
+        { title: 'Redat Phone', field: 'redatPhone',editable:'never'},
+        { title: 'On Duty', field: 'onDuty',lookup: { true: 'Yes', false: 'No'},editable:'never'},
+        { title: 'Total Sit', field: 'totalNoOfSit'},
+        { title: 'Bus State', field: 'busState',lookup:{"Active":"Active","Inactive":"Inactive","On-Repair":"On-Repair","Damaged":"Damaged"}},
+        { title: 'Service Year', field: 'serviceYear'},
+    
+      ]}
       data={data}
       icons={tableIcons}
       options={{
@@ -91,7 +82,7 @@ return ()=>{
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"blue",color:"white",fontSize:"16px"
+        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
       },
         actionsColumnIndex: -1,
         exportButton:true,
