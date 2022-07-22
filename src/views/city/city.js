@@ -8,7 +8,7 @@ import {MdAddLocationAlt,} from 'react-icons/md'
 import {FaEdit} from "react-icons/fa";
 import CityForm from "./cityform"
 import { getCity } from '../../store/cityHttp';
-import { SaveSuccessfull } from '../../Components/saveSuccess';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import { errorActions } from '../../store/error-slice';
 
 export default function Location() {

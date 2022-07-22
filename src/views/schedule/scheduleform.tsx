@@ -14,13 +14,13 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import {RegistrationHeader} from '../../Components/registrationHeader'
-import {SavingProgress} from '../../Components/savingProgress'
-import {SaveSuccessfull} from '../../Components/saveSuccess'
+import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import {FormHelperText, InputAdornment, ListItemText, OutlinedInput } from '@mui/material';
 import { TimePicker } from '@mui/lab';
 import { useFormik } from 'formik';
-import {FormWrapper} from '../../Components/formWrapper'
+import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import DescriptionIcon from '@mui/icons-material/Description';
 import RouteIcon from '@mui/icons-material/Route';
 import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
@@ -29,7 +29,8 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import {ActiveBusses} from '../../App'
-import useError from '../../utils/useError'
+import useError from '../../utils/hooks/useError'
+import RegistrationParent from '../../Components/common-registration-form/registrationParent'
  type routeOptionsType = {
   label : string,
   id : string,
@@ -164,13 +165,7 @@ const formik = useFormik({
   return (
    <LocalizationProvider dateAdapter={AdapterDateFns}>
      
-        <div style ={{
-      width:"600px",
-      marginLeft:'25%',
-      height:'auto',
-     background:'#FFFF',
-     marginBottom:'5px',
-    }}>
+    <RegistrationParent>
     <SavingProgress loading={loading}/>
         <Box sx={{
            display:'flex',
@@ -384,7 +379,7 @@ const formik = useFormik({
       </form>
       
       </Box>
-    </div>
+      </RegistrationParent>
     
    </LocalizationProvider>
   );

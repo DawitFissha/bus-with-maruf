@@ -9,15 +9,15 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import {RegistrationHeader} from '../../Components/registrationHeader'
-import {SavingProgress} from '../../Components/savingProgress'
-import {SaveSuccessfull} from '../../Components/saveSuccess'
+import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import {SameCity} from './samecity'
 import Autocomplete from '@mui/material/Autocomplete';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import { FormHelperText, InputAdornment, ListItemText } from '@mui/material';
-import {FormWrapper} from '../../Components/formWrapper'
+import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import PlaceIcon from '@mui/icons-material/Place';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -26,7 +26,9 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import {ActiveBusses} from '../../App'
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-import useError from '../../utils/useError'
+import useError from '../../utils/hooks/useError'
+import useSmallScreen from '../../utils/hooks/useSmallScreen'
+import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
@@ -110,6 +112,7 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
   }
   setSaveStatus(false);
 };
+const smallScreen = useSmallScreen()
 
 React.useEffect(()=>{
     document.title+=` - Route Registration`
@@ -182,14 +185,7 @@ React.useEffect(()=>{
       <CircularProgress />
     </Box>
      :
-     <div style ={{
-      width:"600px",
-      // marginTop:'5px',
-      marginLeft:'25%',
-      height:'auto',
-     background:'#FFFF',
-     marginBottom:'5px',
-    }}>
+  <RegistrationParent>
     <SavingProgress loading={loading}/>
         <Box sx={{
            display:'flex',
@@ -421,7 +417,7 @@ React.useEffect(()=>{
       </form>
 
       </Box>
-    </div>
+      </RegistrationParent>
    
   );
 };

@@ -10,14 +10,13 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import {RegistrationHeader} from '../../Components/registrationHeader'
-import {SavingProgress} from '../../Components/savingProgress'
-import {SaveSuccessfull} from '../../Components/saveSuccess'
+import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
 import {AddButton} from '../../Components/addbutton'
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import {FormWrapper} from '../../Components/formWrapper'
+
+import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import DescriptionIcon from '@mui/icons-material/Description';
 import AbcIcon from '@mui/icons-material/Abc';
 import AirlineSeatReclineNormalIcon from '@mui/icons-material/AirlineSeatReclineNormal';
@@ -27,7 +26,9 @@ import {fetchDrivers} from '../user/driverSlice'
 import {fetchRedats} from '../user/redatSlice'
 import CircularProgress from '@mui/material/CircularProgress';
 import DialogRenderer from '../../Components/dialog/dialogRenderer'
-import useError from '../../utils/useError'
+import useError from '../../utils/hooks/useError'
+import useSmallScreen from '../../utils/hooks/useSmallScreen';
+import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 const RoleData = {
     DRIVER:'driver',
     REDAT:'redat',
@@ -54,14 +55,14 @@ const validate = (values:any) => {
   };
 export default function BusRegistration (
   {
-    providedId,
+    
     providedsideNo,
     providedPlateNumber,
     providedRedat,
     providedDriver,
     providedNumberOfSeat,
     providedState,
-    CloseDialog,
+    
   }:{
     providedId?:string,
     providedsideNo?:string,
@@ -129,7 +130,7 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   }
   setOpen(false);
 };
-
+const smallScreen = useSmallScreen()
 useEffect(()=>{
     document.title+=` - Bus Registration`
     if(driverStatus === 'idle'){
@@ -214,13 +215,7 @@ useEffect(()=>{
   <Box>
     <CircularProgress />
   </Box> :
-  <div style ={{
-    width:isEdit?"500px":'600px',
-    marginLeft:isEdit?'5px':'25%',
-    height:'auto',
-   background:'#FFFF',
-   marginBottom:'5px',
-  }}>
+<RegistrationParent>
   <SavingProgress loading={loading}/>
       <Box sx={{
          display:'flex',
@@ -430,7 +425,7 @@ useEffect(()=>{
         }
     </Box>
 
-  </div>
+    </RegistrationParent>
   );
 };
 

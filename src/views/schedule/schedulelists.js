@@ -7,7 +7,7 @@ import { assignBus, getActiveBus, getAllDepPlace, getSchedule,getAllCity } from 
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
-import { SaveSuccessfull } from '../../Components/saveSuccess';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import { errorActions } from '../../store/error-slice';
 import CancelForm from "./cancelshcedule"
 

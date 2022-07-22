@@ -9,10 +9,10 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import Box from '@mui/material/Box';
-import {SavingProgress} from '../../Components/savingProgress'
+import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
 import { DatePicker } from '@mui/lab';
 import { useFormik } from 'formik';
-import {SaveSuccessfull} from '../../Components/saveSuccess'
+import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import PlaceIcon from '@mui/icons-material/Place';
 import EventIcon from '@mui/icons-material/Event';
@@ -26,8 +26,7 @@ import AuthService from '../../services/auth.service'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
+import useSmallScreen from '../../utils/hooks/useSmallScreen'
 type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
@@ -66,8 +65,8 @@ const validate = (values:FormTypes) => {
 export function Booking(props:bookingProps){
 const {passSchedule} = props
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
-const theme = useTheme()
-const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+const smallScreen = useSmallScreen()
 console.log(smallScreen)
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
@@ -239,9 +238,9 @@ const formik = useFormik({
           <form onSubmit={formik.handleSubmit}>
         <div
         style = {{
-            maxWidth:"850px",
             
-            marginLeft:'12%',
+            width:"100%",
+            // marginLeft:'12%',
             height:'auto',
             background:'#FFFF',
             
