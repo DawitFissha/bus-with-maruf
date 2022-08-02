@@ -27,8 +27,8 @@ import {fetchRedats} from '../user/redatSlice'
 import CircularProgress from '@mui/material/CircularProgress';
 import DialogRenderer from '../../Components/dialog/dialogRenderer'
 import useError from '../../utils/hooks/useError'
-import useSmallScreen from '../../utils/hooks/useSmallScreen';
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useGetDriversQuery} from '../../features/api/apiSlice'
 const RoleData = {
     DRIVER:'driver',
     REDAT:'redat',
@@ -130,17 +130,29 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   }
   setOpen(false);
 };
-const smallScreen = useSmallScreen()
+
 useEffect(()=>{
     document.title+=` - Bus Registration`
-    if(driverStatus === 'idle'){
-      dispatch(fetchDrivers())
-    }
     if(redatStatus === 'idle'){
       dispatch(fetchRedats())
     }
   },[redatStatus,driverStatus,dispatch])
 
+const {
+      data:drivers,
+       isLoading:driverLoading,
+      //  isSuccess:driverLoadingSuccess,
+      //  isError:driverLoadingFailed,
+      //  error:driverError,
+} = useGetDriversQuery(RoleData.DRIVER)
+
+const {
+  data:redats,
+  isLoading:redatLoading,
+  // isSuccess:redatLoadingSucess,
+  // isError:redatLoadingFailed,
+  // error:redatError,
+} = useGetDriversQuery(RoleData.REDAT)
 
   const formik = useFormik({
     initialValues: {
@@ -211,7 +223,7 @@ useEffect(()=>{
   });
 
   return (
-  redatStatus === 'loading' || driverStatus === 'loading' ?
+  driverLoading || redatLoading ?
   <Box>
     <CircularProgress />
   </Box> :
@@ -303,8 +315,8 @@ useEffect(()=>{
           <em>None</em>
         </MenuItem>
      {  
-        initialDrivers?
-        initialDrivers.map((driver:any)=>(
+        drivers?
+        drivers.map((driver:any)=>(
           <MenuItem divider = {true} key = {driver._id} value={driver._id}>
               <ListItemText primary = {`${driver.firstName} ${driver.lastName}`}/>
           </MenuItem>
@@ -332,8 +344,8 @@ useEffect(()=>{
         <em>None</em>
         </MenuItem>
         {
-        initialRedats?
-        initialRedats.map((redat:any)=>(
+        redats?
+        redats.map((redat:any)=>(
           <MenuItem divider = {true} key = {redat._id} value={redat._id}>
             <ListItemText primary = {`${redat.firstName} ${redat.lastName}`}/>
           </MenuItem>
