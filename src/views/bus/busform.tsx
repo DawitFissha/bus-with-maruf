@@ -15,7 +15,7 @@ import {SavingProgress} from '../../Components/common-registration-form/savingPr
 import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
 import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
 import {AddButton} from '../../Components/addbutton'
-
+import Backdrop from '@mui/material/Backdrop';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import DescriptionIcon from '@mui/icons-material/Description';
 import AbcIcon from '@mui/icons-material/Abc';
@@ -27,8 +27,8 @@ import {fetchRedats} from '../user/redatSlice'
 import CircularProgress from '@mui/material/CircularProgress';
 import DialogRenderer from '../../Components/dialog/dialogRenderer'
 import useError from '../../utils/hooks/useError'
-import useSmallScreen from '../../utils/hooks/useSmallScreen';
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import FormHelperText from '@mui/material/FormHelperText'
 const RoleData = {
     DRIVER:'driver',
     REDAT:'redat',
@@ -106,15 +106,15 @@ const providedBusStatesideNo = useAppSelector(state=>state.busStates.find(bstate
 const [driver,setDriver] = useState(providedDriver?providedDriverFirstName:'')
 const [redat,setRedat] = useState(providedRedat?providedDRedatFirstName:'')
 const [Bstate,setBState] = useState(providedState?providedBusStatesideNo:'')
-// const [driverRequired,setDriverRequired] = useState('')
-// const [redatRequired,setRedatRequired] = useState('')
+const [driverError,driverErrorMessage,setDriverErrorOccured,setDriverErrorMessage] = useError()
+const [redatError,redatErrorMessage,setRedatErrorOccured,setRedatErrorMessage] = useError()
  const handleDriverChange = (e:SelectChangeEvent)=>{
     setDriver(e.target.value)
-    // setDriverRequired('')
+    setDriverErrorOccured(false)
     }
  const handleRedatChange = (e:SelectChangeEvent)=>{
     setRedat(e.target.value)
-    // setRedatRequired('')
+    setRedatErrorOccured(false)
  }
  const handleBusStateChange = (e:SelectChangeEvent)=>{
   setBState(e.target.value)
@@ -130,7 +130,7 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   }
   setOpen(false);
 };
-const smallScreen = useSmallScreen()
+
 useEffect(()=>{
     document.title+=` - Bus Registration`
     if(driverStatus === 'idle'){
@@ -151,8 +151,17 @@ useEffect(()=>{
     },
     validate,
     onSubmit: async (values,{resetForm}) => {
+      if(driver === '') {
+          setDriverErrorOccured(true)
+          setDriverErrorMessage('Please Select a driver')
+      }
+      else if(redat === '') {
+        setRedatErrorOccured(true)
+        setRedatErrorMessage('Please Select a redat')
 
-      
+      }
+
+      else {
           if(!loading){
             
             setLoading(true)
@@ -184,7 +193,7 @@ useEffect(()=>{
              setDriver('')
              setRedat('')
             setOpen(true)
-              setErrorOccured(false)
+            setErrorOccured(false)
             if(DialogClose){
                 DialogClose()
               }
@@ -206,15 +215,24 @@ useEffect(()=>{
             }
           }
          
-        
+    }
     },
   });
 
   return (
   redatStatus === 'loading' || driverStatus === 'loading' ?
-  <Box>
-    <CircularProgress />
-  </Box> :
+
+  <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={redatStatus === 'loading' || driverStatus === 'loading' }
+        // onClick={handleClose}
+        >
+          <Box sx={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <CircularProgress sx={{marginBottoom:'6px'}} color="primary" />
+        <h4 style={{display:'block'}}>loading for Drivers and Redats ...</h4>
+
+          </Box>
+      </Backdrop>:
 <RegistrationParent>
   <SavingProgress loading={loading}/>
       <Box sx={{
@@ -313,7 +331,7 @@ useEffect(()=>{
         }
         <AddButton description = "Driver" handleClick = {handleDriverDialogOpen}/>
       </Select>
-      {/* <FormHelperText sx={{color:'red'}}>{driverRequired}</FormHelperText> */}
+      {driverError && (<FormHelperText sx={{color:'red'}}>{driverErrorMessage}</FormHelperText>)}
       </FormControl>
         </FormWrapper>
         <FormWrapper>
@@ -342,7 +360,7 @@ useEffect(()=>{
         }
         <AddButton description = "Redat" handleClick = {handleRedatDialogOpen}/>
       </Select>
-      {/* <FormHelperText sx={{color:'red'}}>{redatRequired}</FormHelperText> */}
+      {redatError && (<FormHelperText sx={{color:'red'}}>{redatErrorMessage}</FormHelperText>)}
       </FormControl>
         </FormWrapper>
           <FormWrapper>

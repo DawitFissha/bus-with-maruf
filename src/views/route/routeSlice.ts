@@ -20,11 +20,13 @@ distance?:number|null
 estimatedHour?:number|null
 assignedBus:string[]
 }
+
 type initialStateType = {
     routes:any[],
     status:'idle' | 'loading' | 'succeeded' | 'failed'
     error:string|undefined
 }
+
 const initialState:initialStateType = {
     routes:[],
     status:'idle',

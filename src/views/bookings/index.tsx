@@ -4,7 +4,6 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import Divider from '@mui/material/Divider';
 import Remove from '../../utils/remove'
 import {useAppDispatch,useAppSelector} from '../../app/hooks'
-import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
@@ -255,8 +254,8 @@ const formik = useFormik({
            </Box>
             <Divider/>
             <Box sx={{m:2}}>
-         <Grid container spacing = {2} > 
-         <Grid item xs={12} md={6} >
+         <Grid display='flex' container spacing = {2} > 
+         <Grid item xs={12} md={6} flexGrow = {1} >
            <FormControl fullWidth = {smallScreen} sx={smallScreen?{}:{maxWidth:'350px',minWidth:'250px',}}>
            <Autocomplete
         value={schedule}

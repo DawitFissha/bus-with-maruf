@@ -112,7 +112,6 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
   }
   setSaveStatus(false);
 };
-const smallScreen = useSmallScreen()
 
 React.useEffect(()=>{
     document.title+=` - Route Registration`
@@ -144,7 +143,6 @@ React.useEffect(()=>{
                 destination,
                 tarif:values.price,
                 departureplace:depPlace?depPlace:undefined,
-                // departureplcae:'X',
                 distance:values.distance>0?values.distance:null,
                 estimatedhour:values.estimatedHour>0?values.estimatedHour:null,
                 bus:assignedBus,
