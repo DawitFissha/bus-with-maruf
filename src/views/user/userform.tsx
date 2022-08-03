@@ -24,13 +24,9 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import PasswordIcon from '@mui/icons-material/Password';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
-import {addUsers} from './userSlice'
 import Alert from '@mui/material/Alert'
-import { fetchDrivers,resetDriver} from './driverSlice';
-import { fetchRedats,resetRedat} from './redatSlice';
 import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
-import useSmallScreen from '../../utils/hooks/useSmallScreen';
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 import {useAddNewUserMutation} from '../../features/api/apiSlice'
 interface USER_TYPE {
@@ -95,7 +91,6 @@ const [genderError,genderErrorText,setGenderError,setGenderErrorText] = useError
 const [roleError,roleErrorText,setRoleError,setRoleErrorText] = useError()
 const [loading, setLoading] = React.useState(false);
 const [adduserError,setAddUserError] = useState('')
-const dispatch = useAppDispatch();
 const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
@@ -113,7 +108,7 @@ const handleRoleChange = (e:SelectChangeEvent)=>{
   setRoleErrorText('')
   setRoleError(false)
 }
-const [addNewUser] = useAddNewUserMutation()
+const [addNewUser,{error}] = useAddNewUserMutation()
 
 React.useEffect(()=>{
     document.title +=` - User Registration`
@@ -159,9 +154,9 @@ React.useEffect(()=>{
                   password:values.password,
                   confirmpassword:values.confirmPassword,
                 }
-              ).unwrap()
-
-              
+              )
+              .unwrap()
+            
 
               resetForm({values:{
                 firstName: '',
@@ -174,32 +169,15 @@ React.useEffect(()=>{
               setGender('')
               setRoleItem('')
               setOpen(true)
-            // if(providedRole){
-
-            //   if(providedRole === 'driver'){
-            //     dispatch(resetDriver())
-            //     dispatch(fetchDrivers())
-            //   }
-            //   else if (providedRole === 'redat'){
-            //     dispatch(resetRedat())
-            //     dispatch(fetchRedats())
-            //   }
-            // }
+        
             if(DialogClose){
                 DialogClose()
               }
           
             }
             catch (err:any) {
-              console.log(err.message)
-              const resMessage =
-              (err.response &&
-                err.response.data &&
-                err.response.data.message) ||
-                err.message ||
-                err.toString();
-                setAddUserError(resMessage)
-            }
+                setAddUserError(`Failed to register user , ${err.data.message}`)
+                 }
             finally {
               setLoading(false)
             }
@@ -383,7 +361,7 @@ React.useEffect(()=>{
       </form>
       {adduserError&&(<FormWrapper>
             <Alert sx ={{width:'450px',fontSize:"medium"}} severity="error">
-            <strong>{adduserError}</strong> , Please try again
+            <strong>{adduserError}</strong>
             </Alert>
             </FormWrapper>)}
       </Box>

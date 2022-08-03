@@ -1,10 +1,8 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import UserRegistration from '../user/userform'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {addBusses} from './busSlice'
-import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -22,14 +20,13 @@ import AbcIcon from '@mui/icons-material/Abc';
 import AirlineSeatReclineNormalIcon from '@mui/icons-material/AirlineSeatReclineNormal';
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import NumbersIcon from '@mui/icons-material/Numbers';
-import {fetchDrivers} from '../user/driverSlice'
-import {fetchRedats} from '../user/redatSlice'
 import CircularProgress from '@mui/material/CircularProgress';
 import DialogRenderer from '../../Components/dialog/dialogRenderer'
 import useError from '../../utils/hooks/useError'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 import FormHelperText from '@mui/material/FormHelperText'
-import {useGetDriversQuery} from '../../features/api/apiSlice'
+import {useGetUsersByRoleQuery,useAddNewBusMutation} from '../../features/api/apiSlice'
+
 const RoleData = {
     DRIVER:'driver',
     REDAT:'redat',
@@ -37,9 +34,6 @@ const RoleData = {
 
 const validate = (values:any) => {
     const errors:any = {}
-    if (!values.serviceYear) {
-      errors.serviceYear="Required"
-    }
     if (!values.sideNo) {
       errors.sideNo="Required"
     } 
@@ -54,30 +48,33 @@ const validate = (values:any) => {
     }
     return errors;
   };
-export default function BusRegistration (
-  {
-    
-    providedsideNo,
-    providedPlateNumber,
-    providedRedat,
-    providedDriver,
-    providedNumberOfSeat,
-    providedState,
-    
-  }:{
-    providedId?:string,
-    providedsideNo?:string,
-    providedPlateNumber?:string,
-    providedRedat?:string,
-    providedDriver?:string,
-    providedNumberOfSeat?:number,
-    providedState?:string
-    CloseDialog?:()=>void
-  }
-){
+export default function BusRegistration () {
+
+// global state values or dispatchers from redux
+const {
+  data:drivers,
+   isLoading:driverLoading,
+} = useGetUsersByRoleQuery(RoleData.DRIVER)
+
+const {
+data:redats,
+isLoading:redatLoading,
+} = useGetUsersByRoleQuery(RoleData.REDAT)
+const [addNewBus] = useAddNewBusMutation()
+
+// local states
 const [redatButton,setRedatButton] = useState(false)
 const [driverButton,setDriverButton]  =useState(false)
 const [opendDialog,setOpenDialog] = useState(false)
+const [open,setOpen] = useState(false)
+const [loading, setLoading] = React.useState(false);
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
+const [driver,setDriver] = useState('')
+const [redat,setRedat] = useState('')
+const [driverError,driverErrorMessage,setDriverErrorOccured,setDriverErrorMessage] = useError()
+const [redatError,redatErrorMessage,setRedatErrorOccured,setRedatErrorMessage] = useError()
+
+// Handler Functions 
 const handleRedatDialogOpen = () => {
   setOpenDialog(true)
   setRedatButton(true)
@@ -91,24 +88,7 @@ const DialogClose = () => {
   setDriverButton(false)
   setRedatButton(false)
 }
-const isEdit = Boolean(providedsideNo)||Boolean(providedNumberOfSeat)||Boolean(providedPlateNumber)||Boolean(providedRedat)||Boolean(providedDriver)
 
-const [open,setOpen] = useState(false)
-const [loading, setLoading] = React.useState(false);
-const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
-const driverStatus = useAppSelector(state=>state.drivers.status)
-const redatStatus = useAppSelector(state=>state.redats.status)
-const initialDrivers = useAppSelector(state=>state.drivers.drivers)
-const initialRedats =  useAppSelector(state=>state.redats.redats)
-// for the default select value  will be checked later
-const providedDriverFirstName = useAppSelector(state=>state.users.users.find(driver=>driver.id===providedDriver))?.firstName
-const providedDRedatFirstName = useAppSelector(state=>state.users.users.find(redat=>redat.id===providedRedat))?.firstName
-const providedBusStatesideNo = useAppSelector(state=>state.busStates.find(bstate=>bstate.id===providedState))?.description
-const [driver,setDriver] = useState(providedDriver?providedDriverFirstName:'')
-const [redat,setRedat] = useState(providedRedat?providedDRedatFirstName:'')
-const [Bstate,setBState] = useState(providedState?providedBusStatesideNo:'')
-const [driverError,driverErrorMessage,setDriverErrorOccured,setDriverErrorMessage] = useError()
-const [redatError,redatErrorMessage,setRedatErrorOccured,setRedatErrorMessage] = useError()
  const handleDriverChange = (e:SelectChangeEvent)=>{
     setDriver(e.target.value)
     setDriverErrorOccured(false)
@@ -117,14 +97,7 @@ const [redatError,redatErrorMessage,setRedatErrorOccured,setRedatErrorMessage] =
     setRedat(e.target.value)
     setRedatErrorOccured(false)
  }
- const handleBusStateChange = (e:SelectChangeEvent)=>{
-  setBState(e.target.value)
-}
 
-
-const dispatch = useAppDispatch();
-const busState  = useAppSelector(state=>state.busStates)
-// const canSave = Boolean(redat)&&Boolean(driver)
 const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
@@ -132,35 +105,13 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   setOpen(false);
 };
 
-useEffect(()=>{
-    document.title+=` - Bus Registration`
-    if(redatStatus === 'idle'){
-      dispatch(fetchRedats())
-    }
-  },[redatStatus,driverStatus,dispatch])
-
-const {
-      data:drivers,
-       isLoading:driverLoading,
-      //  isSuccess:driverLoadingSuccess,
-      //  isError:driverLoadingFailed,
-      //  error:driverError,
-} = useGetDriversQuery(RoleData.DRIVER)
-
-const {
-  data:redats,
-  isLoading:redatLoading,
-  // isSuccess:redatLoadingSucess,
-  // isError:redatLoadingFailed,
-  // error:redatError,
-} = useGetDriversQuery(RoleData.REDAT)
-
+ // formik handler
   const formik = useFormik({
     initialValues: {
       serviceYear:0,
-      sideNo: providedsideNo?providedsideNo:"",
-      plateNo:providedPlateNumber?providedPlateNumber:"",
-      NoOfSeat:providedNumberOfSeat?providedNumberOfSeat:0,
+      sideNo:"",
+      plateNo:"",
+      NoOfSeat:0,
     },
     validate,
     onSubmit: async (values,{resetForm}) => {
@@ -177,24 +128,19 @@ const {
       else {
           if(!loading){
             
-            setLoading(true)
-            
-              
+            setLoading(true)    
             try {
-              await dispatch(addBusses(
+              await addNewBus(
                 {
-                  bussideno:values.sideNo,
+                bussideno:values.sideNo,
                 busplateno:values.plateNo,
                 bus_state:"Active",
                 redatid:redat,
                 driverid:driver,
-
                 totalsit:values.NoOfSeat,
                 serviceyear:values.serviceYear,
                 }
-              )).unwrap()
-
-              
+              ).unwrap()
 
               resetForm({values:{
                 sideNo: '',
@@ -212,22 +158,13 @@ const {
               }
           
             }
-            catch (err:any) {
-              
-              const resMessage =
-              (err.response &&
-                err.response.data &&
-                err.response.data.message) ||
-                err.message ||
-                err.toString();
-              setErrorOccured(true)
-               setErrorMessage(resMessage) 
+            catch (err) {
+            setErrorMessage(`Failed to Register bus , ${err.data.message}`) 
             }
             finally {
               setLoading(false)
             }
-          }
-         
+          } 
     }
     },
   });
@@ -252,11 +189,11 @@ const {
       <Box sx={{
          display:'flex',
          flexDirection:'column',
-         ml:isEdit?0:1,
-         mr:isEdit?0:1,
+         ml:1,
+         mr:1,
      }}>
          <FormWrapper>
-         <RegistrationHeader description = {isEdit?'Edit Bus Information':'Register New Busses'} />
+         <RegistrationHeader description = {'Register New Busses'} />
          </FormWrapper>
     <form onSubmit={formik.handleSubmit}>
     <FormWrapper>
@@ -275,8 +212,6 @@ const {
         </InputAdornment>
         )
     }}
-      error={formik.touched.sideNo && Boolean(formik.errors.sideNo)}
-      helperText={formik.touched.sideNo && formik.errors.sideNo}
     />
           </FormWrapper>
           <FormWrapper>
@@ -399,35 +334,6 @@ const {
     />
           </FormWrapper>
       
-          {
-            isEdit&&(
-              <FormWrapper>
-          <FormControl sx={{width: "100%" }}>
-          <InputLabel id="state-select-label">State</InputLabel>
-      <Select
-        labelId="state-select-label"
-        id="state-select-helper"
-        name="state"
-        label="state"
-        value = {Bstate}
-        onChange={handleBusStateChange}
-      >
-        <MenuItem value="">
-          <em>None</em>
-        </MenuItem>
-     {
-        busState.map((busstate)=>(
-          <MenuItem divider = {true} key = {busstate.id} value={busstate.description}>
-              <ListItemText primary = {busstate.description}/>
-          </MenuItem>
-        ))
-        }
-      </Select>
-      
-     </FormControl>
-        </FormWrapper>
-            )
-          }
           <FormWrapper>
           <Button  
           // onClick = {()=>(alert('bus'))}
@@ -435,10 +341,10 @@ const {
           type="submit"
           disabled = {loading}
           color="primary" variant="contained" >
-          {isEdit?'Update':'Save'}
+          {'Save'}
       </Button>
           </FormWrapper>
-          <SaveSuccessfull open={open} handleClose={handleClose} message = {isEdit? 'Bus Information Updated Successfully':'Bus Successfully Registered'} />
+          <SaveSuccessfull open={open} handleClose={handleClose} message = {'Bus Successfully Registered'} />
           <DialogRenderer open = {opendDialog} handleClose = {DialogClose} title="Register Users">
             
               {driverButton&&<UserRegistration providedRole = {RoleData.DRIVER} DialogClose = {DialogClose} />}

@@ -31,6 +31,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {ActiveBusses} from '../../App'
 import useError from '../../utils/hooks/useError'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useGetRoutesQuery} from '../../features/api/apiSlice'
  type routeOptionsType = {
   label : string,
   id : string,
@@ -58,10 +59,9 @@ const dispatch = useAppDispatch()
 const routeStatus = useAppSelector(state=>state.routes.status)
 const [open,setOpen] = useState(false)
 const [routesOpen,setRoutesOpen] = useState(false)  
-const routesLoading = routesOpen && routeStatus==='idle'
 const [loading, setLoading] = React.useState(false);
-const routes = useAppSelector(state=>state.routes.routes)
-
+const {data:routes,isLoading} = useGetRoutesQuery()
+const routesLoading = routesOpen && isLoading
 const routeOptions:routeOptionsType[] = routes.map(route=>(
   {id:route._id as string ,label:`${route.source} to ${route.destination}`}
 ))

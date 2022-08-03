@@ -23,12 +23,13 @@ import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import SvgIcon from '@mui/material/SvgIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import {ActiveBusses} from '../../App'
+
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import useError from '../../utils/hooks/useError'
-import useSmallScreen from '../../utils/hooks/useSmallScreen'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useGetActiveBussesQuery,useAddNewRouteMutation} from '../../features/api/apiSlice'
+
 type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
@@ -55,7 +56,8 @@ const validate = (values:VALUES_TYPE) => {
 
  function RouteRegistration(){
 
-
+const {data:ActiveBusses,isLoading:bussesLoading} = useGetActiveBussesQuery()
+const [addNewRoute] = useAddNewRouteMutation()
 const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 const [busError,busErrorMessage,setBusErrorOccured,setBusErrorMessage] = useError()
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
@@ -90,8 +92,7 @@ const cityNames =  cities.map((city)=>city['name'])
  const [source, setSource] = React.useState<string>(cityNames[0]);
  const depPlaces = useAppSelector(state=>state.cities.find((city)=>(city.name===source)))?.departurePlaces
  const [destination, setDestination] = React.useState<string>(cityNames[0]);
- const busStatus = useAppSelector(state=>state.busses.status)
-
+ 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -105,7 +106,7 @@ const MenuProps = {
 const handleSameCityClose = () => {
   setSameCity(false);
 };
-const dispatch = useAppDispatch();
+
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
@@ -117,6 +118,7 @@ React.useEffect(()=>{
     document.title+=` - Route Registration`
     setDepPlace([])
     },[source])
+
   const formik = useFormik({
     initialValues: {
       price: 0,
@@ -138,7 +140,7 @@ React.useEffect(()=>{
             setLoading(true)
 
             try {
-              await dispatch(addRoutes({
+              await addNewRoute({
                 source,
                 destination,
                 tarif:values.price,
@@ -146,7 +148,7 @@ React.useEffect(()=>{
                 distance:values.distance>0?values.distance:null,
                 estimatedhour:values.estimatedHour>0?values.estimatedHour:null,
                 bus:assignedBus,
-              })).unwrap()
+              }).unwrap()
               
               resetForm({values:{
                 price: 0,
@@ -161,24 +163,19 @@ React.useEffect(()=>{
               setAssignedBus([])
             }
             catch(err) {
-              
-              setErrorOccured(true)
-              // setErrorMessage(err.message)
-              // console.log(errorMessage)
-              setErrorMessage(err.message)
+              setErrorMessage(`Failed to Register Route , ${err.data.message}`)
             }
             finally {
               setLoading(false)
             }
-              
-            
+          
           }
          }
     },
   });
 
   return (
-     busStatus==='loading'? 
+    bussesLoading ? 
       <Box sx={{ display: 'flex' }}>
       <CircularProgress />
     </Box>
