@@ -16,6 +16,7 @@ import busses from '../views/bus/busSlice';
 import cashiers from '../views/user/cashierSlice'
 import redats from '../views/user/redatSlice'
 import drivers from '../views/user/driverSlice'
+import { apiSlice } from "../features/api/apiSlice";
 //Maruf
 import busSlice from './bus-slice';
 import routeSlice from './route-slice';
@@ -57,6 +58,7 @@ busses,
 cashiers,
 redats,
 drivers,
+[apiSlice.reducerPath]: apiSlice.reducer
 });
 
 export default reducers;

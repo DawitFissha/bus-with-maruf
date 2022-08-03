@@ -32,6 +32,7 @@ import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
 import useSmallScreen from '../../utils/hooks/useSmallScreen';
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useAddNewUserMutation} from '../../features/api/apiSlice'
 interface USER_TYPE {
   firstName:string
   lastName:string,
@@ -112,11 +113,12 @@ const handleRoleChange = (e:SelectChangeEvent)=>{
   setRoleErrorText('')
   setRoleError(false)
 }
-const smallScreen = useSmallScreen()
+const [addNewUser] = useAddNewUserMutation()
 
 React.useEffect(()=>{
     document.title +=` - User Registration`
   },[])
+
 
   const formik = useFormik({
     initialValues: {
@@ -147,7 +149,7 @@ React.useEffect(()=>{
               setLoading(true)
               
             try {
-              await dispatch(addUsers(
+              await addNewUser(
                 {
                   firstname:values.firstName,
                   lastname:values.lastName,
@@ -157,7 +159,7 @@ React.useEffect(()=>{
                   password:values.password,
                   confirmpassword:values.confirmPassword,
                 }
-              )).unwrap()
+              ).unwrap()
 
               
 
@@ -172,17 +174,17 @@ React.useEffect(()=>{
               setGender('')
               setRoleItem('')
               setOpen(true)
-            if(providedRole){
+            // if(providedRole){
 
-              if(providedRole === 'driver'){
-                dispatch(resetDriver())
-                dispatch(fetchDrivers())
-              }
-              else if (providedRole === 'redat'){
-                dispatch(resetRedat())
-                dispatch(fetchRedats())
-              }
-            }
+            //   if(providedRole === 'driver'){
+            //     dispatch(resetDriver())
+            //     dispatch(fetchDrivers())
+            //   }
+            //   else if (providedRole === 'redat'){
+            //     dispatch(resetRedat())
+            //     dispatch(fetchRedats())
+            //   }
+            // }
             if(DialogClose){
                 DialogClose()
               }
