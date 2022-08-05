@@ -6,7 +6,7 @@ export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({baseUrl:'https://melabus.herokuapp.com/',
                                 credentials:'include',
                                 }),
-    tagTypes:['Users','Busses','Routes'],
+    tagTypes:['Users','Busses','Routes','Schedules'],
 
     endpoints: (builder) => ({
         getUsersByRole: builder.query({
@@ -44,6 +44,18 @@ export const apiSlice = createApi({
                 body:newRoute,
             }),
             invalidatesTags:['Routes'],
+        }),
+        getSchedules: builder.query <any,void> ({
+            query: () => 'getallschedule',
+            providesTags:['Schedules']
+        }),
+        addNewSchedule: builder.mutation({
+            query:newSchedule => ({
+                url:'addschedule',
+                method:'POST',
+                body:newSchedule
+            }),
+            invalidatesTags:['Schedules'],
         })
     })
 })
@@ -55,4 +67,6 @@ export const {
     useAddNewBusMutation,
     useGetRoutesQuery,
     useAddNewRouteMutation,
+    useGetSchedulesQuery,
+    useAddNewScheduleMutation,
 } = apiSlice

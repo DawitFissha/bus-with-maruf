@@ -54,14 +54,40 @@ const validate = (values:VALUES_TYPE) => {
     return errors;
   };
 
- function RouteRegistration(){
+//Menu Props
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
+function RouteRegistration(){
+//Redux states
 const {data:ActiveBusses,isLoading:bussesLoading} = useGetActiveBussesQuery()
 const [addNewRoute] = useAddNewRouteMutation()
+
+//Local States
 const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 const [busError,busErrorMessage,setBusErrorOccured,setBusErrorMessage] = useError()
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
+const [saveStatus,setSaveStatus] = useState(false)
+const [samecity,setSameCity] = useState(false)
+const [loading, setLoading] = React.useState(false);
+const cities = useAppSelector(state=>state.cities)
+const cityNames =  cities.map((city)=>city['name'])
+const [sourceValue, setSourceValue] = React.useState('');
+const [destinationValue, setDestinationValue] = React.useState('');
+const [source, setSource] = React.useState<string>(cityNames[0]);
+const depPlaces = useAppSelector(state=>state.cities.find((city)=>(city.name===source)))?.departurePlaces
+const [destination, setDestination] = React.useState<string>(cityNames[0]);
+
+//Handler functions
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
   const {
     target: { value },  
@@ -82,27 +108,6 @@ const handleAssignedBusChange = (event: SelectChangeEvent<typeof assignedBus>) =
   setBusErrorOccured(false)
 };
 
-const [saveStatus,setSaveStatus] = useState(false)
-const [samecity,setSameCity] = useState(false)
-const [loading, setLoading] = React.useState(false);
-const cities = useAppSelector(state=>state.cities)
-const cityNames =  cities.map((city)=>city['name'])
- const [sourceValue, setSourceValue] = React.useState('');
- const [destinationValue, setDestinationValue] = React.useState('');
- const [source, setSource] = React.useState<string>(cityNames[0]);
- const depPlaces = useAppSelector(state=>state.cities.find((city)=>(city.name===source)))?.departurePlaces
- const [destination, setDestination] = React.useState<string>(cityNames[0]);
- 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
 const handleSameCityClose = () => {
   setSameCity(false);
 };
@@ -114,11 +119,13 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
   setSaveStatus(false);
 };
 
+//Effect to clear departure place when source is changed
 React.useEffect(()=>{
     document.title+=` - Route Registration`
     setDepPlace([])
     },[source])
 
+//formik handler
   const formik = useFormik({
     initialValues: {
       price: 0,

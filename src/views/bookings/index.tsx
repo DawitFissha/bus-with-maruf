@@ -19,21 +19,19 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SvgIcon from '@mui/material/SvgIcon';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import SeatPicker from '../../Components/seat-picker'
-import {fetchSchedules,resetSchedule,addtoGlobalSchedules} from '../schedule/scheduleSlice'
 import {allBusses} from '../../App'
 import AuthService from '../../services/auth.service'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
 import useSmallScreen from '../../utils/hooks/useSmallScreen'
+import {useGetSchedulesQuery} from '../../features/api/apiSlice'
 type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
 }
 type FormTypes = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number,additionalPassengerFirstName:string,additionalPassengerLastName:string,additionalPassengerPhoneNumber:string}
-interface bookingProps {
-  passSchedule:(schedule:string)=>void
-}
+
 const validate = (values:FormTypes) => {
     const errors:Partial<FormTypes> = {}
     
@@ -61,12 +59,10 @@ const validate = (values:FormTypes) => {
   };
 
 
-export function Booking(props:bookingProps){
-const {passSchedule} = props
-const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
+export function Booking(){
 
+const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
 const smallScreen = useSmallScreen()
-console.log(smallScreen)
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
 }
@@ -87,11 +83,7 @@ const handleSeatChoosing = (seat:number)=>{
 
   setSeatPickerOpen(false)
 }
-const dispatch = useAppDispatch();
-const globalSchedules = useAppSelector(state=>state.schedules.globalSchedules)
-
 const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
-
 const [saveStatus,setSaveStatus] = React.useState(false)
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
@@ -102,12 +94,8 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
 const [seatNumber, setSeatNumber] = React.useState<number[]>([]);
 
 const [loading, setLoading] = React.useState(false);
-const schedules = useAppSelector(state=>state.schedules.schedules)
-
-const scheduleStatus = useAppSelector(state=>state.schedules.status)
+const {data:schedules=[],isLoading:schedulesLoading} = useGetSchedulesQuery()
 const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
-const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
-const schedulesLoading = schedulesOpen && scheduleStatus==='idle'
 const [scheduleValue,setScheduleValue] = React.useState('')
 
 const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
@@ -119,25 +107,17 @@ const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
 const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
   scheduleDescription:'',id:''
 })
-const scheduleInfo = useAppSelector(state=>state.schedules.schedules.find(sch=>sch._id===schedule?.id))
+const scheduleInfo = schedules?.find(sch=>sch._id===schedule?.id)
 
 React.useEffect(()=> {
-
-  if(schedulesLoading){
-    dispatch(fetchSchedules())
-  }
-
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
 }
 
-passSchedule(schedule?.id as string)
 if(Boolean(schedule?.id && (seatNumber?.length>0))){
   AuthService.lockSit(seatNumber,schedule?.id as string)
 }
-
-dispatch(addtoGlobalSchedules(schedule))
-},[schedulesLoading,dispatch,schedule,seatNumber,passSchedule])
+},[schedulesLoading,schedule,seatNumber])
 
 React.useEffect(()=>{
   if(Boolean(seatNumber)){
@@ -184,24 +164,6 @@ const formik = useFormik({
             ]
             ,schedule?.id as string)
             
-          //   console.log(
-          //     [
-          //     {
-          //     passname:`${values.firstName} ${values.lastName}`,
-          //     passphone:values.phoneNumber,
-          //     sits:seatNumber[0],
-          //   }
-          //   ,
-          //   ...seatNumber.slice(1).map((seatNo)=>(
-          //     {
-          //       passname:`${values.additionalPassengerFirstName} ${values.additionalPassengerLastName}`,
-          //       passphone:values.phoneNumber,
-          //       sits:seatNo,
-          //     }
-          //   )
-          //   )
-          // ]
-          // )
             resetForm({values:{
               seatNumber:1,
               firstName:'',
@@ -215,8 +177,6 @@ const formik = useFormik({
             setSeatNumberRequired(false)
             setSeatNumber([])
             setSaveStatus(true)
-            dispatch(resetSchedule())
-            dispatch(fetchSchedules())
             setSchedule((prev:scheduleOptionsType|null) => prev)
 }
           catch(err){
@@ -263,14 +223,6 @@ const formik = useFormik({
           setSchedule(newValue);
         }}
         id="schedules"
-        open={schedulesOpen}
-        onOpen = {()=>{
-          setSchedulesOpen(true)
-        }}
-        onClose = {()=>{
-          setSchedulesOpen(false)
-        }}
-        loading = {schedulesLoading}
         inputValue={scheduleValue}
         onInputChange={(event, newInputValue) => {
           setScheduleValue(newInputValue);
@@ -291,7 +243,7 @@ const formik = useFormik({
             ),
             endAdornment: (
               <React.Fragment>
-                {scheduleStatus==='loading' ? <CircularProgress color="inherit" size={20} /> : null}
+                {schedulesLoading ? <CircularProgress color="inherit" size={20} /> : null}
                 {params.InputProps.endAdornment}
               </React.Fragment>
             ),
@@ -530,7 +482,7 @@ const formik = useFormik({
                   {
                     seatNumber.slice(1).map((sNo:number)=>(
                       <>
-                      <Grid container spacing = {2}>
+                      <Grid container columnSpacing={2}>
                       <Grid item xs={12} md={4} lg={4}>
                           <TextField
                           id={`firstname ${sNo}`}
@@ -593,7 +545,7 @@ const formik = useFormik({
                           />
                       </Grid>
                   </Grid>
-                  <Divider/>
+                  <Divider sx={{marginTop:'8px',marginBottom:"8px"}}/>
                   </>
                     ))
                   }

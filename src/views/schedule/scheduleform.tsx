@@ -1,14 +1,9 @@
 import React,{useState,useEffect} from 'react';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {fetchRoutes} from '../route/routeSlice'
-import {addSchedule} from './scheduleSlice'
-import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -17,7 +12,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
 import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
 import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
-import {FormHelperText, InputAdornment, ListItemText, OutlinedInput } from '@mui/material';
+import {Alert, AlertTitle, FormHelperText, InputAdornment, ListItemText, OutlinedInput } from '@mui/material';
 import { TimePicker } from '@mui/lab';
 import { useFormik } from 'formik';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
@@ -28,10 +23,10 @@ import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
-import {ActiveBusses} from '../../App'
 import useError from '../../utils/hooks/useError'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
-import {useGetRoutesQuery} from '../../features/api/apiSlice'
+import {useGetRoutesQuery,useAddNewScheduleMutation,useGetActiveBussesQuery} from '../../features/api/apiSlice'
+
  type routeOptionsType = {
   label : string,
   id : string,
@@ -44,25 +39,29 @@ const validate = (values:{description:string}) => {
     } 
     return errors;
   };
-export default function Schedule(){
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-      PaperProps: {
-        style: {
-          maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-          width: 250,
+
+// props for menu items
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+        PaperProps: {
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+          },
         },
-      },
-    };
-const dispatch = useAppDispatch()
-const routeStatus = useAppSelector(state=>state.routes.status)
+      };
+
+export default function Schedule(){
+// global redux states
+const {data:routes=[],isLoading} = useGetRoutesQuery()
+const {data:ActiveBusses} = useGetActiveBussesQuery()
+const [addSchedule] = useAddNewScheduleMutation()
+
+// states local to  the component
 const [open,setOpen] = useState(false)
-const [routesOpen,setRoutesOpen] = useState(false)  
 const [loading, setLoading] = React.useState(false);
-const {data:routes,isLoading} = useGetRoutesQuery()
-const routesLoading = routesOpen && isLoading
-const routeOptions:routeOptionsType[] = routes.map(route=>(
+const routeOptions:routeOptionsType[] = routes.map((route:any)=>(
   {id:route._id as string ,label:`${route.source} to ${route.destination}`}
 ))
 
@@ -84,6 +83,9 @@ const [assignedBus, setAssignedBus] = React.useState('');
 const [departureDate,setDepartureDate] = useState<Date|null>(null)
 const [departureTime,setDepartureTime] = useState<Date|null>(null)
 const [routeError,routeErrorMessage,setRouteErrorOccured,setRouteErrorMessage] = useError()
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
+
+//Handler functions
 const handleDepPlaceChange = (e: SelectChangeEvent) => {
 setDepPlace(e.target.value);
 };
@@ -99,14 +101,8 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   setOpen(false);
 };
 
-useEffect(()=>{
-    document.title+=` - Create Schedule`
-    if(routesLoading){
-      dispatch(fetchRoutes())
-      
-    }
-    },[routesLoading,dispatch])
 
+// formik handler
 const formik = useFormik({
     initialValues: {
       description: "",
@@ -122,25 +118,25 @@ const formik = useFormik({
         if(!loading){
             setLoading(true)
             try {
-              await dispatch(addSchedule(
+              await addSchedule(
                 {
                 source,
                 description:values.description,
                 destination,
                 tarif,
-               distance,
-               estimatedhour,
-               assignedbus:assignedBus,
-               depplace:depPlace,
-               depdateandtime:new Date(`${departureDate?.toLocaleDateString()} ${departureTime?.toTimeString()}`).toISOString(),
-               totalnoofsit:ActiveBusses?.find(ab=>ab._id===assignedBus)?.totalNoOfSit,
-               
-             }
-              )).unwrap()
+                distance,
+                estimatedhour,
+                assignedbus:assignedBus,
+                depplace:depPlace,
+                depdateandtime:new Date(`${departureDate?.toLocaleDateString()} ${departureTime?.toTimeString()}`).toISOString(),
+                totalnoofsit:ActiveBusses?.find(ab=>ab._id===assignedBus)?.totalNoOfSit,
+               }
+              ).unwrap()
               
               resetForm({values:{
                 description: ""
               }})
+              setErrorOccured(false)
               setDepartureDate(null)
               setDepartureTime(null)
               setDepPlace('')
@@ -152,7 +148,7 @@ const formik = useFormik({
               setRouteErrorMessage('')
             }
             catch(err){
-              console.log(err)
+              setErrorMessage(`Failed to Add Schedule , ${err.data.message}`)
             }
             finally{
               setLoading(false)
@@ -161,7 +157,10 @@ const formik = useFormik({
             }
     },
   });
-  
+  console.log(routes)
+  console.log(assignedBusses)
+  console.log(ActiveBusses)
+  console.log(routeId)
   return (
    <LocalizationProvider dateAdapter={AdapterDateFns}>
      
@@ -212,14 +211,14 @@ const formik = useFormik({
           setRoute(newValue);
         }}
         id="routes"
-        open={routesOpen}
-        onOpen = {()=>{
-          setRoutesOpen(true)
-        }}
-        onClose = {()=>{
-          setRoutesOpen(false)
-        }}
-        loading = {routesLoading}
+        // open={routesOpen}
+        // onOpen = {()=>{
+        //   setRoutesOpen(true)
+        // }}
+        // onClose = {()=>{
+        //   setRoutesOpen(false)
+        // }}
+        // loading = {routesLoading}
         inputValue={routeValue}
         onInputChange={(event, newInputValue) => {
           setRouteValue(newInputValue);
@@ -239,7 +238,7 @@ const formik = useFormik({
             ),
             endAdornment: (
               <React.Fragment>
-                {routeStatus==='loading' ? <CircularProgress color="inherit" size={20} /> : null}
+                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                 {params.InputProps.endAdornment}
               </React.Fragment>
             ),
@@ -375,6 +374,14 @@ const formik = useFormik({
         </Button>
             </FormWrapper>
             <SaveSuccessfull open={open} handleClose={handleClose} message = 'Schedule Successfully Created' />
+            {
+          error && (
+            <Alert sx={{p:1}} severity="error">
+            <AlertTitle>Error</AlertTitle>
+             <strong>{errorMessage}</strong>
+          </Alert>
+          )
+        }
             
       </form>
       

@@ -29,6 +29,8 @@ import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 import {useAddNewUserMutation} from '../../features/api/apiSlice'
+
+
 interface USER_TYPE {
   firstName:string
   lastName:string,
@@ -36,6 +38,8 @@ interface USER_TYPE {
   password:string,
   confirmPassword:string,
 }
+
+//validator function for formik fields
 const validate = (values:USER_TYPE) => {
     const errors:Partial<USER_TYPE> = {};
     if (!values.firstName) {
@@ -81,7 +85,10 @@ const validate = (values:USER_TYPE) => {
   };
 
 export default function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
+// states from redux
+const [addNewUser,{error}] = useAddNewUserMutation()
 
+//local states
 const [open,setOpen] = useState(false)
 const [gender,setGender] = useState('')
 const providedRoleDescription  = roles.find((role)=>role.id===providedRole)?.description 
@@ -90,7 +97,11 @@ const roleId = roles.find((role)=>role.description===roleItem)?.id as string
 const [genderError,genderErrorText,setGenderError,setGenderErrorText] = useError()
 const [roleError,roleErrorText,setRoleError,setRoleErrorText] = useError()
 const [loading, setLoading] = React.useState(false);
-const [adduserError,setAddUserError] = useState('')
+
+// const [adduserError,setAddUserError] = useState('')
+
+const [adduserErrorOccured,addUserErrorMessage,setAddUserErrorOccured,setAddUserErrorMessage] = useError()
+//Handler Functions
 const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
@@ -108,13 +119,8 @@ const handleRoleChange = (e:SelectChangeEvent)=>{
   setRoleErrorText('')
   setRoleError(false)
 }
-const [addNewUser,{error}] = useAddNewUserMutation()
 
-React.useEffect(()=>{
-    document.title +=` - User Registration`
-  },[])
-
-
+// formik stuff
   const formik = useFormik({
     initialValues: {
       firstName: '',
@@ -165,7 +171,7 @@ React.useEffect(()=>{
                 password:'',
                 confirmPassword:''
               }})
-             
+              setAddUserErrorOccured(false)
               setGender('')
               setRoleItem('')
               setOpen(true)
@@ -176,7 +182,8 @@ React.useEffect(()=>{
           
             }
             catch (err:any) {
-                setAddUserError(`Failed to register user , ${err.data.message}`)
+                setAddUserErrorOccured(true)
+                setAddUserErrorMessage(`Failed to register user , ${err.data.message}`)
                  }
             finally {
               setLoading(false)
@@ -359,11 +366,13 @@ React.useEffect(()=>{
             </FormWrapper>
             <SaveSuccessfull open={open} handleClose={handleClose} message = 'User Successfully Registered' />
       </form>
-      {adduserError&&(<FormWrapper>
-            <Alert sx ={{width:'450px',fontSize:"medium"}} severity="error">
-            <strong>{adduserError}</strong>
+      {
+      adduserErrorOccured && (<FormWrapper>
+            <Alert severity="error">
+            <strong>{addUserErrorMessage}</strong>
             </Alert>
-            </FormWrapper>)}
+            </FormWrapper>)
+            }
       </Box>
       </RegistrationParent>
   );
