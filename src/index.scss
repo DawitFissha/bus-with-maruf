@@ -1,5 +1,11 @@
 @import 'assets/scss/style.scss';
-
+.MuiTablePagination-displayedRows{
+    display: none;
+}
+tbody tr:not(:first-child):hover {
+    background-color:#fae3e3 !important;
+    cursor: pointer;
+}
 .nav-outside.mob-backdrop {
     &.mob-fixed .pcoded-navbar {
         z-index: 1032;

@@ -61,15 +61,8 @@ export default function MainCashierPage() {
         <Booking passSchedule={getSchedule}/>
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Box sx={{display:'flex'}}>
-                <Box sx={{flexGrow:1}}>
-                <TicketHistory/>
-                </Box>
-        
-        </Box>
-        
+      <TicketHistory/>
       </TabPanel>
-     
     </Box>
   );
 }

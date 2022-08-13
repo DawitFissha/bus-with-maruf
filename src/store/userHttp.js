@@ -1,6 +1,7 @@
 import { userActions } from "./user-slice"
 import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
+import { loadingActions } from "./loading-slice"
 
 export const getUser=()=>{
     return async(dispatch)=>{
@@ -45,7 +46,7 @@ export const resetPassword=(data)=>{
     return async(dispatch)=>{
         try{
             console.log("send request")
-            const res=await axios_instance.put(`resetpassword/${id}`,data)
+            const res=await axios_instance.put(`resetpassword/${data.id}`,data)
             dispatch(userActions.setFetch())
             dispatch(errorActions.Message('password reset'))
             dispatch(loadingActions.status("done"))

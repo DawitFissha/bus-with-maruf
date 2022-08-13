@@ -37,9 +37,6 @@ const NavBar = () => {
                     </div>
                     <span className="b-title">Admin Dashboard</span>
                 </Link>
-                {/* <Link to='#' className={moreClass.join(' ')} onClick={() => setMoreToggle(!moreToggle)}>
-                    <i className="feather icon-more-vertical"/>
-                </Link> */}
             </div>
             <div className={collapseClass.join(' ')}>
                 <NavLeft />

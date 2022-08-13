@@ -5,15 +5,9 @@ type passengerInfo = {
   sits:number,
 }
 class AuthService {
-<<<<<<< HEAD
-  login(phonenumber:any, organizationcode:any, password:any) {
-    return axios
-      .post(API_URL + `loginorganizationuser`, {
-=======
   login(phonenumber, organizationcode, password) {
     return axios_instance
       .post(`loginorganizationuser`, {
->>>>>>> de35c3314a5d314aeac2b47c8eb7fab285324088
         phonenumber,
         password, organizationcode
       })

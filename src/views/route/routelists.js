@@ -7,36 +7,36 @@ import { useSelector,useDispatch } from 'react-redux';
 import {role} from "../../role"
 import { getAllCity } from '../../store/scheduleHttp';
 import { errorActions } from '../../store/error-slice';
+import {RiBusWifiFill} from "react-icons/ri"
 import { routeActions } from '../../store/route-slice';
-import { scheduleActions } from '../../store/schedule-slice';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+import AssignBus from "./assignbus"
 export default function RouteList() {
   const tabledata=useSelector(state=>state.route.tableData)
   const busdata=useSelector(state=>state.route.busData)
   const citydata=useSelector(state=>state.schedule.cityData)
-  console.log(citydata)
   const data=tabledata?.map(o => ({ ...o }));
   const activebus=busdata?.map(o => ({ ...o }));
   const cityData=citydata?.map(o => ({ ...o }));
   const fetched=useSelector(state=>state.route.updated)
   const [cityLooks,setCityLooks] =useState({})
+  const [info,setInfo]=useState({})
+  const [isClicked,setIsClicked]=useState(false)
+  const message=useSelector(state=>state.message.errMessage)
+
   const dispatch=useDispatch()
   useEffect(()=>{
     dispatch(getRoute())
-    dispatch(getActiveBus())
+    // dispatch(getActiveBus())
     dispatch(getAllCity())
     return ()=>{
       dispatch(errorActions.Message(''))
     }
       },[fetched])
-      let looks
       let citylooks
       useEffect(()=>{
-     if(busdata.length>0)
+     if(cityData.length>0)
      {
-      looks = activebus?.reduce(function(acc, cur, i) {
-        acc[cur._id] = cur.busPlateNo;
-        return acc;
-        }, {});
     citylooks = cityData?.reduce(function(acc, cur, i) {
       acc[cur.cityName] = cur.cityName;
       return acc;
@@ -44,8 +44,22 @@ export default function RouteList() {
       setCityLooks(citylooks)
      }
       },[busdata,citydata])
+      useEffect(()=>{
+        message==='route-bus-place'&&setSaveStatus(true)
+        return ()=>{
+        dispatch(errorActions.Message(''))
+        }
+      },[message])
+    const [saveStatus,setSaveStatus] =useState(false)
+    const handleSaveStatusClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setSaveStatus(false);
+      };
   return (
     <React.Fragment>
+     {isClicked&& <AssignBus info={info}/>}
             <Row>
                 <Col>
                     <Card>
@@ -54,6 +68,7 @@ export default function RouteList() {
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
+                        style={{zIndex:0,fontSize:'15px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                         
@@ -71,13 +86,15 @@ export default function RouteList() {
       data={data}
       icons={tableIcons}
       options={{
+        search:false,
+        maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {
-              return {backgroundColor: "#f2f2f2"}
+              return {backgroundColor: "#F5F5F5"}
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
+        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -88,17 +105,25 @@ export default function RouteList() {
       localization={{
         body: {
           editTooltip: 'Edit Route Info',
-          deleteTooltip: 'Delete Route',
        }
 }}
+actions={[
+  {
+    icon:() => <RiBusWifiFill color="brown"/>,
+    tooltip: 'Update Bus Info',
+    position:'row',
+    onClick: (evt, Data) => {
+      setInfo(Data)
+      setIsClicked(true)
+      dispatch(errorActions.Message(''))
+      dispatch(routeActions.setModal(true))
+
+    }
+  }]}
       editable={{
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
               dispatch(updateRoute(oldData._id,newData,resolve))
-          }),
-        onRowDelete: oldData =>
-          new Promise((resolve, reject) => {
-              dispatch(deleteRoute(oldData._id,resolve))
           }),
       }}
     />
@@ -106,6 +131,7 @@ export default function RouteList() {
         </Card>
         </Col>
          </Row>
+         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Route Info Updated' />
         </React.Fragment>
   )
 }

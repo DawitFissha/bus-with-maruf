@@ -4,26 +4,38 @@ import { NavLink, useHistory } from 'react-router-dom';
 import useScriptRef from '../../../hooks/useScriptRef';
 import { API_SERVER } from '../../../config/constant';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Buttons from "@material-ui/core/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Buttons from "@mui/material/Button";
+import { errorActions } from '../../../store/error-slice';
 import { Organization } from '../../../store/authhttp';
+import { loadingActions } from '../../../store/loading-slice';
 import { useDispatch,useSelector } from 'react-redux';
 const Organizations = () => {
     const orgcoderef=useRef()
     let history = useHistory();
     const dispatch=useDispatch()
     const isOrgCodeValid=useSelector(state=>state.login.isOrgCodeValid)
+    const loadingStatus=useSelector(state=>state.loading.status)
     const errmsg=useSelector(state=>state.message.errMessage)
     const HandleOrgCode=(event)=>{
         event.preventDefault()       
         const orgcode=orgcoderef.current.value
         if(orgcode!=='')
         {
+            dispatch(errorActions.Message(''))
+            dispatch(loadingActions.status('pending'))
             dispatch(Organization({code:orgcode}))
+        }
+        else{
+            dispatch(errorActions.Message('Please Fill Organization Code'))  
         }
     }
     useEffect(()=>{
         isOrgCodeValid&&history.push('/signin')
+        dispatch(errorActions.Message(''))
+        return ()=>{
+            dispatch(errorActions.Message(''))
+        }
     },[isOrgCodeValid])
     return (
         <React.Fragment>
@@ -70,7 +82,7 @@ const Organizations = () => {
                             fullWidth
                             variant="contained"
                             color="primary">
-                        {'pendin'!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
+                        {loadingStatus!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
                            </Buttons>
                             </Col>
                         </Row>

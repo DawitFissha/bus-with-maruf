@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
-
 import { ConfigContext } from '../../../contexts/ConfigContext';
 import useWindowSize from '../../../hooks/useWindowSize';
-
 import NavLogo from './NavLogo';
 import NavContent from './NavContent';
 import navigation from '../../../menu-items';

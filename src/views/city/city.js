@@ -52,6 +52,7 @@ const handleSaveStatusClose = (event, reason) => {
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
+                        style={{zIndex:0,fontSize:'15px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
@@ -65,13 +66,15 @@ const handleSaveStatusClose = (event, reason) => {
       data={data}
       icons={tableIcons}
       options={{
+        search:false,
+        maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {
               return {backgroundColor: "#f2f2f2"}
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
+        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

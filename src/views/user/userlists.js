@@ -6,10 +6,10 @@ import { getUser, updateUser} from '../../store/userHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {RiLockUnlockLine} from "react-icons/ri";
 import {role} from "../../role"
+import axios_instance from '../../services/lib-config';
 import { userActions } from '../../store/user-slice';
 import { errorActions } from '../../store/error-slice';
-import { SaveSuccessfull } from '../../Components/saveSuccess';
-
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import ResetForm from './resetform'
 export default function UserList() {
   const tabledata=useSelector(state=>state.userlist.tableData)
@@ -23,7 +23,6 @@ export default function UserList() {
 
 console.log(profile)
 let lookups
-let cols
 let actions
 if(profile.role===role.SUPERADMIN)
 {
@@ -88,11 +87,12 @@ return ()=>{
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
+                          style={{zIndex:0,fontSize:'15px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                           Action: props => {
                             //If isn't the add action
-                            if (typeof props.action === typeof Function || props.action.tooltip !== 'Add') {
+                            if (typeof props.action === typeof Function || props.action.tooltip !== 'Edit') {
                                   return <MTableAction {...props} />
                             } 
                             else {
@@ -104,22 +104,25 @@ return ()=>{
       title="User List"
       columns={[
       {title: "id", field: "_id",hidden:true},
-      { title: 'First Name', field: 'firstName',editable:"never"},
-      { title: 'Last Name', field: 'lastName',editable:"never"},
-      { title: 'Phone', field: 'phoneNumber',editable:"never"},
-      { title: 'User Role', field: 'userRole',lookup:lookups,editable:"never"},
-      { title: 'Gender', field: 'gender',lookup: { "male": 'Male', "female": 'Female'},editable:"never"},
+      { title: 'First Name', field: 'firstName',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
+      { title: 'Last Name', field: 'lastName',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
+      { title: 'Phone', field: 'phoneNumber',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
+      { title: 'User Role', field: 'userRole',lookup:lookups,editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
+      { title: 'Gender', field: 'gender',lookup: { "male": 'Male', "female": 'Female'},editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
+      { title: 'Assigned', field: 'isAssigned',editable: ( _ ,rowData ) => rowData && rowData.isAssigned==="2",type:"date",lookup:{"2":"Assigned","1":"Unassigned"}},
       { title: 'Status', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}}]}
       data={data}
       icons={tableIcons}
       options={{
+        search:false,
+        maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {
               return {backgroundColor: "#f2f2f2"}
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
+        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

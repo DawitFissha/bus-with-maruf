@@ -1,12 +1,12 @@
 import React, { useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Form} from 'react-bootstrap';
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from "@mui/material/TextField";
+import InputAdornment from '@mui/material/InputAdornment';
 import {AiOutlineCheckSquare} from "react-icons/ai"
-import PersonIcon from '@material-ui/icons/Person';
-import EnhancedEncryptionIcon from '@material-ui/icons/EnhancedEncryption';
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Buttons from "@material-ui/core/Button";
+import PersonIcon from '@mui/icons-material/Person';
+import EnhancedEncryptionIcon from '@mui/icons-material/EnhancedEncryption';
+import CircularProgress from "@mui/material/CircularProgress";
+import Buttons from "@mui/material/Button";
 import { useDispatch,useSelector } from 'react-redux';
 import { changePassword } from '../../../store/authhttp';
 import { errorActions } from '../../../store/error-slice';

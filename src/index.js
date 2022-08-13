@@ -15,7 +15,7 @@ import {ThemeProvider} from '@mui/material/styles'
 const client=new ApolloClient({
     cache:new InMemoryCache,
     link:new HttpLink({
-        uri:"https://melabus.herokuapp.com/graphql",
+        uri:"http://localhost:7000/graphql",
         credentials: "include",
         
     })

@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown, Container } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
-import TextField from "@material-ui/core/TextField";
-import Buttons from "@material-ui/core/Button";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import TextField from "@mui/material/TextField";
+import Buttons from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
 import {userActions} from '../../store/user-slice'
 import { errorActions } from '../../store/error-slice';

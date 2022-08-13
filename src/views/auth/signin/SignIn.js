@@ -2,8 +2,8 @@ import React,{useRef,useEffect} from 'react';
 import { Card,Col ,Row,Button,Alert} from 'react-bootstrap';
 import { NavLink ,Link, useHistory} from 'react-router-dom';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Buttons from "@material-ui/core/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Buttons from "@mui/material/Button";
 import {loginActions} from "../../../store/login-slice";
 import { loginUser } from '../../../store/authhttp';
 import { useSelector,useDispatch } from "react-redux";
@@ -21,7 +21,6 @@ const dispatch=useDispatch()
 const loginState = useSelector((state) => state.login);
 const { isAuthenticated ,isOrgCodeValid,organizationName} = loginState;
 const token=useSelector(state=>state.login.token)
-
 const loadingStatus=useSelector(state=>state.loading.status)
 const errmsg=useSelector(state=>state.message.errMessage)
 const organizationcode=useSelector(state=>state.login.organizationCode)
@@ -47,13 +46,13 @@ else{
 
 }
     }
-    useEffect(()=>{
-        dispatch(errorActions.Message(''))
-    },[])
 console.log(isAuthenticated)
     useEffect(()=>{
         token&&setCookie('token', token, { path: '/'})
         isAuthenticated&&history.push('/dashboard')
+        return ()=>{
+            dispatch(errorActions.Message(''))
+        }
     },[isAuthenticated])
     if (!isOrgCodeValid) {
         return <Redirect to="/organization" />;

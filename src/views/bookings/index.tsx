@@ -24,7 +24,7 @@ import SeatPicker from '../../Components/seat-picker'
 import {fetchSchedules,resetSchedule,addtoGlobalSchedules} from '../schedule/scheduleSlice'
 import {allBusses} from '../../App'
 import AuthService from '../../services/auth.service'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
 import useSmallScreen from '../../utils/hooks/useSmallScreen'

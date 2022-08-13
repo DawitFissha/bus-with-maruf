@@ -5,20 +5,18 @@ import { tableIcons } from '../../views/Table/Tableicon';
 import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
-import Select from "@material-ui/core/Select";
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import TextField from '@mui/material/TextField'
-import MenuItem from "@material-ui/core/MenuItem";
+import MenuItem from "@mui/material/MenuItem";
 import {MdToday} from "react-icons/md"
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import { errorActions } from '../../store/error-slice';
 import RefundForm from "./refundpop"
-import { SaveSuccessfull } from '../saveSuccess';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { SaveSuccessfull } from '../common-registration-form/saveSuccess';
 
 export default function ScheduleList() {
-  const tabledata=useSelector(state=>state.schedule.tableData)
+  const tabledata=useSelector(state=>state.schedule.historyData)
   const scheduledata=useSelector(state=>state.schedule.scheduleData)
   const data=tabledata?.map(o => ({ ...o }));
   const filterData=scheduledata?.map(o => ({ ...o }));
@@ -53,14 +51,17 @@ export default function ScheduleList() {
         }
       }),
     ]
-//   }
-
 const dispatch=useDispatch()
 useEffect(()=>{
   let isComponentMounted = true;
   if(isComponentMounted){
     dispatch(getSalesSchedule())
+    if(schedule?.id)
+    {
+      dispatch(getOneSchedule(schedule?.id))
+    }
   }
+
 return ()=>{
   dispatch(errorActions.Message(''))
   isComponentMounted = false;
@@ -81,7 +82,7 @@ return ()=>{
 },[schedule])
 
 const message=useSelector(state=>state.message.errMessage)
-const options=filterData?.map(e=>({id:e._id,label:`from ${e?.source} to ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))
+const options=filterData?.map(e=>({id:e._id,label:`From ${e?.source} To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))
 console.log(options)
 useEffect(()=>{
 message==="ticket canceled"&&setSaveStatus(true)
@@ -96,6 +97,7 @@ return;
 }
 setSaveStatus(false);
 };
+console.log(schedule.label)
   return (
     <React.Fragment>
       <RefundForm/>
@@ -108,24 +110,25 @@ setSaveStatus(false);
                             <Autocomplete
                                 disablePortal
                                 id="select-schedule"
+                                variant="outlined"
                                 value={schedule}
                                 onChange={(event, newValue) => {
                                   newValue !== null&&setSchedule(newValue);
                                 }}
                                 options={options}
-                                sx={{ width: 450 }}
+                                sx={{ width: 400 }}
                                 renderInput={(params) => <TextField {...params} label="Select Schedule" />}
                               />
                             </Row>
-                            {/* <Row style={{justifyContent:"end",marginRight:"20px",fontSize:"20px",color:"blue",fontFamily:"Times New Roman"}}><MdToday size={30}/> Select Schedule</Row> */}
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
+                        style={{zIndex:0,fontSize:'15px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title="Booked Ticket"
+      title={"Booked Ticket :"+" "+(schedule.label||'')}
       columns={[
         {title: "id", field: "_id",hidden:true},
         { title: 'Passanger ID', field: 'passangerId',editable:'never'},
@@ -139,13 +142,15 @@ setSaveStatus(false);
       data={data}
       icons={tableIcons}
       options={{
+        search:false,
+        maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {
               return {backgroundColor: "#f2f2f2"}
           }
       },
       headerStyle: {
-        zIndex: 0,backgroundColor:"#FE7C7C",color:"white",fontSize:"16px"
+        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

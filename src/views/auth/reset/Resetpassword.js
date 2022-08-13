@@ -4,8 +4,8 @@ import { NavLink, useHistory } from 'react-router-dom';
 import useScriptRef from '../../../hooks/useScriptRef';
 import { API_SERVER } from '../../../config/constant';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Buttons from "@material-ui/core/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Buttons from "@mui/material/Button";
 const Reset = () => {
     let history = useHistory();
     const scriptedRef = useScriptRef();

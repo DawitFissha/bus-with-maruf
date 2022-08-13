@@ -1,6 +1,7 @@
 import { scheduleActions } from "./schedule-slice"
 import axios_instance from "../services/lib-config"
 import { errorActions } from "./error-slice"
+import { loadingActions } from "./loading-slice"
 
 
 export const getSchedule=()=>{
@@ -10,6 +11,7 @@ export const getSchedule=()=>{
             console.log(res.data)
             dispatch(scheduleActions.setTableData(res.data))
             
+
         }
        catch(err)
        {
@@ -45,7 +47,7 @@ export const getOneSchedule=(id)=>{
         try{
             const res=await axios_instance.get(`getschedulebyid/${id}`)
             console.log(res.data)
-            dispatch(scheduleActions.setTableData(res.data))
+            dispatch(scheduleActions.setHistoryData(res.data))
             
         }
        catch(err)
@@ -93,11 +95,12 @@ export const getAllCity=()=>{
 
     }
 }
-export const getAllDepPlace=()=>{
+export const getAllDepPlace=(source)=>{
     return async(dispatch)=>{
+        console.log(source)
         try{
-            const res=await axios_instance.get('getalldepartureplace')
-            console.log(res.data)
+            const res=await axios_instance.get('getalldepartureplace',{params:{source}})
+            console.log(res)
             dispatch(scheduleActions.setDepData(res.data))
             
         }
@@ -112,10 +115,10 @@ export const getAllDepPlace=()=>{
     }
 }
 
-export const assignBus=(id,data,resolve)=>{
+export const updateDepartureDateTime=(id,data,resolve)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios_instance.put(`assignbustoschedule/${id}`,data)
+            const res=await axios_instance.put(`updatedeparturedatetime/${id}`,data)
             console.log(res.data)
             dispatch(scheduleActions.setFetch())  
             resolve()          
@@ -156,7 +159,7 @@ export const updatePassInfo=(id,data,resolve)=>{
 export const refundTicket=(data)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios_instance.put(`refundrequest/${data.id}`)
+            await axios_instance.put(`refundrequest/${data.id}`,data)
             dispatch(scheduleActions.setFetch())
             dispatch(errorActions.Message("ticket canceled"))
         }
@@ -165,6 +168,28 @@ export const refundTicket=(data)=>{
         console.log(err)
      !!err.response&&dispatch(errorActions.Message(err.response.data.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
+export const updateScheduleBusAndPlace=(id,data)=>{
+    return async(dispatch)=>{
+        try{
+            console.log("statr")
+            const res=await axios_instance.put(`assignbustoschedule/${id}`,data)
+            console.log(res)
+            dispatch(scheduleActions.setFetch())
+            dispatch(errorActions.Message("schedule-bus-place"))
+            dispatch(loadingActions.status("done"))
+
+        }
+       catch(err)
+       {
+     console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+     dispatch(loadingActions.status("done"))
 
        }
 

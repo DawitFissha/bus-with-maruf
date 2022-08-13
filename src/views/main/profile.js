@@ -6,10 +6,10 @@ import DeviceHubIcon from '@material-ui/icons/DeviceHub';
 import LocalPhoneIcon from '@material-ui/icons/LocalPhone';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import MailIcon from '@material-ui/icons/Mail';
-import TextField from "@material-ui/core/TextField";
-import Avatar from '@material-ui/core/Avatar';
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Buttons from "@material-ui/core/Button";
+import TextField from "@mui/material/TextField";
+import Avatar from '@mui/material/Avatar';
+import CircularProgress from "@mui/material/CircularProgress";
+import Buttons from "@mui/material/Button";
 import { StyledImg } from '../../components/styled/main.styled';
 const Profile = () => {
     const fileref=useRef()

@@ -25,8 +25,8 @@ export const Organization=(data)=>{
             console.log(data)
             const res=await axios_instance.post('getorganizationbycode',data)
             console.log(res)
-            dispatch(loginActions.organization(res.data.organizationName))
-            dispatch(loginActions.organizationCode(res.data.organizationCode))
+            dispatch(loginActions.organization(res.data?.organizationName))
+            dispatch(loginActions.organizationCode(res.data?.organizationCode))
             dispatch(loginActions.isOrgCodeValid(true))
             dispatch(loadingActions.status('done'))
         }
@@ -34,7 +34,7 @@ export const Organization=(data)=>{
        {
         alert(err.response.data.message)
      !!err.response&&dispatch(loginActions.isLoged(false))
-     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !!err.response&&dispatch(errorActions.Message(err.response?.data?.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
      dispatch(loadingActions.status('done'))
      

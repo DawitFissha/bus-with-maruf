@@ -28,6 +28,9 @@ const DashDefault = () => {
           getMobileTotalSale(input: $input) {
             totalTicket
           }
+          getTotalSale(input: $input) {
+            totalTicket
+          }
    }`
    const {loading,error,data,refetch}=useQuery(gqlship,{
     variables:{input:{filter:sortState
@@ -46,7 +49,7 @@ useEffect(()=>{
     setLocalSale(data.getLocalTotalSale?.totalTicket?parseInt(data.getLocalTotalSale?.totalTicket):0)
     setAgentSale(data.getAgentTotalSale?.totalTicket?parseInt(data.getAgentTotalSale?.totalTicket):0)
     setMobileSale(data.getMobileTotalSale?.totalTicket?parseInt(data.getMobileTotalSale?.totalTicket):0)
-    setTotalSale(data.getLocalTotalSale?.totalTicket?parseInt(data.getLocalTotalSale?.totalTicket):0+data.getAgentTotalSale?.totalTicket?parseInt(data.getAgentTotalSale?.totalTicket):0+data.getMobileTotalSale?.totalTicket?parseInt(data.getMobileTotalSale?.totalTicket):0)
+    setTotalSale(data.getTotalSale?.totalTicket?parseInt(data.getTotalSale?.totalTicket):0)
     }
 },[data,sortState])
     const countLocal={from:0,to:localSale}

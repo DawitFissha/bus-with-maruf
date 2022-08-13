@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown, Container } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
-import TextField from "@material-ui/core/TextField";
-import Buttons from "@material-ui/core/Button";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import {TextField} from "@mui/material";
+import {Button as Buttons} from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
 import { Autocomplete} from '@mui/material';
 import {cityActions} from '../../store/city-slice'
@@ -131,12 +131,14 @@ useEffect(()=>{
                                 disablePortal
                                 id="select-city"
                                 value={city}
+                                disabled={!!update}
                                 onChange={(event, newValue) => {
                                 setCity(newValue);
                                 }}
                                 options={options}
+                                variant="outlined"
                                 sx={{ width: 300 }}
-                                renderInput={(params) => <TextField {...params} label="Select City" />}
+                                renderInput={(params) => <TextField {...params} label="Select City" variant="standard"/>}
                               />
                                 </Form.Group>  
                                    </Row>
