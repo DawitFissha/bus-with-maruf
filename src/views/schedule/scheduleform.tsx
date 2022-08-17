@@ -59,6 +59,7 @@ const {data:ActiveBusses} = useGetActiveBussesQuery()
 const [addSchedule] = useAddNewScheduleMutation()
 
 // states local to  the component
+
 const [open,setOpen] = useState(false)
 const [loading, setLoading] = React.useState(false);
 const routeOptions:routeOptionsType[] = routes.map((route:any)=>(
@@ -334,15 +335,16 @@ const formik = useFormik({
 
           <FormWrapper>
           <FormControl sx={{width: '100%' }}>
-        <InputLabel id="departure-place">Bus</InputLabel>
+        <InputLabel id="assigned-bus">Bus</InputLabel>
         <Select
-          labelId="departure-place"
-          id="departure-places"
+          labelId="assigned-bus"
+          id="assigned-bus"
           // multiple
           value={assignedBus}
           onChange={handleAssignedBusChange}
           input={<OutlinedInput id="select-multiple" label="Departure Place" />}
-          renderValue={(selected)=>ActiveBusses?.find(ab=>ab._id===selected)?.busPlateNo}
+          // renderValue={(selected)=>ActiveBusses?.find(ab=>ab._id===selected)?.busPlateNo}
+          renderValue={(selected)=>selected}
           MenuProps={MenuProps}
           startAdornment = {
             <InputAdornment position="start">
@@ -352,13 +354,13 @@ const formik = useFormik({
         >
           {
           assignedBusses?
-          assignedBusses!.map((assignedBus:string) => (
+          assignedBusses.map((assignedBus:string) => (
             <MenuItem
               key={assignedBus}
               value={assignedBus}
             >
               
-              <ListItemText primary={ActiveBusses?.find(activeBus=>(activeBus?._id === assignedBus))?.busPlateNo} />
+              <ListItemText primary={ 'hello'/*ActiveBusses?.find(activeBus=>(activeBus?._id === assignedBus))?.busPlateNo */} />
             </MenuItem>
           )):null
           }
