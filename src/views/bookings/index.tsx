@@ -30,7 +30,7 @@ type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
 }
-type passengerInformationType = {firstName:string,lastName:string,phoneNumber:string,seatNumber?:number}
+type passengerInformationType = {firstName:string,lastName:string,phoneNumber:string,additonalPassengerFirstName?:string,additonalPassengerLastName?:string,additonalPassengerPhoneNumber?:string}
 
 const validate = (values:passengerInformationType) => {
     const errors:Partial<passengerInformationType> = {}
@@ -47,6 +47,11 @@ const validate = (values:passengerInformationType) => {
 
     if((!ValidatePhoneNumber(values.phoneNumber))) {
       errors.phoneNumber = "Please Enter a valid PhoneNumber"
+    }
+    if(values.additonalPassengerPhoneNumber){
+      if(!ValidatePhoneNumber(values.additonalPassengerPhoneNumber)){
+        errors.additonalPassengerPhoneNumber = "Please Enter a valid PhoneNumber"
+      }
     }
 
     return errors;
@@ -78,6 +83,9 @@ const handleSeatChoosing = (seat:number)=>{
     return newSelectedSeats
   })
 
+  
+}
+const completeSeatChoosing = ()=>{
   setSeatPickerOpen(false)
 }
 const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
@@ -99,12 +107,8 @@ const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
   scheduleDescription:'',id:''
 })
 const scheduleInfo = schedules?.find(sch=>sch._id===schedule?.id)
-const additonalSeatref = React.useRef<number|null>(null)
-const [additonalPassengerInfo,setAdditionalPassengerInfo] = React.useState({
-        [`firstName-${additonalSeatref.current}`]:'',
-        [`lastName-${additonalSeatref.current}`]:'',
-        [`phoneNumber-${additonalSeatref.current}`]:'',
-})
+const [canSelectSeat,setCanSelectSeat] = React.useState(true) // to disable selecting seats if two seats are selected
+
 // handler functions
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
@@ -113,31 +117,28 @@ const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: st
   setSaveStatus(false);
 };
  
-const handleAdditionalPassengerInfo: React.ChangeEventHandler<HTMLInputElement> = (e)=>{
-  const {name,value} = e.target
-  setAdditionalPassengerInfo(
-    {
-      ...additonalPassengerInfo,
-      [name]:value
-    }
-  )
-}
+
 // Effect to handle seatnumber stuff
 React.useEffect(()=> {
 if(seatNumber.length>0){
   setSeatNumberRequired(false)
 }
-
+if(seatNumber.length>1) {
+  setCanSelectSeat(false) //maximum of two seats can be selected
+}
+if(seatNumber.length<=1) {
+  setCanSelectSeat(true) //maximum of two seats can be selected
+}
 if(Boolean(schedule?.id && (seatNumber?.length>0))){
   AuthService.lockSit(seatNumber,schedule?.id as string)
 }
 },[schedulesLoading,schedule,seatNumber])
 
-React.useEffect(()=>{
-  if(Boolean(seatNumber)){
-    setSeatNumber([])
-  }
-},[schedule])
+// React.useEffect(()=>{
+//   if(Boolean(seatNumber)){
+//     setSeatNumber([])
+//   }
+// },[schedule,seatNumber])
 
 //formik
 const formik = useFormik({
@@ -145,6 +146,9 @@ const formik = useFormik({
   firstName:'',
   lastName:'',
   phoneNumber:'',
+  additonalPassengerFirstName:'',
+  additonalPassengerLastName:'',
+  additonalPassengerPhoneNumber:'',
   },
   validate,
   onSubmit: async (values,{resetForm}) => {
@@ -167,8 +171,8 @@ const formik = useFormik({
               ,
               ...seatNumber.slice(1).map((seatNo)=>(
                 {
-                  passname:`${additonalPassengerInfo[`firstName-${additonalSeatref.current}`]} ${additonalPassengerInfo[`lastName-${additonalSeatref.current}`]}`,
-                  passphone:additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`]!==''?additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`]:values.phoneNumber,
+                  passname:`${values.additonalPassengerFirstName as string}  ${values.additonalPassengerLastName as string}`,
+                  passphone:values.additonalPassengerPhoneNumber !=='' ? values.additonalPassengerPhoneNumber as string : values.phoneNumber,
                   sits:seatNo,
                 }
               )
@@ -177,18 +181,14 @@ const formik = useFormik({
             ,schedule?.id as string)
             
             resetForm({values:{
-              seatNumber:1,
               firstName:'',
               lastName:'',
               phoneNumber:'',
+              additonalPassengerFirstName:'',
+              additonalPassengerLastName:'',
+              additonalPassengerPhoneNumber:'',
             }})
-            setAdditionalPassengerInfo(
-              {
-                [`firstName-${additonalSeatref.current}`]:'',
-                [`lastName-${additonalSeatref.current}`]:'',
-                [`phoneNumber-${additonalSeatref.current}`]:'',
-              }
-            )
+
             setSeatNumberRequired(false)
             setSeatNumber([])
             setSaveStatus(true)
@@ -204,7 +204,7 @@ const formik = useFormik({
      
   },
 });
-console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
+// console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SavingProgress loading={loading}/>
@@ -488,24 +488,20 @@ console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
                  </Box>
                  <Divider/>
                  {
-                 seatNumber.length>1 && (
+                 seatNumber.length > 1 && (
                   <Box sx={{m:2}}>
                   <Box>
                       <h5>Additonal Passenger Information</h5>
                   </Box>
-                  {
-                    seatNumber.slice(1).map((sNo:number)=>{
-                      additonalSeatref.current = sNo;
-                      return (
-                        <>
+                        
                         <Grid container columnSpacing={2}>
                         <Grid sx={{marginTop:'5px'}}  item xs={12} md={4} lg={4}>
                             <TextField
-                            id={`firstname ${sNo}`}
-                            name={`firstName-${additonalSeatref.current}`}
-                            label={`First Name for seat ${sNo}`}
-                            value={additonalPassengerInfo.firstName}
-                            onChange={handleAdditionalPassengerInfo}
+                            id={`additonalPassengerFirstName`}
+                            name={'additonalPassengerFirstName'}
+                            label={`First Name for seat ${seatNumber[seatNumber.length-1]}`}
+                            value={formik.values.additonalPassengerFirstName}
+                            onChange={formik.handleChange}
                             sx={smallScreen?{}:{width:"250px"}}
                             InputProps={{
                               startAdornment:(
@@ -522,11 +518,11 @@ console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
                         </Grid>
                         <Grid sx={{marginTop:'5px'}}  item xs={12} md={4} lg={4}>
                         <TextField
-                            id={`lastname ${sNo}`}
-                            name={`lastName-${additonalSeatref.current}`}
-                            label={`Last Name for seat ${sNo}`}
-                            value = {additonalPassengerInfo.lastName}
-                            onChange={handleAdditionalPassengerInfo}
+                            id={`additonalPassengerLastName`}
+                            name={`additonalPassengerLastName`}
+                            label={`Last Name for seat ${seatNumber[seatNumber.length-1]}`}
+                            value = {formik.values.additonalPassengerLastName}
+                            onChange={formik.handleChange}
                             sx={smallScreen?{}:{width:"250px"}}
                             InputProps={{
                               startAdornment:(
@@ -543,11 +539,11 @@ console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
                         </Grid>
                         <Grid sx={{marginTop:'5px'}} item xs={12} md={4} lg={4}>
                             <TextField
-                            id={`phonenumber ${sNo}`}
-                            name={`phoneNumber-${additonalSeatref.current}`}
-                            label={`Optional Phone Number for seat ${sNo}`}
-                            value={additonalPassengerInfo.phoneNumber}
-                            onChange={handleAdditionalPassengerInfo}
+                            id={`additonalPassengerPhoneNumber`}
+                            name={'additonalPassengerPhoneNumber'}
+                            label={`Optional Phone Number for seat ${seatNumber[seatNumber.length-1]}`}
+                            value={formik.values.additonalPassengerPhoneNumber}
+                            onChange={formik.handleChange}
                             sx={smallScreen?{}:{width:"250px"}}
                             InputProps={{
                               startAdornment:(
@@ -562,12 +558,12 @@ console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
                         </Grid>
                     </Grid>
                     <Divider sx={{marginTop:'11px',marginBottom:"8px"}}/>
-                    </>
-                      )
-                    }
+                    
+                      
+                    
                  
-                    )
-                  }
+                    
+                  
               </Box>
                  )
                  }
@@ -586,7 +582,7 @@ console.log(additonalPassengerInfo[`phoneNumber-${additonalSeatref.current}`])
         </div>
         </form>
         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Successfully Booked' />
-        {seatPickerOpen&&(<SeatPicker selectedSeat = {seatNumber} busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
+        {seatPickerOpen&&(<SeatPicker canSelectSeat = {canSelectSeat} completeSeatChoosing = {completeSeatChoosing} selectedSeat = {seatNumber} busPlateNo = {scheduleInfo?.assignedBus?allBusses.find((activeBus:any)=>activeBus._id===scheduleInfo?.assignedBus)?.busPlateNo:'x'} occupiedSeats={scheduleInfo?.occupiedSitNo} numberOfSeat = {scheduleInfo?.totalNoOfSit} handleSeatChoosing = {handleSeatChoosing} open={seatPickerOpen} handleClose = {handleCloseSeatPickcer}/>)}
         </LocalizationProvider>
     )
 }
