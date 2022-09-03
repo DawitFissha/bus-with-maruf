@@ -99,7 +99,7 @@ export const updateBus=(id,data,resolve)=>{
 export const updateBusw=(id,data)=>{
     return async(dispatch)=>{
         try{
-            const res=await axios_instance.put(`updatebusinfo/${id}`,data)
+            const res=await axios_instance.put(`updatebusinfo/${id}`,data,)
             dispatch(busActions.setFetch())
             dispatch(loadingActions.status("done"))
             dispatch(errorActions.Message("buser"))

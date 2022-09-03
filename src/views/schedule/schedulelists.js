@@ -144,6 +144,22 @@ const handleSaveStatusClose = (event, reason) => {
         search:false,
         maxBodyHeight: '600px',
         rowStyle:  (rowData, i) => {
+          if(i % 2&&rowData.status=='Canceled')
+          {
+            return {color: "red",backgroundColor: "#f2f2f2"}
+          }
+          if(rowData.status=='Canceled')
+          {
+            return {color: "red"}
+          }
+          if(i % 2&&rowData.status=='Departed')
+          {
+            return {color: "blue",backgroundColor: "#f2f2f2"}
+          }
+          if(rowData.status=='Departed')
+          {
+            return {color: "blue"}
+          }
           if (i % 2) {
               return {backgroundColor: "#f2f2f2"}
           }

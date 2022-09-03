@@ -70,7 +70,7 @@ console.log(isAuthenticated)
                     </div>
                     <Card className="borderless text-center">
                         <Card.Body>
-                            <h4 className="mb-4">Welcome To {organizationName} Bus</h4>
+                            <h3 style={{textTransform:'capitalize'}} className="mb-4">Welcome To {organizationName}</h3>
 
                             <div className="mb-4">
                                 <i className="feather icon-unlock auth-icon" />

@@ -136,7 +136,7 @@ console.log(schedule.label)
         { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
         { title: 'Sit', field: 'sit',editable:'never'},
         { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
-        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded"}},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded","Canceled Trip":"Canceled Trip"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
       ]}
       data={data}
@@ -145,6 +145,30 @@ console.log(schedule.label)
         search:false,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
+          if(i % 2&&rowData.status=='Refunded')
+          {
+            return {color: "orange",backgroundColor: "#f2f2f2"}
+          }
+          if(rowData.status=='Refunded')
+          {
+            return {color: "orange"}
+          }
+          if(i % 2&&rowData.status=='Canceled Trip')
+          {
+            return {color: "red",backgroundColor: "#f2f2f2"}
+          }
+          if(rowData.status=='Canceled Trip')
+          {
+            return {color: "red"}
+          }
+          if(i % 2&&rowData.status=='Departed')
+          {
+            return {color: "blue",backgroundColor: "#f2f2f2"}
+          }
+          if(rowData.status=='Departed')
+          {
+            return {color: "blue"}
+          }
           if (i % 2) {
               return {backgroundColor: "#f2f2f2"}
           }

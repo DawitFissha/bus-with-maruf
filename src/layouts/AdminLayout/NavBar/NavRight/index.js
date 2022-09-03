@@ -2,18 +2,9 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ListGroup, Dropdown, Media } from 'react-bootstrap';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import axios from 'axios';
-
 import ChatList from './ChatList';
-import { API_SERVER } from '../../../../config/constant';
-import { LOGOUT } from './../../../../store/actions';
 import { loginActions } from '../../../../store/login-slice';
-import avatar1 from '../../../../assets/images/user/avatar-1.jpg';
-import avatar2 from '../../../../assets/images/user/avatar-2.jpg';
-import avatar3 from '../../../../assets/images/user/avatar-3.jpg';
-import avatar4 from '../../../../assets/images/user/avatar-4.jpg';
-import { userinfoActions } from '../../../../store/userinfo-slice';
+import avatar1 from '../../../../assets/images/user/avatar-2.jpg';
 import { errorActions } from '../../../../store/error-slice';
 const NavRight = () => {
     const account = useSelector((state) => state.account);
@@ -34,7 +25,7 @@ const history=useHistory()
     return (
         <React.Fragment>
             <ListGroup as="ul" bsPrefix=" " className="navbar-nav ml-auto" id="navbar-right">
-                <ListGroup.Item as="li" bsPrefix=" ">
+                {/* <ListGroup.Item as="li" bsPrefix=" ">
                     <Dropdown>
                         <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
                             <i className="feather icon-bell icon" />
@@ -124,14 +115,14 @@ const history=useHistory()
                             </div>
                         </Dropdown.Menu>
                     </Dropdown>
-                </ListGroup.Item>
-                <ListGroup.Item as="li" bsPrefix=" ">
+                </ListGroup.Item> */}
+                {/* <ListGroup.Item as="li" bsPrefix=" ">
                     <Dropdown>
                         <Dropdown.Toggle as={Link} variant="link" to="#" className="displayChatbox" onClick={() => setListOpen(true)}>
                             <i className="icon feather icon-mail" />
                         </Dropdown.Toggle>
                     </Dropdown>
-                </ListGroup.Item>
+                </ListGroup.Item> */}
                 <ListGroup.Item as="li" bsPrefix=" ">
                     <Dropdown className="drp-user">
                         <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
@@ -140,7 +131,7 @@ const history=useHistory()
                         <Dropdown.Menu alignRight className="profile-notification">
                             <div className="pro-head">
                                 <img src={avatar1} className="img-radius" alt="User Profile" />
-                                <span>
+                                <span style={{textTransform: 'capitalize'}}>
                                     {userinfo.username}
                                 </span>
                                 <Link to="#" className="dud-logout" onClick={handleLogout} title="Logout">
@@ -154,9 +145,9 @@ const history=useHistory()
                                     </Link>
                                 </ListGroup.Item>
                                 <ListGroup.Item as="li" onClick={HandleProfile} bsPrefix=" ">
-                                    <Link to="#" className="dropdown-item">
+                                    {/* <Link to="#" className="dropdown-item">
                                         <i className="feather icon-user" /> Profile
-                                    </Link>
+                                    </Link> */}
                                 </ListGroup.Item>
                             
                                 <ListGroup.Item as="li" bsPrefix=" ">

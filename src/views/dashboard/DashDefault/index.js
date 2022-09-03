@@ -37,10 +37,10 @@ const DashDefault = () => {
     }
   }})
     // const [active ,setActive]=useState(1)
-    const [localSale ,setLocalSale]=useState(1)
-    const [agentSale,setAgentSale]=useState(1)
-    const [mobileSale,setMobileSale]=useState(1)
-    const [totalSale,setTotalSale]=useState(1)
+    const [localSale ,setLocalSale]=useState(0)
+    const [agentSale,setAgentSale]=useState(0)
+    const [mobileSale,setMobileSale]=useState(0)
+    const [totalSale,setTotalSale]=useState(0)
 
 useEffect(()=>{
     refetch()
@@ -80,7 +80,7 @@ useEffect(()=>{
                             <div className="col-9">
                                     <h3 className="f-w-300 d-flex align-items-center m-b-0">
                                         <i className="feather icon-arrow-up text-c-green f-30 m-r-5" /> 
-                                        <Counter count={countTotal}/>
+                                        <Counter count={countTotal||0}/>
                                     </h3>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@ useEffect(()=>{
                             <div className="col-9">
                                     <h3 className="f-w-300 d-flex align-items-center m-b-0">
                                         <i className="feather icon-arrow-up text-c-green f-30 m-r-5" /> 
-                                        <Counter count={countLocal}/>
+                                        <Counter count={countLocal||0}/>
                                     </h3>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@ useEffect(()=>{
                             <div className="col-9">
                                     <h3 className="f-w-300 d-flex align-items-center m-b-0">
                                         <i className="feather icon-arrow-up text-c-green f-30 m-r-5" /> 
-                                        <Counter count={countAgent}/>
+                                        <Counter count={countAgent||0}/>
                                     </h3>
                                 </div>
                             </div>
@@ -128,7 +128,7 @@ useEffect(()=>{
                             <div className="col-9">
                                     <h3 className="f-w-300 d-flex align-items-center m-b-0">
                                         <i className="feather icon-arrow-up text-c-green f-30 m-r-5" /> 
-                                        <Counter count={countMobile}/>
+                                        <Counter count={countMobile||0}/>
                                     </h3>
                                 </div>
                             </div>

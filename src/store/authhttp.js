@@ -52,7 +52,7 @@ export const loginUser=(data)=>{
             dispatch(loginActions.setCookie(res.data.token))
             console.log(res.data.token)
             dispatch(loadingActions.status('done'))
-            dispatch(userinfoActions.setUser({username:res.data.username,role:res.data.role}))
+            dispatch(userinfoActions.setUser({username:res.data.user,role:res.data.role}))
         }
        catch(err)
        {

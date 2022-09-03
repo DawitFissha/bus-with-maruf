@@ -80,6 +80,8 @@ export default function RouteList() {
         { title: 'Source', field: 'source',lookup:cityLooks,editable:"never"},
         { title: 'Destination', field: 'destination',lookup:cityLooks,editable:"never"},
         { title: 'Tarif In Birr', field: 'tarif'},
+        { title: 'Assigned Bus', field: 'bus',render:(Data)=>Data.bus&&Data.busName?.map(e=>e.busPlateNo)?.join()},
+        { title: 'Dep.Place', field: 'departurePlace',render:(Data)=>Data.departurePlace&&Data.departurePlace?.join()},
         { title: 'Estimated Hour', field: 'estimatedHour'},
         { title: 'Distance', field: 'distance'},
       ]}

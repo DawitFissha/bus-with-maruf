@@ -84,8 +84,8 @@ useEffect(()=>{
     dispatch(getActiveBus())
     dispatch(getAllDepPlace(info.source))
   }
-
 },[info])
+
 const UpdateHandler=()=>{
   dispatch(loadingActions.status("pending"))
   dispatch(updateRouteBusAndPlace(info._id,{bus:assignedBus,departureplace:departPlace}))
