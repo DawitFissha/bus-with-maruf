@@ -25,7 +25,8 @@ import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
 import useSmallScreen from '../../utils/hooks/useSmallScreen'
 import {useGetSchedulesQuery} from '../../features/api/apiSlice'
-
+import {useReactToPrint} from 'react-to-print'
+import TicketPreview from '../../Components/ticket/ticket-preview'
 type scheduleOptionsType = {
   scheduleDescription : string,
   id : string,
@@ -65,6 +66,28 @@ const {data:schedules=[],isLoading:schedulesLoading} = useGetSchedulesQuery()
 // local states
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
 const smallScreen = useSmallScreen()
+const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
+const [saveStatus,setSaveStatus] = React.useState(false)
+const [seatNumber, setSeatNumber] = React.useState<number[]>([]);
+
+const [loading, setLoading] = React.useState(false);
+
+const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
+const [scheduleValue,setScheduleValue] = React.useState('')
+
+const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
+  {id:schedule._id as string ,scheduleDescription:`${schedule.source} to ${schedule.destination} departing on ${new Date(schedule?.departureDateAndTime).toLocaleDateString()}
+  from ${schedule?.departurePlace}
+  `}
+))
+
+const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
+  scheduleDescription:'',id:''
+})
+const scheduleInfo = schedules?.find(sch=>sch._id===schedule?.id)
+const [canSelectSeat,setCanSelectSeat] = React.useState(true) // to disable selecting seats if two seats are selected
+const componentRef = React.useRef(null)
+//handler functions 
 const handleClickOpenSeatPicker = ()=>{
   setSeatPickerOpen(true)
 }
@@ -88,35 +111,16 @@ const handleSeatChoosing = (seat:number)=>{
 const completeSeatChoosing = ()=>{
   setSeatPickerOpen(false)
 }
-const [bookingDate,setBookingDate] = React.useState<Date|null>(new Date())
-const [saveStatus,setSaveStatus] = React.useState(false)
-const [seatNumber, setSeatNumber] = React.useState<number[]>([]);
 
-const [loading, setLoading] = React.useState(false);
-
-const [seatNumberRequired,setSeatNumberRequired] = React.useState(false)
-const [scheduleValue,setScheduleValue] = React.useState('')
-
-const scheduleOptions:scheduleOptionsType[] = schedules.map(schedule=>(
-  {id:schedule._id as string ,scheduleDescription:`${schedule.source} to ${schedule.destination} departing on ${new Date(schedule?.departureDateAndTime).toLocaleDateString()}
-  from ${schedule?.departurePlace}
-  `}
-))
-
-const [schedule,setSchedule] = React.useState<scheduleOptionsType | null>({
-  scheduleDescription:'',id:''
-})
-const scheduleInfo = schedules?.find(sch=>sch._id===schedule?.id)
-const [canSelectSeat,setCanSelectSeat] = React.useState(true) // to disable selecting seats if two seats are selected
-
-// handler functions
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
   }
   setSaveStatus(false);
 };
- 
+const handlePrint = useReactToPrint({
+  content:()=>componentRef.current
+}) 
 
 // Effect to handle seatnumber stuff
 React.useEffect(()=> {
@@ -179,7 +183,7 @@ const formik = useFormik({
               )
             ]
             ,schedule?.id as string)
-            
+            handlePrint()
             resetForm({values:{
               firstName:'',
               lastName:'',
@@ -193,7 +197,8 @@ const formik = useFormik({
             setSeatNumber([])
             setSaveStatus(true)
             setSchedule((prev:scheduleOptionsType|null) => prev)
-}
+            
+          }
           catch(err){
             console.log(`something happened ${err}`)
           }
@@ -219,6 +224,18 @@ const formik = useFormik({
             
         }}
         >
+          <div style = {{display:'none'}}><TicketPreview 
+          ticketNo='000231' 
+          passengerFullName={`${formik.values.firstName} ${formik.values.lastName}`}
+          seatNo= {seatNumber[0]}
+          sourceCity = {scheduleInfo?.source}
+          price = {scheduleInfo?.price}
+          departureTime = {new Date(scheduleInfo?.departureDateAndTime).toLocaleTimeString()}
+          departureDate = {new Date(scheduleInfo?.departureDateAndTime).toDateString()}
+          destinationCity = {scheduleInfo?.destination}
+          phoneNumber = {formik.values.phoneNumber}
+          departurePlace = {scheduleInfo?.departurePlace}
+          ref = {componentRef}/></div>
            <Box sx ={{
              paddingTop:"5px"
             }}>
@@ -570,6 +587,7 @@ const formik = useFormik({
               <Box sx={{p:2}}>
               <Button 
               type="submit"
+              // onClick={handlePrint}
               sx={smallScreen?{}:{
                    display:'block',
                    marginLeft: 'auto',
