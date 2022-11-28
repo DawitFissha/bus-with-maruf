@@ -1,18 +1,18 @@
 import React, { useContext } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-
 import NavIcon from '../NavIcon';
 import NavBadge from '../NavBadge';
-
 import { ConfigContext } from '../../../../../contexts/ConfigContext';
 import * as actionType from '../../../../../store/actions';
 import useWindowSize from '../../../../../hooks/useWindowSize';
-
+import { useDispatch } from 'react-redux';
+import { dashboardActions } from '../../../../../store/dashboard-slice';
 const NavItem = ({ layout, item }) => {
     const windowSize = useWindowSize();
     const configContext = useContext(ConfigContext);
     const { dispatch } = configContext;
+    const dispatc=useDispatch()
 
     let itemTitle = item.title;
     if (item.icon) {
@@ -52,7 +52,9 @@ const NavItem = ({ layout, item }) => {
     } else {
         if (windowSize.width < 992) {
             mainContent = (
-                <ListGroup.Item as="li" bsPrefix=" " className={item.classes} onClick={() => dispatch({ type: actionType.COLLAPSE_MENU })}>
+                <ListGroup.Item as="li" bsPrefix=" " className={item.classes} onClick={() => dispatch({ type: actionType.COLLAPSE_MENU })
+                }>
+                    
                     {subContent}
                 </ListGroup.Item>
             );

@@ -6,7 +6,6 @@ import storage from 'redux-persist/lib/storage';
 import loadingSlice from './loading-slice';
 import errorSlice from './error-slice';
 import userinfoSlice from './userinfo-slice';
-import cities from '../views/city/citySlice'
 import users from '../views/user/userSlice'
 import busStates from '../views/bus-states/busstateSlice'
 import schedules from '../views/schedule/scheduleSlice'
@@ -22,7 +21,7 @@ import routeSlice from './route-slice';
 import userSlice from './user-slice';
 import scheduleSlice from './schedule-slice';
 import citySlice from './city-slice';
-
+import {busApi} from './bus_api'
 const reducers = combineReducers({
     login: persistReducer(
         {
@@ -48,7 +47,6 @@ const reducers = combineReducers({
     },
     userinfoSlice
 ),
-cities,
 users,
 busStates,
 schedules,
@@ -57,6 +55,9 @@ busses,
 cashiers,
 redats,
 drivers,
+//
+[busApi.reducerPath]:busApi.reducer,
+
 });
 
 export default reducers;

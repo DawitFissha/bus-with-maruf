@@ -8,9 +8,12 @@ import Buttons from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
 import {userActions} from '../../store/user-slice'
-import { errorActions } from '../../store/error-slice';
-import { resetPassword } from '../../store/userHttp';
-import { loadingActions } from '../../store/loading-slice';
+// import { errorActions } from '../../store/error-slice';
+// import { resetPassword } from '../../store/userHttp';
+// import { loadingActions } from '../../store/loading-slice';
+import Alert from '@mui/material/Alert';
+import { useResetPasswordMutation } from '../../store/bus_api';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 
 const customStyles = {
     content: {
@@ -31,40 +34,63 @@ Modal.setAppElement("#root");
 
 const FormsReset = ({id}) => {
     const dispatch=useDispatch()
-    const loadingStatus=useSelector(state=>state.loading.status)
-    const message=useSelector(state=>state.message.errMessage)
+    // const loadingStatus=useSelector(state=>state.loading.status)
+    // const message=useSelector(state=>state.message.errMessage)
     const [password, setPassword] = useState();
     const [confirmPassword, setConfirmPassword] = useState();
-
-
+    const [saveStatus,setSaveStatus] =useState(false)
+    const [isNew,setIsNew] =useState(true)
+    const [isLocalError,setIsLocalError] =useState(false)
+    const [localError,setLocalError]=useState('')
+const [resetPassword,{data,isLoading,isError,error,isSuccess}]=useResetPasswordMutation()
 const PasswordResetHandler=()=>{
+    setIsLocalError(false)
+    setLocalError('')
 if(password&&confirmPassword)
 {  
     if(password===confirmPassword)
     {
-        dispatch(errorActions.Message(''))
-        dispatch(loadingActions.status("pending"))
-        dispatch(resetPassword({id,password,confirmPassword}))
+        console.log(id)
+        resetPassword({id,password,confirmPassword})
+        // dispatch(errorActions.Message(''))
+        // dispatch(loadingActions.status("pending"))
+        // dispatch(resetPassword({id,password,confirmPassword}))
     }
     else
     {
-        dispatch(errorActions.Message('password must match'))
+        setIsLocalError(true)
+        setLocalError('password must match')
     }
-  
 }
-else
+    else
+    {
+        setIsLocalError(true)
+        setLocalError('please fill all field')
+    }
+}
+useEffect(()=>{
+if(isSuccess)
 {
-    dispatch(errorActions.Message('please fill all field'))
+setSaveStatus(true)
+dispatch(userActions.setModal(false))
 }
-}
+},[isSuccess])
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
 // const profile=useSelector(state=>state.userinfo)
 const isModalOpen=useSelector(state=>state.userlist.isModalOpen)
-console.log(isModalOpen)
 function toggleModal() {
-    console.log("close")
+    setIsNew(true)
+    setIsLocalError(false)
     dispatch(userActions.setModal(false))
     } 
-
+    useEffect(()=>{
+    (isError||isLocalError)&&setIsNew(false)
+      },[isError,isLocalError])
     return (
         <React.Fragment>
         <Modal
@@ -77,19 +103,17 @@ function toggleModal() {
                     <Card style={{margin:'0px',padding:'0px'}}>
                         <Card.Header>
                             <Card.Title as="h5">Reset Password</Card.Title>
-                            <StyledAiFillCloseCircle onClick={()=>{dispatch(userActions.setModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
+                            <StyledAiFillCloseCircle onClick={()=>{
+                                dispatch(userActions.setModal(false))
+                                setIsLocalError(false)
+                                setIsNew(true)
+                                }} style={{float:'right'}} fontSize={30} color='red'/>
                         </Card.Header>
                         <Card.Body style={{marginLeft:'10%'}}>
                          <h5>Reset To Temporary Password</h5>
                         <small>this password must be changed in 24 hour by the user</small>
-                        {message!=='password reset' && (
-                            <Row>
-                            <Col sm={12} style={{alignText:'center',justifyContent:'center'}}>
-                            <small style={{alignText:'center'}} className="text-danger form-text">{message}</small>
-                            </Col>
-                            </Row>
-                        )} 
-                    
+                        {isLocalError&&!isNew&&<Alert style={{marginLeft:'-10%',marginTop:'10px',marginBottom:'10px'}} severity="error">{localError}</Alert>}          
+                        {!isLocalError&&isError&&!isNew&&<Alert style={{marginLeft:'-10%',marginTop:'10px',marginBottom:'10px'}} severity="error">{error.data?.message}</Alert>}          
                         <Row style={{justifyContent:'start'}}>
                          <Form.Group style={{marginLeft:'10px',marginTop:'15px'}} controlId="formBasicEmail">
                                         <TextField
@@ -134,7 +158,7 @@ function toggleModal() {
                                 variant="contained"
                                 fullWidth
                                 color="primary">
-                                {loadingStatus!=='pending'?"Reset Password" :<CircularProgress color='secondary'/>}
+                                {!isLoading?"Reset Password" :<CircularProgress color='secondary'/>}
                            </Buttons> 
                            </Col> 
                         </Card.Body>
@@ -142,6 +166,8 @@ function toggleModal() {
                 </Col>
             </Row>
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Password Reseted' />
+
         </React.Fragment>
     );
 };

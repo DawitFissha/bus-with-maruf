@@ -1,5 +1,5 @@
 import React,{useRef,useEffect} from 'react';
-import { Card, Row, Col,Button, Alert  } from 'react-bootstrap';
+import { Card, Row, Col,Button} from 'react-bootstrap';
 import { NavLink, useHistory } from 'react-router-dom';
 import useScriptRef from '../../../hooks/useScriptRef';
 import { API_SERVER } from '../../../config/constant';
@@ -10,6 +10,8 @@ import { errorActions } from '../../../store/error-slice';
 import { Organization } from '../../../store/authhttp';
 import { loadingActions } from '../../../store/loading-slice';
 import { useDispatch,useSelector } from 'react-redux';
+import Alert from '@mui/material/Alert';
+
 const Organizations = () => {
     const orgcoderef=useRef()
     let history = useHistory();
@@ -57,10 +59,7 @@ const Organizations = () => {
                                     <div className="mb-4">
                                         <i className="feather icon-user-plus auth-icon" />
                                     </div>
-                                    {errmsg && (
-                            <Col sm={12} style={{marginBottom:'8px'}}>
-                            <small className="text-danger form-text">{errmsg}</small>
-                            </Col>)}
+                                    {errmsg &&<Alert style={{margin:'15px 0px'}} severity="error">{errmsg}</Alert>}
                                     <form >
                         <div className="form-group mb-3">
                             <input

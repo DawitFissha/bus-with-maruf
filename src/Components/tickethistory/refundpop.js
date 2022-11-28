@@ -1,12 +1,13 @@
 import { WithContext as ReactTags } from 'react-tag-input';
-import React, { useEffect, useRef, useState } from 'react';
-import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown, Container } from 'react-bootstrap';
+import React, { useEffect,useState } from 'react';
+import { Row, Col, Card} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Cancel, Proceed, StyledAiFillCloseCircle } from '../styled/main.styled'
 import Modal from "react-modal";
 import { scheduleActions } from '../../store/schedule-slice';
-import {refundTicket } from '../../store/scheduleHttp';
-
+// import {refundTicket} from '../../store/scheduleHttp';
+import { SaveSuccessfull } from '../common-registration-form/saveSuccess';
+import { useRefundTicketMutation } from '../../store/bus_api';
 const customStyles = {
     content: {
       top: '57%',
@@ -23,22 +24,37 @@ const customStyles = {
     },
   };
 Modal.setAppElement("#root");
-const CancelForm = () => {
+const RefundForm = ({refund,orgRule}) => {
+    // console.log(refund,orgRule)
+    // console.log(orgRule?.returnPercent,refund.tarif)
     const dispatch=useDispatch()
     const isModalOpen=useSelector(state=>state.schedule.isModalOpen)
     const ModalData=useSelector(state=>state.schedule.modalData)
-
+    // console.log(ModalData)
+    const [refundTicket,{isSuccess,isLoading}]=useRefundTicketMutation()
  const CancelHandler=()=>{
-    console.log(ModalData)
-dispatch(refundTicket(ModalData))
-dispatch(scheduleActions.setModal(false))
+refundTicket(ModalData)
+// dispatch(scheduleActions.setModal(false))
  }
+useEffect(()=>{
+    if(isSuccess)
+    {
+      setSaveStatus(true)
+      dispatch(scheduleActions.setModal(false))
+    }
+},[isSuccess])
 
-console.log(isModalOpen)
 function toggleModal() {
-   console.log("close")
    dispatch(scheduleActions.setModal(false))
  } 
+ const [saveStatus,setSaveStatus] =useState(false)
+ const handleSaveStatusClose = (event, reason) => {
+ if (reason === 'clickaway') {
+ return;
+ }
+ setSaveStatus(false);
+ };
+
     return (
         <React.Fragment>
         <Modal
@@ -54,7 +70,7 @@ function toggleModal() {
                             <StyledAiFillCloseCircle onClick={()=>{dispatch(scheduleActions.setModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
                         </Card.Header>
                         <Card.Body style={{marginLeft:'10%'}}>
-                          <div style={{color:"brown",textAlign:"ceneter",fontSize:"17px"}}>You Are Going To Make Refund <span style={{fontSize:"20px",color:"red"}}> 250 Birr </span> Are You Sure You Want To Continue <span style={{fontSize:"20px",color:"red"}}>?</span></div>
+                          <div style={{color:"brown",textAlign:"ceneter",fontSize:"17px"}}>You are going to make refund <span style={{fontSize:"20px",color:"red"}}>{Number(orgRule?.rulesAndRegulation?.returnPercent)*Number(refund?.tarif)*0.01} Birr </span> are you sure you want to continue <span style={{fontSize:"20px",color:"red"}}>?</span></div>
                          <Row style={{marginLeft:"15px",justifyContent:'start',paddingBottom:"20px",paddingTop:"20px"}}>
                 <Col onClick={()=>{dispatch(scheduleActions.setModal(false))}}><Cancel size={60}/></Col>
                 <Col onClick={CancelHandler}><Proceed size={60}/></Col>
@@ -65,10 +81,10 @@ function toggleModal() {
                 </Col>
                 
             </Row>
-           
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Refunded Successfully' />
         </React.Fragment>
     );
 };
 
-export default CancelForm;
+export default RefundForm;

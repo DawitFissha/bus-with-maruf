@@ -10,7 +10,7 @@ import {
   } from "redux-persist";
   import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import reducers from './reducers';
-
+import { busApi } from './bus_api';
 const store = configureStore({
     reducer: reducers,
     devTools: true,
@@ -19,7 +19,8 @@ const store = configureStore({
         serializableCheck: {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
-      }),
+      }).concat(busApi.middleware),
+
   })
 
 

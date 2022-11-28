@@ -1,30 +1,31 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-
 import NavLeft from './NavLeft';
 import NavRight from './NavRight';
-
 import { ConfigContext } from '../../../contexts/ConfigContext';
 import * as actionType from '../../../store/actions';
+import {useDispatch ,useSelector} from 'react-redux';
+import { dashboardActions } from '../../../store/dashboard-slice';
 
 const NavBar = () => {
     const configContext = useContext(ConfigContext);
     const { collapseMenu } = configContext.state;
+    const dispatc=useDispatch()
     const { dispatch } = configContext;
-
     let headerClass = ['navbar', 'pcoded-header', 'navbar-expand-lg', 'navbar-default'];
-
     let toggleClass = ['mobile-menu'];
     if (collapseMenu) {
         toggleClass = [...toggleClass, 'on'];
     }
-
+    console.log("maruf")
     const navToggleHandler = () => {
-        dispatch({ type: actionType.COLLAPSE_MENU });
+        console.log("toggle")
+        dispatch({ type: actionType.COLLAPSE_MENU});
+        dispatc(dashboardActions.toggleShow())
     };
-
+    const stateShow = useSelector((state) => state.dashboard);
+    console.log(stateShow)
     let collapseClass = ['collapse navbar-collapse'];
-
     let navBar = (
         <React.Fragment>
             <div className="m-header">
@@ -44,7 +45,6 @@ const NavBar = () => {
             </div>
         </React.Fragment>
     );
-
     return (
         <React.Fragment>
             <header style={{boxShadow:' rgba(27, 31, 35, 0.04) 0px 1px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset'}} className={headerClass.join(' ')}>{navBar}</header>

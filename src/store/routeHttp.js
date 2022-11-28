@@ -38,6 +38,24 @@ export const getActiveBus=()=>{
 
     }
 }
+export const getActiveBusInRoute=(source,destination)=>{
+    return async(dispatch)=>{
+        try{
+            const res=await axios_instance.get('getorganizationfreebusbydateinroute',{params:{source,destination}})
+            console.log(res.data)
+            dispatch(routeActions.setBusData(res.data))
+            
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
+
+       }
+
+    }
+}
 export const getAllOrgBus=()=>{
     return async(dispatch)=>{
         try{

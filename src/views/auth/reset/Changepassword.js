@@ -8,25 +8,28 @@ import EnhancedEncryptionIcon from '@mui/icons-material/EnhancedEncryption';
 import CircularProgress from "@mui/material/CircularProgress";
 import Buttons from "@mui/material/Button";
 import { useDispatch,useSelector } from 'react-redux';
-import { changePassword } from '../../../store/authhttp';
-import { errorActions } from '../../../store/error-slice';
-import { loadingActions } from '../../../store/loading-slice';
+// import { changePassword } from '../../../store/authhttp';
+// import { errorActions } from '../../../store/error-slice';
+// import { loadingActions } from '../../../store/loading-slice';
 import { SaveSuccessfull } from '../../../Components/common-registration-form/saveSuccess';
-
+import Alert from '@mui/material/Alert';
+import { useChangePasswordMutation } from '../../../store/bus_api';
 const FormsElements = () => {
     const oldPasswordref=useRef() 
     const newPasswordref=useRef()
     const confirmPasswordref=useRef()
-    const message=useSelector(state=>state.message.errMessage)
+    // const message=useSelector(state=>state.message.errMessage)
     const loadingStatus=useSelector(state=>state.loading.status)
     console.log(loadingStatus)
-    const dispatch=useDispatch()
-    useEffect(()=>{
-        message==='changed'&&setSaveStatus(true)
-        return ()=>{
-            message==='changed'&&dispatch(errorActions.Message(''))
-        }
-        },[message])
+    // const dispatch=useDispatch()
+    const [isLocalError,setIsLocalError] =useState(false)
+    const [localError,setLocalError]=useState('')
+    // useEffect(()=>{
+    //     message==='changed'&&setSaveStatus(true)
+    //     return ()=>{
+    //         message==='changed'&&dispatch(errorActions.Message(''))
+    //     }
+    //     },[message])
     const [saveStatus,setSaveStatus] =useState(false)
     const handleSaveStatusClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -34,8 +37,11 @@ const FormsElements = () => {
         }
         setSaveStatus(false);
       };
+      const [changePassword,{isLoading,isSuccess,isError,error}]=useChangePasswordMutation()
     const ChangeHandler=()=>{
-         dispatch(loadingActions.status('pending'))
+      setIsLocalError(false)
+      setLocalError('')
+        //  dispatch(loadingActions.status('pending'))
         const oldPassword=oldPasswordref.current.value
         const newPassword=newPasswordref.current.value
         const confirmPassword=confirmPasswordref.current.value
@@ -43,17 +49,22 @@ const FormsElements = () => {
     {
         if(confirmPassword===newPassword)
         {
-            dispatch(changePassword({oldPassword,newPassword}))
+          changePassword({oldPassword,newPassword})
         }
         else{
-            dispatch(errorActions.Message('Password not match'))
-            dispatch(loadingActions.status('error'))
+          setIsLocalError(true)
+         setLocalError('Password not match')
         }}
     else{
-        dispatch(errorActions.Message('Please fill all field'))
-        dispatch(loadingActions.status('error'))
+      setIsLocalError(true)
+      setLocalError('Please fill all field')
     }}
-
+  useEffect(()=>{
+  if(isSuccess)
+  {
+  setSaveStatus(true)
+  }
+  },[isSuccess])
     return (
         <React.Fragment>
             <Row>
@@ -69,12 +80,9 @@ const FormsElements = () => {
                                 <h5><AiOutlineCheckSquare size={20}/>Password must be atleast five charcter</h5>
                                 </Col>
                                 <Col md={5} style={{margin:'auto'}}>
-                                {message!=='changed' && (
-                        <Row style={{marginLeft:'30%',marginBottom:'30px'}}>
-                        <Col sm={12} style={{alignText:'center',justifyContent:'center'}}>
-                        <small style={{alignText:'center',fontSize:"14px"}} className="text-danger form-text">{message}</small>
-                        </Col>
-                        </Row>)} 
+                        {isLocalError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{localError}</Alert>}          
+                        {!isLocalError&&isError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{error.data?.message}</Alert>} 
+                                
                                         <Form.Group style={{marginBottom:'30px'}} controlId="formBasicEmail">
                                         <TextField
                                             type='password' 
@@ -133,7 +141,7 @@ const FormsElements = () => {
                             fullWidth
                             variant="contained"
                             color="primary">
-                           {loadingStatus!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
+                           {!isLoading?"Submit" :<CircularProgress color='secondary' size={18}/>}
                            </Buttons>
                                
                                 </Col>

@@ -1,6 +1,7 @@
 import React, { createContext, useReducer } from 'react';
 import * as actionType from '../store/actions';
 import { CONFIG } from '../config/constant';
+import { useSelector } from 'react-redux';
 
 const initialState = {
     ...CONFIG,
@@ -13,13 +14,13 @@ const { Provider } = ConfigContext;
 const ConfigProvider = ({ children }) => {
     let trigger = [];
     let open = [];
-
+    const shownav=useSelector(state=>state.dashboard.show)
     const [state, dispatch] = useReducer((state, action) => {
         switch (action.type) {
             case actionType.COLLAPSE_MENU:
                 return {
                     ...state,
-                    collapseMenu: !state.collapseMenu
+                    collapseMenu:shownav
                 };
             case actionType.COLLAPSE_TOGGLE:
                 if (action.menu.type === 'sub') {

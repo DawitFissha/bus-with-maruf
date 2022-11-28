@@ -78,6 +78,7 @@ export const getActiveBus=()=>{
 
     }
 }
+//imported
 export const getAllCity=()=>{
     return async(dispatch)=>{
         try{
@@ -151,6 +152,24 @@ export const updatePassInfo=(id,data,resolve)=>{
      !!err.response&&dispatch(errorActions.Message(err.response.data.message))
      !err.response&&dispatch(errorActions.Message('connection error please try again'))
      resolve()          
+
+       }
+
+    }
+}
+export const getOrgRule=()=>{
+    return async(dispatch)=>{
+        try{
+            console.log('http rule')
+            const res=await axios_instance.get(`getmyorgrules`)
+            console.log(res.data)
+            dispatch(scheduleActions.setOrgRule(res.data))
+        }
+       catch(err)
+       {
+        console.log(err)
+     !!err.response&&dispatch(errorActions.Message(err.response.data.message))
+     !err.response&&dispatch(errorActions.Message('connection error please try again'))
 
        }
 

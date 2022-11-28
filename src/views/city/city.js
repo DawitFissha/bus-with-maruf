@@ -8,36 +8,31 @@ import {MdAddLocationAlt,} from 'react-icons/md'
 import {FaEdit} from "react-icons/fa";
 import CityForm from "./cityform"
 import { getCity } from '../../store/cityHttp';
-import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import { errorActions } from '../../store/error-slice';
-
+import { useGetCityQuery} from '../../store/bus_api';
 export default function Location() {
-  const tabledata=useSelector(state=>state.city.tableData)
-  const message=useSelector(state=>state.message.errMessage)
-  const data=tabledata.map(o => ({ ...o }));
+  // const tabledata=useSelector(state=>state.city.tableData)
+  // const message=useSelector(state=>state.message.errMessage)
+  // const data=tabledata.map(o => ({ ...o }));
   const [update,setUpdate]=useState(false)
-  console.log(data)
-  const fetched=useSelector(state=>state.city.updated)
+  // const fetched=useSelector(state=>state.city.updated)
+
+  const {data,isError,isSuccess}=useGetCityQuery()
+
   const dispatch=useDispatch()
-  useEffect(()=>{
-  dispatch(getCity())
-  return ()=>{
-    dispatch(errorActions.Message(''))
-  }
-  },[fetched])
-  useEffect(()=>{
-    message==='city'&&setSaveStatus(true)
-    return ()=>{
-        message==='city'&&dispatch(errorActions.Message(''))
-    }
-    },[message])
-const [saveStatus,setSaveStatus] =useState(false)
-const handleSaveStatusClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSaveStatus(false);
-  };
+  // useEffect(()=>{
+  // dispatch(getCity())
+  // return ()=>{
+  //   dispatch(errorActions.Message(''))
+  // }
+  // },[fetched])
+  // useEffect(()=>{
+  //   message==='city'&&setSaveStatus(true)
+  //   return ()=>{
+  //       message==='city'&&dispatch(errorActions.Message(''))
+  //   }
+  //   },[message])
+
 
   return (
     <React.Fragment>
@@ -62,8 +57,9 @@ const handleSaveStatusClose = (event, reason) => {
         {title: "id", field: "_id", hidden: true},
         { title: 'City', field: 'cityName'},
         { title: 'Departure Plcae', field: 'departurePlace',render:Data=>Data?.departurePlace?.join()},
+        { title: 'Status', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}},
       ]}
-      data={data}
+      data={data&&data.map(o=>({...o}))}
       icons={tableIcons}
       options={{
         search:false,
@@ -90,7 +86,7 @@ const handleSaveStatusClose = (event, reason) => {
           position:'toolbar',
           onClick: (evt, Data) => {
             setUpdate(false)
-            dispatch(errorActions.Message(''))
+            // dispatch(errorActions.Message(''))
             dispatch(cityActions.setModal(true))
 
           }
@@ -100,9 +96,9 @@ const handleSaveStatusClose = (event, reason) => {
           tooltip: 'update info',
           position:'row',
           onClick: (evt, Data) => {
-            console.log(Data)
+            // console.log(Data)
             setUpdate(true)
-            dispatch(errorActions.Message(''))
+            // dispatch(errorActions.Message(''))
             dispatch(cityActions.setUpdateData(Data))
             dispatch(cityActions.setModal(true))
 
@@ -115,8 +111,7 @@ const handleSaveStatusClose = (event, reason) => {
         </Card>
         </Col>
          </Row>
-         {!update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Added Successfully' />}
-         {update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Info Updated' />}
+  
         </React.Fragment>
   )
 }

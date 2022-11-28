@@ -4,23 +4,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import Buttons from "@mui/material/Button";
 import Modal from "react-modal";
-import Checkbox from '@mui/material/Checkbox';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
+import { InputAdornment, ListItemText } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { getActiveBus, getAllDepPlace} from '../../store/routeHttp';
-import { updateScheduleBusAndPlace } from '../../store/scheduleHttp';
+import {VscLocation} from 'react-icons/vsc'
+import Select from '@mui/material/Select';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import CircularProgress from '@mui/material/CircularProgress';
-import { updateBus, updateBusw } from '../../store/busHttp';
-import { loadingActions } from '../../store/loading-slice';
-import { routeActions } from '../../store/route-slice';
 import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import { scheduleActions } from '../../store/schedule-slice';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+import { useGetActiveBusInRouteQuery,useGetRouteDepPlaceQuery,useUpdateScheduleBusAndPlaceMutation } from '../../store/bus_api';
 const customStyles = {
     content: {
       top: '55%',
@@ -39,18 +36,26 @@ const customStyles = {
 Modal.setAppElement("#root");
 const AssignBus = () => {
     const dispatch=useDispatch()
-    const loadingStatus=useSelector(state=>state.loading.status)
-    const busdata=useSelector(state=>state.route.busData)
-    console.log(busdata)
-    const ActiveBusses=busdata?.map(o => ({ ...o }));
-    const depdata=useSelector(state=>state.route.depData)
-    const depPlace=depdata?.map(o => ({ ...o }));
-    console.log(ActiveBusses)
-    const message=useSelector(state=>state.message.errMessage)
+    // const loadingStatus=useSelector(state=>state.loading.status)
+    // const busdata=useSelector(state=>state.route.busData)
+    // console.log(busdata)
+    // const depdata=useSelector(state=>state.route.depData)
+    // const depPlace=depdata?.map(o => ({ ...o }));
+    // console.log(ActiveBusses)
+    // const message=useSelector(state=>state.message.errMessage)
+    const ModalData=useSelector(state=>state.schedule.modalData)
     const [departPlace, setDepartPlace] = useState('');
     const [assignedBus, setAssignedBus] = useState('');
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
+    console.log(ModalData)
+    const {data:busdata,refetch}=useGetActiveBusInRouteQuery({source:ModalData.source,destination:ModalData.destination,
+      departureDate:ModalData.departureDateAndTime,currentBusId:ModalData?.bus})
+    const ActiveBusses=busdata?.map(o => ({ ...o }));
+    const {data:depdata} =useGetRouteDepPlaceQuery({source:ModalData.source,destination:ModalData.destination})
+    const depPlace=depdata?.map(o => ({ ...o }));
+    // const mergBus=[...ActiveBusses,currentBus]
+    const [updateScheduleBusAndPlace,{isLoading,isSuccess,isError,error}]=useUpdateScheduleBusAndPlaceMutation()
     const MenuProps = {
       PaperProps: {
         style: {
@@ -65,33 +70,52 @@ const AssignBus = () => {
       setAssignedBus(value);
     };
     const handlePlaceChange = (event) => {
-      console.log(event.target.value)
+      // console.log(event.target.value)
       const {target: { value }} = event;
       setDepartPlace(value);
     };
-const ModalData=useSelector(state=>state.schedule.modalData)
+// console.log(ModalData)
+// console.log(assignedBus)
 const isModalOpen=useSelector(state=>state.schedule.isBusModalOpen)
+
 function toggleModal() {
 dispatch(scheduleActions.setBusModal(false))
 } 
-console.log(ModalData)
+// console.log(ModalData)
 useEffect(()=>{
+  // console.log("changed")
+  // console.log(isModalOpen)
   if(isModalOpen)
   {
-    console.log(ModalData)
+    // console.log(new Date(ModalData?.departureDateAndTime).getDate())
     ModalData?.departurePlace&&setDepartPlace(ModalData?.departurePlace)
     ModalData?.bus&&setAssignedBus(ModalData?.bus)
-    dispatch(getActiveBus())
-    dispatch(getAllDepPlace(ModalData.source))
+    refetch()
+    // getActiveBusInRoute(ModalData.source,ModalData.destination)
+    // getAllDepPlace(ModalData.source)
   }
 
 },[ModalData])
+useEffect(()=>{
+  if(isSuccess)
+  {
+    dispatch(scheduleActions.setBusModal(false))
+    setSaveStatus(true)
+  }
+  },[isSuccess])
 const UpdateHandler=()=>{
-  dispatch(loadingActions.status("pending"))
-  console.log(assignedBus)
-  console.log(departPlace)
-  dispatch(updateScheduleBusAndPlace(ModalData._id,{bus:assignedBus,departureplace:departPlace}))
+  // dispatch(loadingActions.status("pending"))
+  // console.log(assignedBus)
+  // console.log(departPlace)
+  updateScheduleBusAndPlace({id:ModalData._id,bus:assignedBus,departureplace:departPlace})
 }
+const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
 // console.log(depPlace.departurePlace)
     return (
         <React.Fragment>
@@ -109,6 +133,7 @@ const UpdateHandler=()=>{
                         </Card.Header>
                         <Card.Body >
                           <h4 style={{marginBottom:'20px'}}>From <span style={{fontWeight:'bold',fontSize:'h4'}}>{ModalData?.source}</span> To <span style={{fontWeight:'bold',fontSize:'h4'}}>{ModalData?.destination}</span></h4>
+                   {ActiveBusses?.length<1&&<span style={{textAlign:'center',color:'red'}}>free bus not found, for the given date in given route</span>}
                     <FormWrapper>
           <FormControl sx={{width:'100%' }}>
           <InputLabel id="driver-select-label">Bus</InputLabel>
@@ -119,7 +144,8 @@ const UpdateHandler=()=>{
         value={assignedBus}
         input={<OutlinedInput id="assignBus-multiple-chip" label="Assign Bus" />}
         renderValue={(selected)=>{
-          return ActiveBusses?.find(ab=>ab._id===selected)?.busPlateNo
+          console.log(selected)
+          return ActiveBusses?.find(ab=>ab.busId===selected)?.busPlateNo
         }}
         MenuProps={MenuProps}
         onChange={handleAssignedBusChange}
@@ -132,9 +158,12 @@ const UpdateHandler=()=>{
           ActiveBusses.map((activeBus) => (
             <MenuItem
               key={activeBus._id}
-              value = {activeBus._id}
+              value = {activeBus.busId}
               >
               <ListItemText primary={activeBus.busPlateNo} />
+          <span style={{fontSize:'10px'}}>
+            <span>{activeBus?.location&&`${activeBus?.day}/${activeBus?.month}/${activeBus?.year}`} {activeBus?.location}</span>
+            {activeBus?.location&&<VscLocation/>}</span>
             </MenuItem>
           )):null
           }
@@ -161,7 +190,7 @@ const UpdateHandler=()=>{
       >
       {    
         depPlace?
-          depPlace[0]?.departurePlace.map((place) => (
+        depPlace[0]?.departurePlace?.map((place) => (
             <MenuItem
               key={place}
               value = {place}
@@ -180,7 +209,7 @@ const UpdateHandler=()=>{
             type="submit"
             variant="contained"
             color="primary">
-            {loadingStatus!=='pending'?"Update Info" :<CircularProgress color='secondary'/>}
+            {!isLoading?"Update Info" :<CircularProgress color='secondary'/>}
         </Buttons> 
         </Row> 
                         </Card.Body>
@@ -188,6 +217,7 @@ const UpdateHandler=()=>{
                 </Col>
             </Row>
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule info updated' />
         </React.Fragment>
     );
 };

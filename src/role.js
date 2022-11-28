@@ -3,6 +3,7 @@ export const role={
     SUPERADMIN:"superadmin",
     ADMIN:"admin",
     CASHER:"casher",
-    AGENT:"agent",
+    SUPERAGENT:"superagent",
+    CASHERAGENT:"casheragent",
     DRIVER:"driver"
 }

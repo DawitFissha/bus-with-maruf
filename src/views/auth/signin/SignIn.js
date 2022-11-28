@@ -1,5 +1,5 @@
 import React,{useRef,useEffect} from 'react';
-import { Card,Col ,Row,Button,Alert} from 'react-bootstrap';
+import { Card,Col ,Row,Button} from 'react-bootstrap';
 import { NavLink ,Link, useHistory} from 'react-router-dom';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
 import CircularProgress from "@mui/material/CircularProgress";
@@ -11,6 +11,7 @@ import { loadingActions } from '../../../store/loading-slice';
 import { errorActions } from '../../../store/error-slice';
 import  {Redirect} from 'react-router-dom'
 import {useCookies} from 'react-cookie'
+import Alert from '@mui/material/Alert';
 
 const Signin = () => {
     const [cookies, setCookie] = useCookies(['token']);
@@ -77,7 +78,7 @@ console.log(isAuthenticated)
                             </div>
                             {errmsg && (
                             <Col sm={12} style={{marginBottom:'8px'}}>
-                            <small className="text-danger form-text">{errmsg}</small>
+        {errmsg &&<Alert style={{margin:'15px 0px'}} severity="error">{errmsg}</Alert>}
                             </Col>
                         )} 
                      <form>

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 const scheduleSlice=createSlice({
     name:"schedulelist",
-    initialState:{tableData:[],historyData:[],isEditing:false,updated:false,scheduleData:[],busData:[],cityData:[],depData:[],isBusModalOpen:false,isModalOpen:false,modalData:{}},
+    initialState:{tableData:[],historyData:[],orgRule:{},isEditing:false,updated:false,scheduleData:[],busData:[],cityData:[],depData:[],isBusModalOpen:false,isModalOpen:false,modalData:{}},
     reducers:{
         setTableData(state,action){state.tableData=action.payload},
         setHistoryData(state,action){state.historyData=action.payload},
@@ -13,7 +13,9 @@ const scheduleSlice=createSlice({
         setFetch(state){state.updated=!state.updated},
         setModal(state,action){state.isModalOpen=action.payload},
         setBusModal(state,action){state.isBusModalOpen=action.payload},
-        setModalData(state,action){state.modalData=action.payload}
+        setModalData(state,action){state.modalData=action.payload},
+        setOrgRule(state,action){state.orgRule=action.payload}
+
 
     },
 })

@@ -4,11 +4,44 @@ import useWindowSize from '../../../hooks/useWindowSize';
 import NavLogo from './NavLogo';
 import NavContent from './NavContent';
 import navigation from '../../../menu-items';
-
+import { useSelector} from 'react-redux';
+import { role } from '../../../role';
 const Navigation = () => {
     const configContext = useContext(ConfigContext);
     const { collapseMenu } = configContext.state;
     const windowSize = useWindowSize();
+    const profile=useSelector(state=>state.userinfo)
+    let item_list=navigation.items
+    if(profile.role===role.SUPERAGENT)
+    {
+        item_list=navigation.items.map(e=>{
+            if(e.title==='Manage Trip')
+            {
+                return {...e,children:[...(e.children.filter(e=>e.id==='ticket'||e.id==='user'))]}
+            }
+            return e
+        })
+    }
+    if(profile.role===role.CASHERAGENT)
+    {
+        item_list=navigation.items.map(e=>{
+            if(e.title==='Manage Trip')
+            {
+                return {...e,children:[...(e.children.filter(e=>e.id==='ticket'))]}
+            }
+            return e
+        })
+    }
+    if(profile.role===role.CASHER)
+    {
+        item_list=navigation.items.map(e=>{
+            if(e.title==='Manage Trip')
+            {
+                return {...e,children:[...(e.children.filter(e=>e.id==='ticket'||e.id==='shedule'))]}
+            }
+            return e
+        })
+    }
 
     let navClass = [
         'pcoded-navbar',
@@ -31,18 +64,18 @@ const Navigation = () => {
     let navStyle;
 
     let navBarClass = ['navbar-wrapper'];
-
+    // profile.role!==role.CASHER
     let navContent = (
         <div className={navBarClass.join(' ')}>
             <NavLogo />
-            <NavContent navigation={navigation.items} />
+            <NavContent navigation={item_list} />
         </div>
     );
     if (windowSize.width < 992) {
         navContent = (
             <div className="navbar-wrapper">
                 <NavLogo />
-                <NavContent navigation={navigation.items} />
+                <NavContent navigation={item_list} />
             </div>
         );
     }

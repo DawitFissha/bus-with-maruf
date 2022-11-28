@@ -6,7 +6,8 @@ import { Cancel, Proceed, StyledAiFillCloseCircle } from '../../Components/style
 import Modal from "react-modal";
 import { scheduleActions } from '../../store/schedule-slice';
 import { cancelShcedule } from '../../store/scheduleHttp';
-
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+import { useCancelShceduleMutation } from '../../store/bus_api';
 const customStyles = {
     content: {
       top: '57%',
@@ -27,15 +28,30 @@ const CancelForm = () => {
     const dispatch=useDispatch()
     const isModalOpen=useSelector(state=>state.schedule.isModalOpen)
     const ModalData=useSelector(state=>state.schedule.modalData)
-
+const [cancelShcedule,{isSuccess}]=useCancelShceduleMutation()
  const CancelHandler=()=>{
-    console.log(ModalData)
-dispatch(cancelShcedule(ModalData))
-dispatch(scheduleActions.setModal(false))
+    // console.log(ModalData)
+// dispatch(cancelShcedule(ModalData))
+cancelShcedule(ModalData)
+// dispatch(scheduleActions.setModal(false))
  }
 function toggleModal() {
    dispatch(scheduleActions.setModal(false))
  } 
+useEffect(()=>{
+    if(isSuccess)
+    {
+      setSaveStatus(true);
+      dispatch(scheduleActions.setModal(false))
+    }
+},[isSuccess])
+const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
     return (
         <React.Fragment>
         <Modal
@@ -64,6 +80,7 @@ function toggleModal() {
             </Row>
            
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule canceled' />
         </React.Fragment>
     );
 };

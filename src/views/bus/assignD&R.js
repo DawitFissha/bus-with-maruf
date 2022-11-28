@@ -1,4 +1,4 @@
-import { WithContext as ReactTags } from 'react-tag-input';
+// import { WithContext as ReactTags } from 'react-tag-input';
 import React, { useEffect, useRef, useState } from 'react';
 import { Row, Col, Card, Form, Button, InputGroup, DropdownButton, Dropdown, Container } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,8 +16,11 @@ import AirlineSeatReclineNormalIcon from '@mui/icons-material/AirlineSeatRecline
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import axios_instance from '../../services/lib-config';
 import CircularProgress from '@mui/material/CircularProgress';
-import { updateBus, updateBusw } from '../../store/busHttp';
-import { loadingActions } from '../../store/loading-slice';
+// import { updateBus, updateBusw } from '../../store/busHttp';
+// import { loadingActions } from '../../store/loading-slice';
+import { useUpdateBuswMutation } from '../../store/bus_api';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+
 const customStyles = {
     content: {
       top: '55%',
@@ -36,12 +39,13 @@ const customStyles = {
 Modal.setAppElement("#root");
 const Assign = ({info}) => {
     const dispatch=useDispatch()
-    const loadingStatus=useSelector(state=>state.loading.status)
-    const message=useSelector(state=>state.message.errMessage)
+    // const loadingStatus=useSelector(state=>state.loading.status)
+    // const message=useSelector(state=>state.message.errMessage)
     const [driver, setDriver] = useState();
     const [redat, setRedat] = useState();
     const [driverList,setDriverList]=useState()
     const [redatList,setRedatList]=useState()
+    const [updateBusw,{data,isError,error,isSuccess,isLoading}]=useUpdateBuswMutation()
 
     const handleDriverChange = (e)=>{
       console.log(e.target.value)
@@ -52,21 +56,32 @@ const Assign = ({info}) => {
         setRedat(e.target.value)
         // setRedatRequired('')
      }
+const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
 const isModalOpen=useSelector(state=>state.bus.isModalOpen)
+
 function toggleModal() {
 dispatch(busActions.setModal(false))
 } 
 useEffect(()=>{
+isSuccess&&dispatch(busActions.setModal(false))
+isSuccess&&setSaveStatus(true);
+},[isSuccess])
+
+useEffect(()=>{
   if(isModalOpen)
   {
-    console.log(info)
     setDriver(info?.driverId)
     setRedat(info?.redatId)
 const getUser=async(role,current)=>{
   let query={}
   !!role?query.role=role:query=query
   !!current?query.current=current:query=query
-  console.log(query)
 const user=await axios_instance.get(`getuserwithedit`,{params:{...query}})
 role==="driver"&&setDriverList(user.data)
 role==="redat"&&setRedatList(user.data)
@@ -78,8 +93,9 @@ getUser("redat",info?.redatId)
 
 },[info])
 const UpdateHandler=()=>{
-  dispatch(loadingActions.status("pending"))
-  dispatch(updateBusw(info._id,{driverId:driver,redatId:redat}))
+  // dispatch(loadingActions.status("pending"))
+  updateBusw({id:info._id,driverId:driver,redatId:redat})
+  // dispatch(updateBusw(info._id,{driverId:driver,redatId:redat}))
 }
 
     return (
@@ -151,7 +167,7 @@ const UpdateHandler=()=>{
                                 type="submit"
                                 variant="contained"
                                 color="primary">
-                                {loadingStatus!=='pending'?"Update Info" :<CircularProgress color='secondary'/>}
+                                {!isLoading?"Update Info" :<CircularProgress color='secondary'/>}
                            </Buttons> 
                            </Row> 
                         </Card.Body>
@@ -159,6 +175,7 @@ const UpdateHandler=()=>{
                 </Col>
             </Row>
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Bus Info Changed Successfully' />
         </React.Fragment>
     );
 };

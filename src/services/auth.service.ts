@@ -5,7 +5,7 @@ type passengerInfo = {
   sits:number,
 }
 class AuthService {
-  login(phonenumber, organizationcode, password) {
+  login(phonenumber:string, organizationcode:string, password:string) {
     return axios_instance
       .post(`loginorganizationuser`, {
         phonenumber,
@@ -22,13 +22,13 @@ class AuthService {
   logout() {
     localStorage.removeItem("user");
   }
-  addUser(newUser){
+  addUser(newUser:any){
     return axios_instance 
     .post(`registerorganizationuser`,newUser,)
     
   }
 
-  addRoute(newRoute){
+  addRoute(newRoute:any){
     return axios_instance
     .post(`addroute`,newRoute,)
     .then(response=>{
@@ -56,10 +56,10 @@ class AuthService {
       console.log(error.config);
     })
   }
-  addSchedule(newSchedule){
+  addSchedule(newSchedule:any){
     return axios_instance.post(`addschedule`,newSchedule)
   }
-addBus(newBus){
+addBus(newBus:any){
     return axios_instance.post(`registerbus`,newBus)
   }
 

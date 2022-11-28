@@ -1,30 +1,37 @@
 import React,{useState,useRef,useEffect} from 'react';
-import { Row, Col, Card, Table } from 'react-bootstrap';
+import { Row, Col, Card} from 'react-bootstrap';
 import MaterialTable from "material-table";
 import {MdOutlineFreeCancellation} from "react-icons/md"
 import {tableIcons} from '../Table/Tableicon'
 import {GiBus} from 'react-icons/gi'
-import {getActiveBus, getAllDepPlace, getSchedule,getAllCity, updateDepartureDateTime } from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
-import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
-import { errorActions } from '../../store/error-slice';
 import CancelForm from "./cancelshcedule"
 import AssignBus from './assignbus';
+import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
+import { useGetScheduleQuery,useGetAllCityQuery,useGetAllDepPlaceQuery,useGetAllOrgBusQuery,useUpdateDepartureDateTimeMutation } from '../../store/bus_api';
 export default function ScheduleList() {
-  const tabledata=useSelector(state=>state.schedule.tableData)
-  const busdata=useSelector(state=>state.schedule.busData)
-  const depdata=useSelector(state=>state.schedule.depData)
-  const citydata=useSelector(state=>state.schedule.cityData)
-  const cityData=citydata?.map(o => ({ ...o }));
-  const data=tabledata?.map(o => ({ ...o }));
-  const activebus=busdata?.map(o => ({ ...o }));
-  const depData=depdata?.map(o => ({ ...o }));
-  const fetched=useSelector(state=>state.schedule.updated)
+  // const tabledata=useSelector(state=>state.schedule.tableData)
+  // const busdata=useSelector(state=>state.schedule.busData)
+  // const depdata=useSelector(state=>state.schedule.depData)
+  // const citydata=useSelector(state=>state.schedule.cityData)
+  // const cityData=citydata?.map(o => ({ ...o }));
+  // const data=tabledata?.map(o => ({ ...o }));
+  // const activebus=busdata?.map(o => ({ ...o }));
+  // const depData=depdata?.map(o => ({ ...o }));
+  // const fetched=useSelector(state=>state.schedule.updated)
   const profile=useSelector(state=>state.userinfo)
-  console.log(depData)
-  console.log(cityData)
+  //am for amharic
+const language='en'
+const {data}=useGetScheduleQuery()
+const {data:citydata}=useGetAllCityQuery()
+const {data:depdata}=useGetAllDepPlaceQuery()
+const {data:busdata}=useGetAllOrgBusQuery()
+const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
+  const cityData=citydata?.map(o => ({ ...o }));
+  const busData=busdata?.map(o => ({ ...o }));
+  const depData=depdata?.map(o => ({ ...o }));
   let actions=[]
   if(profile.role===role.SUPERADMIN||profile.role===role.ADMIN)
   {
@@ -57,18 +64,16 @@ export default function ScheduleList() {
   const [busyLooks,setBusLooks] =useState({})
 
   const dispatch=useDispatch()
-  useEffect(()=>{
-    dispatch(getSchedule())
-    dispatch(getActiveBus())
-    dispatch(getAllDepPlace())
-    dispatch(getAllCity())
-    return ()=>{
-      dispatch(errorActions.Message(''))
-    }
-      },[fetched])
+  // useEffect(()=>{
+  //   // dispatch(getSchedule())
+  //   // dispatch(getActiveBus())
+  //   // dispatch(getAllDepPlace())
+  //   // dispatch(getAllCity())
+  //   return ()=>{
+  //     dispatch(errorActions.Message(''))
+  //   }
+  //     },[fetched])
       useEffect(()=>{
-        if(depData.length>0)
-        {
           const res=depData?.map(e=>e.departurePlace).flat()
           console.log(res)
           const deplooks = res?.reduce(function(acc, cur, i) {
@@ -76,38 +81,26 @@ export default function ScheduleList() {
             return acc;
             }, {});
             setDepLooks(deplooks)
-          }
-        if(cityData.length>0){
           const citylooks = cityData?.reduce(function(acc, cur, i) {
             acc[cur.cityName] = cur.cityName;
             return acc;
             }, {}); 
             setCityLooks(citylooks)
-          }
-     
-     if(busdata.length>0)
-     {
-      const buslooks = activebus?.reduce(function(acc, cur, i) {
-        acc[cur._id] = cur.busSideNo;
+      const buslooks = busData?.reduce(function(acc, cur, i) {
+        acc[cur._id] = `${cur.busPlateNo}`;
         return acc;
         }, {});
         setBusLooks(buslooks)
-     }
       },[busdata,depdata,citydata])
-      const message=useSelector(state=>state.message.errMessage)
-      useEffect(()=>{
-   message==="schedule canceled"&&setSaveStatus(true)
-return ()=>{
-    dispatch(errorActions.Message(''))
-}
-      },[message])
-      const [saveStatus,setSaveStatus] =useState(false)
-const handleSaveStatusClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSaveStatus(false);
-  };
+      // const message=useSelector(state=>state.message.errMessage)
+
+//       useEffect(()=>{
+//    message==="schedule canceled"&&setSaveStatus(true)
+// return ()=>{
+//     dispatch(errorActions.Message(''))
+// }
+//       },[message])
+
   return (
     <React.Fragment>
       <CancelForm/>
@@ -126,8 +119,9 @@ const handleSaveStatusClose = (event, reason) => {
                      }}
       responsive
       title="Schedule"
-      columns={[
+      columns={language=="am"?[
         {title: "id", field: "_id",hidden:true},
+        { title: 'Schedule ID', field: 'scheduleId',editable:'never'},
         { title: 'Source', field: 'source',lookup:cityLooks,editable:'never'},
         { title: 'Destination', field: 'destination',lookup:cityLooks,editable:'never'},
         { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
@@ -135,10 +129,20 @@ const handleSaveStatusClose = (event, reason) => {
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
         { title: 'Ass.Bus', field: 'bus',lookup:busyLooks,editable:'never'},
         { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable:'never'},
-        { title: 'Departure Time', field: 'departureDateAndTime',type:"datetime",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
-
+        { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime",render:rowData=>toEthiopianDateString(rowData.departureDateAndTime),editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+      ]:[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Schedule ID', field: 'scheduleId',editable:'never'},
+        { title: 'Source', field: 'source',lookup:cityLooks,editable:'never'},
+        { title: 'Destination', field: 'destination',lookup:cityLooks,editable:'never'},
+        { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
+        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+        { title: 'Ass.Bus', field: 'bus',lookup:busyLooks,editable:'never'},
+        { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable:'never'},
+        { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
       ]}
-      data={data}
+      data={data?.map(o => ({ ...o }))}
       icons={tableIcons}
       options={{
         search:false,
@@ -184,7 +188,8 @@ actions={actions}
         isEditable: rowData => rowData.status === 'Not Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
-              dispatch(updateDepartureDateTime(oldData._id,{departureDateAndTime:newData.departureDateAndTime},resolve))
+        updateDepartureDateTime({id:oldData._id,departureDateAndTime:newData.departureDateAndTime})
+        setTimeout(()=>{resolve()},600)
           }),
       }}
     />
@@ -192,7 +197,6 @@ actions={actions}
         </Card>
         </Col>
          </Row>
-         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule Canceled' />
         </React.Fragment>
   )
 }

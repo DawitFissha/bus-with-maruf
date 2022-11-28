@@ -2,7 +2,7 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table, Container } from 'react-bootstrap';
 import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-import { getBus,updateBus,deleteBus,getUserByRole,getAssignedUserByRole} from '../../store/busHttp';
+import { getBus,getAssignedUserByRole} from '../../store/busHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {FaEdit} from "react-icons/fa"
 import TextField from "@mui/material/TextField";
@@ -12,61 +12,56 @@ import axios_instance from "../../services/lib-config"
 import AssignUser from "./assignD&R"
 import { errorActions } from '../../store/error-slice';
 import {BsFillPersonLinesFill} from "react-icons/bs"
-import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
-
+import { useGetBusQuery,useUpdateBusMutation,useGetAssignedUserByRoleQuery} from '../../store/bus_api';
 export default function BusList() {
   const editActionRef = React.useRef();
-  const tabledata=useSelector(state=>state.bus.tableData)
-  const data=tabledata.map(o => ({ ...o }));
-  const driverdata=useSelector(state=>state.bus.driverData)
-  const driverData=driverdata.map(o => ({ ...o }));
-  const redatdata=useSelector(state=>state.bus.redatData)
-  const redatData=redatdata.map(o => ({ ...o }));
-  const fetched=useSelector(state=>state.bus.updated)
-  const message=useSelector(state=>state.message.errMessage)
+  // const tabledata=useSelector(state=>state.bus.tableData)
+  // const data=tabledata.map(o => ({ ...o }));
+  // const driverdata=useSelector(state=>state.bus.driverData)
+  // const driverData=driverdata.map(o => ({ ...o }));
+  // const redatdata=useSelector(state=>state.bus.redatData)
+  // const redatData=redatdata.map(o => ({ ...o }));
+  // const fetched=useSelector(state=>state.bus.updated)
+  // const message=useSelector(state=>state.message.errMessage)
   const [driverLooks,setDriverLooks] =useState({})
   const [redatLooks,setRedatLooks] =useState({})
   const [CurrentInfo,setCurrentInfo]=useState({})
   const dispatch=useDispatch()
 
-useEffect(()=>{
-dispatch(getBus())
-dispatch(getAssignedUserByRole("driver"))
-dispatch(getAssignedUserByRole("redat"))
-return ()=>{
-  dispatch(errorActions.Message(''))
-}
-  },[fetched])
+  const {data,isSuccess,error,isError}=useGetBusQuery()
+  const [updateBus,{data:datau,isError:isErroru,error:erroru}]=useUpdateBusMutation()
+  const {data:Driver}=useGetAssignedUserByRoleQuery("driver")
+  const {data:Redat}=useGetAssignedUserByRoleQuery("redat")
+
+// useEffect(()=>{
+// // dispatch(getBus())
+// getAssignedUserByRole("driver")
+// getAssignedUserByRole("redat")
+// return ()=>{
+//   dispatch(errorActions.Message(''))
+// }
+//   },[fetched])
   
   useEffect(()=>{
-   
-    let driverlooks = driverData?.reduce(function(acc, cur, i) {
+    let driverlooks = Driver?.reduce(function(acc, cur, i) {
       acc[cur._id] = `${cur.firstName} ${cur.lastName}`;
       return acc;
       }, {});
       setDriverLooks(driverlooks)
-      let redatlooks = redatData?.reduce(function(acc, cur, i) {
+      let redatlooks = Redat?.reduce(function(acc, cur, i) {
         acc[cur._id] = `${cur.firstName} ${cur.lastName}`;
         return acc;
         }, {});
         setRedatLooks(redatlooks)
+  },[Driver,Redat])
+  // useEffect(()=>{
+  //   message==='buser'&&setSaveStatus(true)
+  //   return ()=>{
+  //   message==='buser'&&dispatch(errorActions.Message(''))
+  //   }
+  //   },[message])
 
-
-  },[driverdata,redatdata])
-  useEffect(()=>{
-    message==='buser'&&setSaveStatus(true)
-    return ()=>{
-    message==='buser'&&dispatch(errorActions.Message(''))
-    }
-    },[message])
-
-  const [saveStatus,setSaveStatus] =useState(false)
-  const handleSaveStatusClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setSaveStatus(false);
-    };
+ 
   return (
     <React.Fragment>
       <AssignUser info={CurrentInfo}/>
@@ -92,13 +87,12 @@ return ()=>{
         { title: 'Driver Phone', field: 'drverPhone',editable:'never'},
         { title: 'Redat Name', field: 'redatId',lookup:redatLooks,editable:'never'},
         { title: 'Redat Phone', field: 'redatPhone',editable:'never'},
-        { title: 'On Duty', field: 'onDuty',lookup: { true: 'Yes', false: 'No'},editable:'never'},
         { title: 'Total Sit', field: 'totalNoOfSit'},
         { title: 'Bus State', field: 'busState',lookup:{"Active":"Active","Inactive":"Inactive","On-Repair":"On-Repair","Damaged":"Damaged"}},
         { title: 'Service Year', field: 'serviceYear'},
     
       ]}
-      data={data}
+      data={data && data.map(o => ({ ...o }))}
       icons={tableIcons}
       options={{
         search:false,
@@ -138,7 +132,9 @@ actions={[
       editable={{
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => { 
-            dispatch(updateBus(oldData._id,newData,resolve))
+            updateBus({id:oldData._id,...newData})
+            setTimeout(()=>{resolve()},600)
+            // dispatch(updateBus(oldData._id,newData,resolve))
           }),
       }}
     />
@@ -147,7 +143,6 @@ actions={[
         </Card>
         </Col>
          </Row>
-         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Bus Info Changed Successfully' />
         </React.Fragment>
   )
 }

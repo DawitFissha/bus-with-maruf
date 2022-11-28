@@ -62,6 +62,7 @@ export const resetPassword=(data)=>{
     }
 }
 
+//not imlemented
 export const deleteRoute=(id,resolve)=>{
     return async(dispatch)=>{
         try{

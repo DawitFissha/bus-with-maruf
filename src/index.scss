@@ -26,7 +26,12 @@ tbody tr:not(:first-child):hover {
 .pcoded-header .dropdown .notification .noti-body li {
     width: 100%;
 }
-
+.card .card-header{
+    padding: 5px 25px !important;
+}
+.card .card-block, .card .card-body {
+    padding: 30px 25px !important;
+}
 .header-chat .h-list-footer .input-group {
     .btn-attach {
         padding: 0;

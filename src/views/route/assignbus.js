@@ -19,6 +19,9 @@ import { loadingActions } from '../../store/loading-slice';
 import { routeActions } from '../../store/route-slice';
 import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import { useGetActiveBusQuery,useGetAllDepPlaceQuery,useUpdateRouteBusAndPlaceMutation} from '../../store/bus_api';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+
 const customStyles = {
     content: {
       top: '55%',
@@ -37,14 +40,14 @@ const customStyles = {
 Modal.setAppElement("#root");
 const AssignBus = ({info}) => {
     const dispatch=useDispatch()
-    const loadingStatus=useSelector(state=>state.loading.status)
-    const busdata=useSelector(state=>state.route.busData)
-    console.log(busdata)
-    const ActiveBusses=busdata?.map(o => ({ ...o }));
-    const depdata=useSelector(state=>state.route.depData)
-    const depPlace=depdata?.map(o => ({ ...o }));
-    console.log(ActiveBusses)
-    const message=useSelector(state=>state.message.errMessage)
+    // const loadingStatus=useSelector(state=>state.loading.status)
+    // const busdata=useSelector(state=>state.route.busData)
+    // console.log(busdata)
+    
+    // const depdata=useSelector(state=>state.route.depData)
+    // const depPlace=depdata?.map(o => ({ ...o }));
+    // console.log(ActiveBusses)
+    // const message=useSelector(state=>state.message.errMessage)
     const [departPlace, setDepartPlace] = useState([]);
     const [assignedBus, setAssignedBus] = useState([]);
     const ITEM_HEIGHT = 48;
@@ -57,6 +60,13 @@ const AssignBus = ({info}) => {
         },
       },
     };
+    const {data:busData}=useGetActiveBusQuery()
+    const {data:depData}=useGetAllDepPlaceQuery({source:info.source})
+    const [updateRouteBusAndPlace,{data,isLoading,isError,error,isSuccess}]=useUpdateRouteBusAndPlaceMutation()
+    const ActiveBusses=busData?.map(o => ({ ...o }));
+    const depPlace=depData?.map(o => ({ ...o }));
+
+
     const handleAssignedBusChange = (event) => {
       console.log(event.target.value)
       const {target: { value }} = event;
@@ -78,18 +88,33 @@ dispatch(routeActions.setModal(false))
 useEffect(()=>{
   if(isModalOpen)
   {
-    console.log(info)
+    // console.log(info)
     info?.departurePlace&&setDepartPlace(info?.departurePlace)
     info?.bus&&setAssignedBus(info?.bus)
-    dispatch(getActiveBus())
-    dispatch(getAllDepPlace(info.source))
+    // dispatch(getActiveBus())
+    // dispatch(getAllDepPlace(info.source))
   }
 },[info])
 
 const UpdateHandler=()=>{
-  dispatch(loadingActions.status("pending"))
-  dispatch(updateRouteBusAndPlace(info._id,{bus:assignedBus,departureplace:departPlace}))
+  // dispatch(loadingActions.status("pending"))
+  updateRouteBusAndPlace({id:info._id,bus:assignedBus,departureplace:departPlace})
+  // dispatch(updateRouteBusAndPlace(info._id,{bus:assignedBus,departureplace:departPlace}))
 }
+useEffect(()=>{
+  if(isSuccess)
+  {
+    setSaveStatus(true)
+    dispatch(routeActions.setModal(false))
+  }
+  },[isSuccess])
+const [saveStatus,setSaveStatus] =useState(false)
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
 // console.log(depPlace.departurePlace)
     return (
         <React.Fragment>
@@ -186,7 +211,7 @@ const UpdateHandler=()=>{
             type="submit"
             variant="contained"
             color="primary">
-            {loadingStatus!=='pending'?"Update Info" :<CircularProgress color='secondary'/>}
+            {!isLoading?"Update Info" :<CircularProgress color='secondary'/>}
         </Buttons> 
         </Row> 
                         </Card.Body>
@@ -194,6 +219,7 @@ const UpdateHandler=()=>{
                 </Col>
             </Row>
             </Modal>
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Route Info Updated' />
         </React.Fragment>
     );
 };

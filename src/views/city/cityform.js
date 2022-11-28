@@ -9,10 +9,15 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
 import { Autocomplete} from '@mui/material';
 import {cityActions} from '../../store/city-slice'
-import { addCity, updateCity} from '../../store/cityHttp';
-import { errorActions } from '../../store/error-slice';
-import { loadingActions } from '../../store/loading-slice';
-const options=["Mekelle", "Adama", "Awassa", "Bahir Dar", "Dire Dawa", "Dessie", "Jimma", "Jijiga", "Shashamane", "Bishoftu", "Sodo", "Arba Minch", "Hosaena", "Harar", "Dilla", "Nekemte", "Debre Birhan", "Asella", "Debre Mark'os", "Kombolcha", "Debre Tabor", "Adigrat", "Areka", "Weldiya", "Sebeta", "Burayu", "Shire (Inda Selassie)", "Ambo", "Arsi Negele", "Aksum", "Gambela", "Bale Robe", "Butajira", "Batu", "Boditi", "Adwa", "Yirgalem", "Waliso", "Welkite", "Gode", "Meki", "Negele Borana", "Alaba Kulito", "Alamata", "Chiro", "Tepi", "Durame", "Goba", "Assosa", "Gimbi", "Wukro", "Haramaya", "Mizan Teferi", "Sawla", "Mojo", "Dembi Dolo", "Aleta Wendo", "Metu", "Mota", "Fiche", "Finote Selam", "Bule Hora Town", "Bonga", "Kobo", "Jinka", "Dangila", "Degehabur", "Dimtu", "Agaro"].sort()
+// import { addCity, updateCity} from '../../store/cityHttp';
+// import { errorActions } from '../../store/error-slice';
+// import { loadingActions } from '../../store/loading-slice';
+import Alert from '@mui/material/Alert';
+import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+import { useAddCityMutation,useUpdateCityMutation } from '../../store/bus_api';
+
+const options=["Mekelle", "Adama","Addis Ababa","Awassa", "Bahir Dar", "Dire Dawa", "Dessie", "Jimma", "Jijiga", "Shashamane", "Bishoftu", "Sodo", "Arba Minch", "Hosaena", "Harar", "Dilla", "Nekemte", "Debre Birhan", "Asella", "Debre Mark'os", "Kombolcha", "Debre Tabor", "Adigrat", "Areka", "Weldiya", "Sebeta", "Burayu", "Shire (Inda Selassie)", "Ambo", "Arsi Negele", "Aksum", "Gambela", "Bale Robe", "Butajira", "Batu", "Boditi", "Adwa", "Yirgalem", "Waliso", "Welkite", "Gode", "Meki", "Negele Borana", "Alaba Kulito", "Alamata", "Chiro", "Tepi", "Durame", "Goba", "Assosa", "Gimbi", "Wukro", "Haramaya", "Mizan Teferi", "Sawla", "Mojo", "Dembi Dolo", "Aleta Wendo", "Metu", "Mota", "Fiche", "Finote Selam", "Bule Hora Town", "Bonga", "Kobo", "Jinka", "Dangila", "Degehabur", "Dimtu", "Agaro"].sort()
+const stat_options=["Active","Not Active"]
 const customStyles = {
     content: {
       top: '57%',
@@ -36,49 +41,74 @@ const KeyCodes = {
 
 const FormsCustomer = ({update}) => {
     const dispatch=useDispatch()
-    const loadingStatus=useSelector(state=>state.loading.status)
+    // const loadingStatus=useSelector(state=>state.loading.status)
     const cityState=useSelector(state=>state.city.updateData)
-    const message=useSelector(state=>state.message.errMessage)
+    // const message=useSelector(state=>state.message.errMessage)
     const [tags, setTags] = useState([]);
     const [city, setCity] = useState();
+    const [status, setStatus] = useState();
+    // const [inputStatus, setInputStatus] = useState();
+    const [saveStatus,setSaveStatus] =useState(false)
+    const [isLocalError,setIsLocalError] =useState(false)
+    const [localError,setLocalError]=useState('')
+    const [isNew,setIsNew] =useState(true)
 
-   useEffect(()=>{
+const handleSaveStatusClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSaveStatus(false);
+  };
+
+const [addCity,{data,isError,error,isSuccess,isLoading}]=useAddCityMutation()
+const [updateCity,{data:datau,isError:isErroru,error:erroru,isSuccess:isSuccessu,isLoading:isLoadingu}]=useUpdateCityMutation()
+
+useEffect(()=>{
 if(update)
 {
-   const tg= cityState.departurePlace.map(e=>({id:e,text:e}))
+   const tg= cityState?.departurePlace?.map(e=>({id:e,text:e}))
    setCity(cityState.cityName)
    setTags(tg)
+   setStatus(cityState.isActive?"Active":"Not Active")
+ 
 }
 else{
     setCity()
     setTags([])  
 }
    },[update,cityState])
+
+
+
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 const addCityHandler=()=>{
+  setIsLocalError(false)
+  setLocalError('')
 const cityName=city
 const departurePlace=tags.map(e=>e.text)
 if(cityName&&departurePlace.length>0)
 {     
-    dispatch(errorActions.Message(''))
-    dispatch(loadingActions.status("pending"))
+    // dispatch(errorActions.Message(''))
+    // dispatch(loadingActions.status("pending"))
     if(update)
     {
-        dispatch(updateCity({cityName,departurePlace,id:cityState._id}))
+
+        updateCity({cityName,departurePlace,id:cityState._id,isActive:status=="Active"?true:false})
+        // dispatch(updateCity())
     }
     else{
-        dispatch(addCity({cityName,departurePlace}))
+        addCity({cityName,departurePlace})
+        // dispatch(addCity({cityName,departurePlace}))
 
     }
     
 }
 else
 {
-    dispatch(errorActions.Message('please fill all field'))
-    dispatch(loadingActions.status('done'))
+    setIsLocalError(true)
+    setLocalError('please fill all field')
 }
 }
-      console.log(tags)
       const handleDelete = (i) => {
         setTags(tags.filter((tag, index) => index !== i));
       };
@@ -86,21 +116,30 @@ else
       const handleAddition = (tag) => {
         setTags([...tags, tag]);
       };
-    // const profile=useSelector(state=>state.userinfo)
     const isModalOpen=useSelector(state=>state.city.isModalOpen)
-     console.log(isModalOpen)
     function toggleModal() {
-        console.log("close")
-        dispatch(cityActions.setModal(false))
+      setIsNew(true)
+      setIsLocalError(false)
+      dispatch(cityActions.setModal(false))
+
       } 
 useEffect(()=>{
-    if(!update)
+    if(isSuccess)
     {
-        message==='city'&&setCity('')
-        message==='city'&&setTags([]) 
+        setCity('')
+        setTags([]) 
     }
-   
-},[message])
+},[isSuccess])
+useEffect(()=>{
+  (isError||isErroru||isLocalError)&&setIsNew(false)
+    console.log("trig")
+
+},[isError,isErroru,isLocalError])
+console.log(isError,isErroru,isLocalError,isNew)
+useEffect(()=>{
+(isSuccess||isSuccessu)&&setSaveStatus(true)
+  },[isSuccess,isSuccessu])
+
     return (
         <React.Fragment>
         <Modal
@@ -113,20 +152,20 @@ useEffect(()=>{
                     <Card style={{margin:'0px',padding:'0px'}}>
                         <Card.Header>
                             <Card.Title as="h5">City</Card.Title>
-                            <StyledAiFillCloseCircle onClick={()=>{dispatch(cityActions.setModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
+                            <StyledAiFillCloseCircle onClick={()=>{
+                              setIsNew(true)
+                              setIsLocalError(false)
+                              dispatch(cityActions.setModal(false))
+                              }} style={{float:'right'}} fontSize={30} color='red'/>
                         </Card.Header>
                         <Card.Body style={{marginLeft:'10%'}}>
                           {update?<h5>Update City</h5>:<h5>Add New City</h5>} 
-                        {message!=='city' && (
-                            <Row>
-                            <Col sm={12} style={{alignText:'center',justifyContent:'center'}}>
-                            <small style={{alignText:'center'}} className="text-danger form-text">{message}</small>
-                            </Col>
-                            </Row>
-                        )} 
-                    
+                          {isLocalError&&!isNew&&<Alert style={{marginLeft:'-10%',marginTop:'10px',marginBottom:'10px'}} severity="error">{localError}</Alert>}          
+                        {!isLocalError&&isError&&!isNew&&<Alert style={{marginLeft:'-10%',marginTop:'10px',marginBottom:'10px'}} severity="error">{error.data?.message||"connecion error"}</Alert>}  
+                        {!isLocalError&&!isError&&isErroru&&!isNew&&<Alert style={{marginLeft:'-10%',marginTop:'10px',marginBottom:'10px'}} severity="error">{erroru.data?.message||"connecion error"}</Alert>}  
+
                         <Row style={{justifyContent:'start'}}>
-                         <Form.Group style={{marginLeft:'10px',marginTop:'1px'}} controlId="formBasicEmail">
+                         <Form.Group style={{marginLeft:'10px',marginTop:'1px'}} >
                          <Autocomplete
                                 disablePortal
                                 id="select-city"
@@ -169,8 +208,30 @@ useEffect(()=>{
                                    />
                               </Form.Group> 
                                     }
-
                                    </Row>
+                        {update&&<Row style={{justifyContent:'start'}}>
+                         <Form.Group style={{marginLeft:'10px',marginTop:'1px'}} >
+                         <Autocomplete
+                                disablePortal
+                                id="set-status"
+                                value={status}
+                                onChange={(event, newValue) => {
+                                    // console.log(newValue)
+                                setStatus(newValue);
+                                }}
+                                // onInputChange={(event, newInputValue) => {
+                                //     console.log(newInputValue&&true);
+                                //     newInputValue&&setInputStatus(newInputValue)
+                                //   }}
+                                // inputValue={inputStatus}
+                                options={stat_options}
+                                variant="outlined"
+                                sx={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="Status" variant="standard"/>}
+                              />
+                                </Form.Group>  
+                                   </Row>}
+
                              <Col style={{marginBottom:'50px',marginTop:'20px',marginLeft:"-26px"}}>
                             <Buttons 
                                 onClick={addCityHandler}
@@ -178,8 +239,8 @@ useEffect(()=>{
                                 variant="contained"
                                 fullWidth
                                 color="primary">
-                                {!update&&(loadingStatus!=='pending'?"Add City" :<CircularProgress color='secondary'/>)}
-                                {update&&(loadingStatus!=='pending'?"Update City" :<CircularProgress color='secondary'/>)}
+                                {!update&&(!isLoading?"Add City" :<CircularProgress color='secondary'/>)}
+                                {update&&(!isLoadingu?"Update City" :<CircularProgress color='secondary'/>)}
                            </Buttons> 
                            </Col> 
                         </Card.Body>
@@ -187,6 +248,8 @@ useEffect(()=>{
                 </Col>
             </Row>
             </Modal>
+        {!update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Added Successfully' />}
+         {update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Info Updated' />}
         </React.Fragment>
     );
 };

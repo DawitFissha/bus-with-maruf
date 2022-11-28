@@ -2,37 +2,36 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-import { getUser, updateUser} from '../../store/userHttp';
+// import { getUser, updateUser} from '../../store/userHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {RiLockUnlockLine} from "react-icons/ri";
 import {role} from "../../role"
-import axios_instance from '../../services/lib-config';
 import { userActions } from '../../store/user-slice';
-import { errorActions } from '../../store/error-slice';
-import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+// import { errorActions } from '../../store/error-slice';
 import ResetForm from './resetform'
+import { useGetUserQuery,useUpdateUserMutation} from '../../store/bus_api';
 export default function UserList() {
-  const tabledata=useSelector(state=>state.userlist.tableData)
-  const data=tabledata.map(o => ({ ...o }));
-  const fetched=useSelector(state=>state.userlist.updated)
+  // const tabledata=useSelector(state=>state.userlist.tableData)
+  // const data=tabledata.map(o => ({ ...o }));
+  // const fetched=useSelector(state=>state.userlist.updated)
   const dispatch=useDispatch()
   const addActionRef = React.useRef();
   const profile=useSelector(state=>state.userinfo)
   const [id,setResetId]=useState()
-  const [saveStatus,setSaveStatus] =useState(false)
 
-console.log(profile)
+  const {data}=useGetUserQuery()
+  const [updateUser,{data:userData,isLoading:isLoadingu,isError,error:erroru,isSuccess:isSuccessu}]=useUpdateUserMutation()
 let lookups
 let actions
 if(profile.role===role.SUPERADMIN)
 {
-lookups={ "admin": 'Admin', "casher": 'Casher', "agent": 'Agent', "driver": 'Driver',"redat":"Redat"}
+lookups={ "admin": 'Admin', "casher": 'Casher', "superagent": 'Super-Agent', "driver": 'Driver',"redat":"Redat"}
 actions=[
   (rowData) => ({
     icon:() => <RiLockUnlockLine />,
     tooltip: 'Reset Password',
     position:'row',
-    disabled:rowData.userRole==="redat",
+    // disabled:rowData.userRole==="redat",
     onClick: (evt, Data) => {
       setResetId(Data._id)
       dispatch(userActions.setModal(true))
@@ -42,7 +41,7 @@ actions=[
 }
 if(profile.role===role.ADMIN)
 {
-  lookups={ "casher": 'Casher', "agent": 'Agent', "driver": 'Driver',"redat":"Redat"}
+  lookups={ "casher": 'Casher', "superagent": 'Super-Agent', "driver": 'Driver',"redat":"Redat"}
   actions=[
     (rowData) => ({
       icon:() => <RiLockUnlockLine />,
@@ -60,22 +59,8 @@ if(profile.role===role.CASHER)
   lookups={"driver": 'Driver',"redat":"Redat"}
   actions=[]
 }
-  useEffect(()=>{
-dispatch(getUser())
-return ()=>{
-  dispatch(errorActions.Message(''))
-}
-  },[fetched])
-  const message=useSelector(state=>state.message.errMessage)
-  useEffect(()=>{
-    message==="password reset"&&setSaveStatus(true)
-      },[message])
-  const handleSaveStatusClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setSaveStatus(false);
-    };
+
+ 
   return (
     <React.Fragment>
       <ResetForm id={id}/>
@@ -109,9 +94,9 @@ return ()=>{
       { title: 'Phone', field: 'phoneNumber',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
       { title: 'User Role', field: 'userRole',lookup:lookups,editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
       { title: 'Gender', field: 'gender',lookup: { "male": 'Male', "female": 'Female'},editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
-      { title: 'Assigned', field: 'isAssigned',editable: ( _ ,rowData ) => rowData && rowData.isAssigned==="2",type:"date",lookup:{"2":"Assigned","1":"Unassigned"}},
+      { title: 'Assigned', field: 'isAssigned',editable: ( _ ,rowData ) => rowData && rowData.isAssigned==="2",type:"date",lookup:{"2":"Assigned","1":"Unassigned"},hidden:profile.role==role.SUPERAGENT},
       { title: 'Status', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}}]}
-      data={data}
+      data={data&&data.map(o => ({ ...o }))}
       icons={tableIcons}
       options={{
         search:false,
@@ -141,7 +126,8 @@ actions={actions}
 editable={{
   onRowUpdate: (newData, oldData) =>
     new Promise((resolve, reject) => {
-        dispatch(updateUser(oldData._id,newData,resolve))
+      updateUser({id:oldData._id,...newData})
+      setTimeout(()=>{resolve()},600)
     })
 }}
     />
@@ -149,7 +135,6 @@ editable={{
         </Card>
         </Col>
          </Row>
-         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Password Reseted' />
         </React.Fragment>
   )
 }

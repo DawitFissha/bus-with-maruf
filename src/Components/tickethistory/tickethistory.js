@@ -2,27 +2,27 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable from "material-table";
 import { tableIcons } from '../../views/Table/Tableicon';
-import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/scheduleHttp';
+// import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import TextField from '@mui/material/TextField'
-import MenuItem from "@mui/material/MenuItem";
-import {MdToday} from "react-icons/md"
+// import MenuItem from "@mui/material/MenuItem";
+// import {MdToday} from "react-icons/md"
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import { errorActions } from '../../store/error-slice';
 import RefundForm from "./refundpop"
-import { SaveSuccessfull } from '../common-registration-form/saveSuccess';
-
+// import { SaveSuccessfull } from '../common-registration-form/saveSuccess';
+import {useLazyGetOneScheduleQuery,useGetSalesScheduleQuery,useUpdatePassInfoMutation } from '../../store/bus_api';
 export default function ScheduleList() {
-  const tabledata=useSelector(state=>state.schedule.historyData)
-  const scheduledata=useSelector(state=>state.schedule.scheduleData)
-  const data=tabledata?.map(o => ({ ...o }));
-  const filterData=scheduledata?.map(o => ({ ...o }));
-  const fetched=useSelector(state=>state.schedule.updated)
-  const [schedulesOpen,setSchedulesOpen] = React.useState(false)  
-  const profile=useSelector(state=>state.userinfo)
+  // const tabledata=useSelector(state=>state.schedule.historyData)
+  // const scheduledata=useSelector(state=>state.schedule.scheduleData)
+  // const data=tabledata?.map(o => ({ ...o }));
+  // const filterData=scheduledata?.map(o => ({ ...o }));
+  // const fetched=useSelector(state=>state.schedule.updated)
+  // const [schedulesOpen,se,tSchedulesOpen] = React.useState(false)  
+  // const profile=useSelector(state=>state.userinfo)
   const [schedule,setSchedule]=useState([])
   let actions=[]
 //   if(profile.role===role.SUPERADMIN||profile.role===role.ADMIN)
@@ -52,52 +52,39 @@ export default function ScheduleList() {
       }),
     ]
 const dispatch=useDispatch()
+const [updatePassInfo]=useUpdatePassInfoMutation()
+const {data:salesSchedule}=useGetSalesScheduleQuery()
+const [trigger,{data:oneSchedule}]=useLazyGetOneScheduleQuery()
+const filterData=salesSchedule?.map(o => ({ ...o }));
+
+// useEffect(()=>{
+//   // let isComponentMounted = true;
+//   // if(isComponentMounted){
+//   //   dispatch(getSalesSchedule())
+//     if(schedule?.id)
+//     {
+//       dispatch(getOneSchedule(schedule?.id))
+//     }
+//   // }
+// // return ()=>{
+// //   dispatch(errorActions.Message(''))
+//   // isComponentMounted = false;
+// // }
+// },[schedule])
+
 useEffect(()=>{
-  let isComponentMounted = true;
-  if(isComponentMounted){
-    dispatch(getSalesSchedule())
-    if(schedule?.id)
-    {
-      dispatch(getOneSchedule(schedule?.id))
-    }
+  if(schedule?.id)
+  {
+    trigger(schedule?.id)
   }
-
-return ()=>{
-  dispatch(errorActions.Message(''))
-  isComponentMounted = false;
-
-}
-},[fetched])
-useEffect(()=>{
-  let isComponentMounted = true;
-  if(isComponentMounted){
-    console.log(schedule)
-    dispatch(getOneSchedule(schedule.id))
-  }
-return ()=>{
-  dispatch(errorActions.Message(''))
-  isComponentMounted = false;
-
-}
 },[schedule])
 
-const message=useSelector(state=>state.message.errMessage)
-const options=filterData?.map(e=>({id:e._id,label:`From ${e?.source} To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))
-console.log(options)
-useEffect(()=>{
-message==="ticket canceled"&&setSaveStatus(true)
-return ()=>{
-dispatch(errorActions.Message(''))
-}
-},[message])
-const [saveStatus,setSaveStatus] =useState(false)
-const handleSaveStatusClose = (event, reason) => {
-if (reason === 'clickaway') {
-return;
-}
-setSaveStatus(false);
-};
-console.log(schedule.label)
+// const message=useSelector(state=>state.message.errMessage)
+console.log(filterData)
+const options=filterData?.map(e=>({id:e._id,label:e?.scheduleId||'',desc:`From ${e?.source} 
+To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
+  // `From ${e?.source} To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
+
   return (
     <React.Fragment>
       <RefundForm/>
@@ -128,7 +115,7 @@ console.log(schedule.label)
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title={"Booked Ticket :"+" "+(schedule.label||'')}
+      title={"Booked Ticket :"+" "+(schedule.desc||'')}
       columns={[
         {title: "id", field: "_id",hidden:true},
         { title: 'Passanger ID', field: 'passangerId',editable:'never'},
@@ -136,10 +123,10 @@ console.log(schedule.label)
         { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
         { title: 'Sit', field: 'sit',editable:'never'},
         { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
-        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded","Canceled Trip":"Canceled Trip"}},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded","Canceled Trip":"Canceled Trip","Canceled Sit":"Canceled Sit"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
       ]}
-      data={data}
+      data={oneSchedule?.map(o=>({...o}))}
       icons={tableIcons}
       options={{
         search:false,
@@ -191,7 +178,9 @@ console.log(schedule.label)
         isEditable: rowData => rowData.status === 'To Be Departed',
         onRowUpdate: (newData, oldData) =>
           new Promise((resolve, reject) => {
-              dispatch(updatePassInfo(oldData._id,newData,resolve))
+            updatePassInfo({id:oldData._id,...newData})
+            setTimeout(()=>{resolve()},600)
+              // dispatch(updatePassInfo(oldData._id,newData,resolve))
           }),
       }}
       actions={actions}
@@ -201,8 +190,6 @@ console.log(schedule.label)
         </Card>
         </Col>
          </Row>
-         <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Ticket Refunded Successfully' />
-
         </React.Fragment>
   )
 }

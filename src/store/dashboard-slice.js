@@ -7,6 +7,7 @@ const dashboardSlice=createSlice({
         setSideNav(state,action){state.show=action.payload},
         setFiltering(state,action){state.sort=action.payload},
         setActive(state,action){state.active=action.payload},
+        
     },
 })
 export default dashboardSlice.reducer;

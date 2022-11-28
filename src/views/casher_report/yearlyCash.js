@@ -54,9 +54,6 @@ const initial=[
 ]            
 const MultiBarChartTicket = () => {
     const [Sales,setSales]=useState(initial)
-    const [Agent,setAgent]=useState(initial)
-    const [Mobile,setMobile]=useState(initial)
-    const [Single,setSingle]=useState(initial)
 
     const sortState=useSelector(state=>state.dashboard.sort)
     const datum = [
@@ -65,32 +62,13 @@ const MultiBarChartTicket = () => {
             color: 'rgb(62 91 234)',
             values:Sales
         },
-        {
-            key: 'Cash Sale In Birr By Agent',
-            color: 'rgb(189 133 182)',
-            values: Agent
-        },
-        {
-          key: 'Cash Sale In Birr By Mobile',
-          color: 'rgb(62 191 234)',
-          values: Mobile
-      }
     ]
     const gqlship=gql`
     query($input:SaleInputFilter){
-        getGroupLocalTicketInbr(input: $input){
+      getCasherTicketInbr(input: $input){
         label
         totalPrice
-      }
-      getGroupAgentTicketInbr(input: $input){
-        label
-        totalPrice
-      }
-      getGroupMobileTicketInbr(input: $input){
-        label
-        totalPrice
-      }
-      
+      }    
    }`
        const {loading,error,data,refetch}=useQuery(gqlship,{
         variables:{input:{filter:sortState
@@ -101,29 +79,13 @@ const MultiBarChartTicket = () => {
         refetch()
         if(data)
         {
-        let s=data.getGroupLocalTicketInbr
-        let g=data.getGroupAgentTicketInbr
-        let m=data.getGroupMobileTicketInbr
-        
+        let s=data.getCasherTicketInbr
         const sales=[...initial]
-        const agent=[...initial]
-        const mobile=[...initial]
             s.map(e=>{
               sales[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(62 91 234)'}
               return
             })
-            g.map(e=>{
-              agent[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(189 133 182)'}
-              return
-            })
-            m.map(e=>{
-              mobile[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(62 191 234'}
-              return
-            })
-         
             setSales(sales)
-            setAgent(agent)
-            setMobile(mobile)
         }
     },[data,sortState])
 

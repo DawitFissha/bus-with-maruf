@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 const AuthGuard = ({ children }) => {
     const loginState = useSelector((state) => state.login);
+    console.log(loginState)
     const { isAuthenticated } = loginState;
 console.log('guard')
 console.log(isAuthenticated)
