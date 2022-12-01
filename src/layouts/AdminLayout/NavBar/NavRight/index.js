@@ -5,10 +5,12 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import ChatList from './ChatList';
 import { loginActions } from '../../../../store/login-slice';
 import avatar1 from '../../../../assets/images/user/avatar-2.jpg';
-import { errorActions } from '../../../../store/error-slice';
+import {useCookies} from 'react-cookie'
+// import { errorActions } from '../../../../store/error-slice';
 const NavRight = () => {
     const account = useSelector((state) => state.account);
     const dispatch = useDispatch();
+    const [cookies, setCookie,removeCookie] = useCookies(['token']);
     const userinfo=useSelector(state=>state.userinfo)
 
 const history=useHistory()
@@ -18,7 +20,7 @@ const history=useHistory()
     };
     const handleLogout = () => {
         dispatch(loginActions.isLoged(false))
-        dispatch(errorActions.Message(''))
+        removeCookie('access_token',{ path: '/'})
         history.push('/signin')
     };
 

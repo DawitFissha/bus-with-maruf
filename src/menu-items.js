@@ -1,3 +1,11 @@
+import {FaRoute,FaCity} from "react-icons/fa"
+import {RiDashboardLine} from "react-icons/ri"
+import {HiCreditCard} from "react-icons/hi"
+import {GrSchedules,GrBus} from "react-icons/gr"
+import {GiTakeMyMoney,GiReceiveMoney} from "react-icons/gi"
+import {MdOutlinePersonAddAlt} from "react-icons/md"
+import {BiBus} from "react-icons/bi"
+import {AiOutlineSchedule} from "react-icons/ai"
 const menuItems = {
     items: [
         {
@@ -11,12 +19,12 @@ const menuItems = {
                     title: 'Dashboard',
                     type: 'item',
                     url: '/dashboard',
-                    icon: 'feather icon-home'
+                    icon: <RiDashboardLine size={30} color="#A0A8B6"/>
                 },
             ]
         },
         {
-            id: 'managebus',
+            id: 'manage',
             title: 'Manage Trip',
             type: 'group',
             icon: 'icon-ui',
@@ -26,42 +34,56 @@ const menuItems = {
                     title: 'Ticket Sale',
                     type: 'item',
                     url: '/ticketsale',
-                    icon: 'feather icon-calendar'
+                    icon: <HiCreditCard size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'route',
                     title: 'Manage Route',
                     type: 'item',
                     url: '/addroute',
-                    icon: 'feather icon-corner-up-right'
+                    icon: <FaRoute size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'shedule',
                     title: 'Manage Schedule',
                     type: 'item',
                     url: '/schedule',
-                    icon: 'feather icon-grid'
+                    icon: <AiOutlineSchedule size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'user',
                     title: 'Manage User',
                     type: 'item',
                     url: '/user',
-                    icon: 'feather icon-users'
+                    icon: <MdOutlinePersonAddAlt size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'bus',
                     title: 'Manage Bus',
                     type: 'item',
                     url: '/addbus',
-                    icon: 'feather icon-life-buoy'
+                    icon: <BiBus size={30} color="#A0A8B6"/>
+                },
+                {
+                    id: 'localcash',
+                    title: 'Manage Local Cash',
+                    type: 'item',
+                    url: '/managelocalcash',
+                    icon: <GiTakeMyMoney size={30} color="#A0A8B6"/>
+                },
+                {
+                    id: 'agentcash',
+                    title: 'Manage Agent Cash',
+                    type: 'item',
+                    url: '/manageagentcash',
+                    icon: <GiReceiveMoney size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'city',
                     title: 'Manage City',
                     type: 'item',
                     url: '/city',
-                    icon: 'feather icon-map'
+                    icon: <FaCity size={30} color="#A0A8B6"/>
                 },
             ]
         }]};

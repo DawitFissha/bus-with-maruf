@@ -2,41 +2,31 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable from "material-table";
 import { tableIcons } from '../../views/Table/Tableicon';
-// import { getOneSchedule, getSalesSchedule, updatePassInfo} from '../../store/scheduleHttp';
 import { useSelector,useDispatch } from 'react-redux';
-import { scheduleActions } from '../../store/schedule-slice';
+import { modalActions } from '../../store/modal-slice';
 import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
 import TextField from '@mui/material/TextField'
-// import MenuItem from "@mui/material/MenuItem";
-// import {MdToday} from "react-icons/md"
+import moment from 'moment';
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
-import { errorActions } from '../../store/error-slice';
 import RefundForm from "./refundpop"
-// import { SaveSuccessfull } from '../common-registration-form/saveSuccess';
 import {useLazyGetOneScheduleQuery,useGetSalesScheduleQuery,useUpdatePassInfoMutation } from '../../store/bus_api';
 export default function ScheduleList() {
-  // const tabledata=useSelector(state=>state.schedule.historyData)
-  // const scheduledata=useSelector(state=>state.schedule.scheduleData)
-  // const data=tabledata?.map(o => ({ ...o }));
-  // const filterData=scheduledata?.map(o => ({ ...o }));
-  // const fetched=useSelector(state=>state.schedule.updated)
-  // const [schedulesOpen,se,tSchedulesOpen] = React.useState(false)  
-  // const profile=useSelector(state=>state.userinfo)
   const [schedule,setSchedule]=useState([])
   let actions=[]
-//   if(profile.role===role.SUPERADMIN||profile.role===role.ADMIN)
-//   {
+
+  const timenow = new Date
+  const max_date=10
    actions= [
       (rowData)=>({
         icon:() => <BsCashCoin style={{color:"brown"}} size={25}/>,
         tooltip: 'create refund',
         position:'row',
-        disabled:rowData.status==="Refunded",
+        disabled:rowData.status==="Refunded"||moment(rowData?.departureDateAndTime).add(max_date,'d').isBefore(timenow),
         onClick: (evt, Data) => {
           console.log({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit})
-          dispatch(scheduleActions.setModalData({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit}))
-          dispatch(scheduleActions.setModal(true))
+          dispatch(modalActions.setRefundModalData({id:Data._id,uniqueid:Data.passangerId,passsit:Data.sit}))
+          dispatch(modalActions.setRefundModal(true))
          
         }
       }),
@@ -57,21 +47,6 @@ const {data:salesSchedule}=useGetSalesScheduleQuery()
 const [trigger,{data:oneSchedule}]=useLazyGetOneScheduleQuery()
 const filterData=salesSchedule?.map(o => ({ ...o }));
 
-// useEffect(()=>{
-//   // let isComponentMounted = true;
-//   // if(isComponentMounted){
-//   //   dispatch(getSalesSchedule())
-//     if(schedule?.id)
-//     {
-//       dispatch(getOneSchedule(schedule?.id))
-//     }
-//   // }
-// // return ()=>{
-// //   dispatch(errorActions.Message(''))
-//   // isComponentMounted = false;
-// // }
-// },[schedule])
-
 useEffect(()=>{
   if(schedule?.id)
   {
@@ -79,11 +54,9 @@ useEffect(()=>{
   }
 },[schedule])
 
-// const message=useSelector(state=>state.message.errMessage)
 console.log(filterData)
 const options=filterData?.map(e=>({id:e._id,label:e?.scheduleId||'',desc:`From ${e?.source} 
 To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
-  // `From ${e?.source} To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
 
   return (
     <React.Fragment>
@@ -130,6 +103,7 @@ To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
       icons={tableIcons}
       options={{
         search:false,
+        exportAllData:true,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if(i % 2&&rowData.status=='Refunded')
@@ -180,7 +154,6 @@ To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
           new Promise((resolve, reject) => {
             updatePassInfo({id:oldData._id,...newData})
             setTimeout(()=>{resolve()},600)
-              // dispatch(updatePassInfo(oldData._id,newData,resolve))
           }),
       }}
       actions={actions}

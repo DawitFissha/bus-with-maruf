@@ -2,27 +2,21 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card} from 'react-bootstrap';
 import MaterialTable from "material-table";
 import {MdOutlineFreeCancellation} from "react-icons/md"
+import {AiOutlineSchedule} from "react-icons/ai"
 import {tableIcons} from '../Table/Tableicon'
 import {GiBus} from 'react-icons/gi'
 import { useSelector,useDispatch } from 'react-redux';
 import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
-import CancelForm from "./cancelshcedule"
+import CancelForm from "./cancel_undo_shcedule"
 import AssignBus from './assignbus';
 import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
+import moment from 'moment';
 import { useGetScheduleQuery,useGetAllCityQuery,useGetAllDepPlaceQuery,useGetAllOrgBusQuery,useUpdateDepartureDateTimeMutation } from '../../store/bus_api';
 export default function ScheduleList() {
-  // const tabledata=useSelector(state=>state.schedule.tableData)
-  // const busdata=useSelector(state=>state.schedule.busData)
-  // const depdata=useSelector(state=>state.schedule.depData)
-  // const citydata=useSelector(state=>state.schedule.cityData)
-  // const cityData=citydata?.map(o => ({ ...o }));
-  // const data=tabledata?.map(o => ({ ...o }));
-  // const activebus=busdata?.map(o => ({ ...o }));
-  // const depData=depdata?.map(o => ({ ...o }));
-  // const fetched=useSelector(state=>state.schedule.updated)
   const profile=useSelector(state=>state.userinfo)
   //am for amharic
+const timenow = new Date
 const language='en'
 const {data}=useGetScheduleQuery()
 const {data:citydata}=useGetAllCityQuery()
@@ -37,12 +31,16 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
   {
    actions= [
       (rowData)=>({
-        icon:() => <MdOutlineFreeCancellation style={{color:"red"}} size={25}/>,
-        tooltip: 'cancel schedule',
+        icon:() =>rowData.status!="Canceled"?<MdOutlineFreeCancellation style={{color:"red"}} size={25}/>:
+        <AiOutlineSchedule style={{color:"blue"}} size={25}/>,
+        tooltip:rowData.status!="Canceled"?'cancel schedule':
+        'activate schedule',
         position:'row',
-        disabled:rowData.status!=="Not Departed",
+        disabled:rowData.status=="Departed"||
+        (moment(rowData.departureDateAndTime).
+        isBefore(timenow)&&rowData.status=="Canceled"),
         onClick: (evt, Data) => {
-          dispatch(scheduleActions.setModalData({id:Data._id}))
+          dispatch(scheduleActions.setModalData({id:Data._id,status:Data.status}))
           dispatch(scheduleActions.setModal(true))
         }
       }),
@@ -62,17 +60,7 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
   const [cityLooks,setCityLooks] =useState({})
   const [depLooks,setDepLooks] =useState({})
   const [busyLooks,setBusLooks] =useState({})
-
   const dispatch=useDispatch()
-  // useEffect(()=>{
-  //   // dispatch(getSchedule())
-  //   // dispatch(getActiveBus())
-  //   // dispatch(getAllDepPlace())
-  //   // dispatch(getAllCity())
-  //   return ()=>{
-  //     dispatch(errorActions.Message(''))
-  //   }
-  //     },[fetched])
       useEffect(()=>{
           const res=depData?.map(e=>e.departurePlace).flat()
           console.log(res)
@@ -92,15 +80,6 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
         }, {});
         setBusLooks(buslooks)
       },[busdata,depdata,citydata])
-      // const message=useSelector(state=>state.message.errMessage)
-
-//       useEffect(()=>{
-//    message==="schedule canceled"&&setSaveStatus(true)
-// return ()=>{
-//     dispatch(errorActions.Message(''))
-// }
-//       },[message])
-
   return (
     <React.Fragment>
       <CancelForm/>
@@ -146,6 +125,8 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
       icons={tableIcons}
       options={{
         search:false,
+        exportAllData:true,
+        grouping:true,
         maxBodyHeight: '600px',
         rowStyle:  (rowData, i) => {
           if(i % 2&&rowData.status=='Canceled')

@@ -3,8 +3,8 @@ import { reducer as formReducer } from 'redux-form';
 import loginSlice from './login-slice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import loadingSlice from './loading-slice';
-import errorSlice from './error-slice';
+// import loadingSlice from './loading-slice';
+// import errorSlice from './error-slice';
 import userinfoSlice from './userinfo-slice';
 import users from '../views/user/userSlice'
 import busStates from '../views/bus-states/busstateSlice'
@@ -17,8 +17,7 @@ import redats from '../views/user/redatSlice'
 import drivers from '../views/user/driverSlice'
 //Maruf
 import busSlice from './bus-slice';
-import routeSlice from './route-slice';
-import userSlice from './user-slice';
+import modalSlice from './modal-slice';
 import scheduleSlice from './schedule-slice';
 import citySlice from './city-slice';
 import {busApi} from './bus_api'
@@ -31,12 +30,9 @@ const reducers = combineReducers({
         },
         loginSlice
     ),
-   loading:loadingSlice,
-   message:errorSlice,
    dashboard:dashboardSlice,
    bus:busSlice,
-   route:routeSlice,
-   userlist:userSlice,
+   modal:modalSlice,
    schedule:scheduleSlice,
    city:citySlice,
    userinfo:persistReducer(

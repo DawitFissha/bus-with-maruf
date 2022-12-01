@@ -1,16 +1,18 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import routes, { renderRoutes } from './routes';
 import { BASENAME } from './config/constant';
 import {useAppSelector} from './app/hooks'
 import {useAppDispatch} from './app/hooks'
 import {fetchBusses} from './views/bus/busSlice'
-import { useEffect } from 'react';
-import { checkSession } from './store/authhttp';
+import { useCheckSessionQuery } from './store/bus_api';
+import { useHistory} from 'react-router-dom';
 
 export let allBusses:any
 export let ActiveBusses:any[]
 const App = () => {
+  const history=useHistory()
+  // const {data,isSuccess}=useCheckSessionQuery()
     const dispatch = useAppDispatch()
     const busStatus = useAppSelector(state=>state.busses.status)
     allBusses = useAppSelector(state=>state.busses.busses)
@@ -20,13 +22,14 @@ const App = () => {
        busPlateNo:ab.busPlateNo
      }
    )) 
- 
-  React.useEffect(()=>{
+ console.log("in app tsx")
+  useEffect(()=>{
     if(busStatus === 'idle'){
       dispatch(fetchBusses())
     }
-    console.log("sehafgshdgkas")
-    dispatch(checkSession())
+    // if(!isSuccess){
+    //   history.push('/dashboard')
+    // }
   },[busStatus,dispatch])
     return (
         <React.Fragment>

@@ -2,7 +2,7 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table, Container } from 'react-bootstrap';
 import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-import { getBus,getAssignedUserByRole} from '../../store/busHttp';
+// import { getBus,getAssignedUserByRole} from '../../store/busHttp';
 import { useSelector,useDispatch } from 'react-redux';
 import {FaEdit} from "react-icons/fa"
 import TextField from "@mui/material/TextField";
@@ -10,19 +10,11 @@ import Select from '@mui/material/Select';
 import { busActions } from '../../store/bus-slice';
 import axios_instance from "../../services/lib-config"
 import AssignUser from "./assignD&R"
-import { errorActions } from '../../store/error-slice';
+// import { errorActions } from '../../store/error-slice';
 import {BsFillPersonLinesFill} from "react-icons/bs"
 import { useGetBusQuery,useUpdateBusMutation,useGetAssignedUserByRoleQuery} from '../../store/bus_api';
 export default function BusList() {
   const editActionRef = React.useRef();
-  // const tabledata=useSelector(state=>state.bus.tableData)
-  // const data=tabledata.map(o => ({ ...o }));
-  // const driverdata=useSelector(state=>state.bus.driverData)
-  // const driverData=driverdata.map(o => ({ ...o }));
-  // const redatdata=useSelector(state=>state.bus.redatData)
-  // const redatData=redatdata.map(o => ({ ...o }));
-  // const fetched=useSelector(state=>state.bus.updated)
-  // const message=useSelector(state=>state.message.errMessage)
   const [driverLooks,setDriverLooks] =useState({})
   const [redatLooks,setRedatLooks] =useState({})
   const [CurrentInfo,setCurrentInfo]=useState({})
@@ -32,16 +24,7 @@ export default function BusList() {
   const [updateBus,{data:datau,isError:isErroru,error:erroru}]=useUpdateBusMutation()
   const {data:Driver}=useGetAssignedUserByRoleQuery("driver")
   const {data:Redat}=useGetAssignedUserByRoleQuery("redat")
-
-// useEffect(()=>{
-// // dispatch(getBus())
-// getAssignedUserByRole("driver")
-// getAssignedUserByRole("redat")
-// return ()=>{
-//   dispatch(errorActions.Message(''))
-// }
-//   },[fetched])
-  
+  const timenow=new Date()
   useEffect(()=>{
     let driverlooks = Driver?.reduce(function(acc, cur, i) {
       acc[cur._id] = `${cur.firstName} ${cur.lastName}`;
@@ -54,14 +37,7 @@ export default function BusList() {
         }, {});
         setRedatLooks(redatlooks)
   },[Driver,Redat])
-  // useEffect(()=>{
-  //   message==='buser'&&setSaveStatus(true)
-  //   return ()=>{
-  //   message==='buser'&&dispatch(errorActions.Message(''))
-  //   }
-  //   },[message])
-
- 
+console.log(data?.map(o=>console.log(((new Date(o.serviceYear)).getFullYear()))))
   return (
     <React.Fragment>
       <AssignUser info={CurrentInfo}/>
@@ -82,7 +58,7 @@ export default function BusList() {
       title="Buses List"
       columns={[
         {title: "id", field: "_id",hidden:true},
-        { title: 'Plate No', field: 'busPlateNo',editable:'never'},
+        { title: 'Side No', field: 'busSideNo'},
         { title: 'Driver Name', field: 'driverId',lookup:driverLooks,editable:'never'},
         { title: 'Driver Phone', field: 'drverPhone',editable:'never'},
         { title: 'Redat Name', field: 'redatId',lookup:redatLooks,editable:'never'},
@@ -92,10 +68,12 @@ export default function BusList() {
         { title: 'Service Year', field: 'serviceYear'},
     
       ]}
-      data={data && data.map(o => ({ ...o }))}
+      data={data && data.map(o => ({ ...o,serviceYear:(timenow.getFullYear()-(Number(o.serviceYear)))}))}
       icons={tableIcons}
       options={{
         search:false,
+        exportAllData:true,
+        grouping:true,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {
@@ -123,7 +101,6 @@ actions={[
     tooltip: 'Change Driver & Redat',
     position:'row',
     onClick: (evt, Data) => {
-      dispatch(errorActions.Message(''))
       setCurrentInfo(Data)
       dispatch(busActions.setModal(true))
     }

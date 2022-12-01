@@ -6,17 +6,17 @@ import Buttons from "@mui/material/Button";
 import Modal from "react-modal";
 import Checkbox from '@mui/material/Checkbox';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
+import {InputAdornment, ListItemText } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { getActiveBus, getAllDepPlace, updateRouteBusAndPlace } from '../../store/routeHttp';
+import Select from '@mui/material/Select';
+// import { getActiveBus, getAllDepPlace, updateRouteBusAndPlace } from '../../store/routeHttp';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import CircularProgress from '@mui/material/CircularProgress';
-import { updateBus, updateBusw } from '../../store/busHttp';
-import { loadingActions } from '../../store/loading-slice';
-import { routeActions } from '../../store/route-slice';
+// import { updateBus, updateBusw } from '../../store/busHttp';
+// import { loadingActions } from '../../store/loading-slice';
+import { modalActions } from '../../store/modal-slice';
 import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import { useGetActiveBusQuery,useGetAllDepPlaceQuery,useUpdateRouteBusAndPlaceMutation} from '../../store/bus_api';
@@ -40,14 +40,6 @@ const customStyles = {
 Modal.setAppElement("#root");
 const AssignBus = ({info}) => {
     const dispatch=useDispatch()
-    // const loadingStatus=useSelector(state=>state.loading.status)
-    // const busdata=useSelector(state=>state.route.busData)
-    // console.log(busdata)
-    
-    // const depdata=useSelector(state=>state.route.depData)
-    // const depPlace=depdata?.map(o => ({ ...o }));
-    // console.log(ActiveBusses)
-    // const message=useSelector(state=>state.message.errMessage)
     const [departPlace, setDepartPlace] = useState([]);
     const [assignedBus, setAssignedBus] = useState([]);
     const ITEM_HEIGHT = 48;
@@ -81,9 +73,9 @@ const AssignBus = ({info}) => {
         typeof value === 'string' ? value.split(',') : value,
       );
     };
-const isModalOpen=useSelector(state=>state.route.isModalOpen)
+const isModalOpen=useSelector(state=>state.modal.isRouteModalOpen)
 function toggleModal() {
-dispatch(routeActions.setModal(false))
+dispatch(modalActions.setRouteModal(false))
 } 
 useEffect(()=>{
   if(isModalOpen)
@@ -105,7 +97,7 @@ useEffect(()=>{
   if(isSuccess)
   {
     setSaveStatus(true)
-    dispatch(routeActions.setModal(false))
+    dispatch(modalActions.setRouteModal(false))
   }
   },[isSuccess])
 const [saveStatus,setSaveStatus] =useState(false)
@@ -128,7 +120,7 @@ const handleSaveStatusClose = (event, reason) => {
                     <Card style={{margin:'0px',padding:'0px'}}>
                         <Card.Header>
                             <Card.Title as="h5">Route</Card.Title>
-                            <StyledAiFillCloseCircle onClick={()=>{dispatch(routeActions.setModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
+                            <StyledAiFillCloseCircle onClick={()=>{dispatch(modalActions.setRouteModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
                         </Card.Header>
                         <Card.Body >
                           <h4 style={{marginBottom:'20px'}}>From <span style={{fontWeight:'bold',fontSize:'h4'}}>{info?.source}</span> To <span style={{fontWeight:'bold',fontSize:'h4'}}>{info?.destination}</span></h4>

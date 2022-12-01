@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Cancel, Proceed, StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import Modal from "react-modal";
 import { scheduleActions } from '../../store/schedule-slice';
-import { cancelShcedule } from '../../store/scheduleHttp';
+// import { cancelShcedule } from '../../store/scheduleHttp';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
-import { useCancelShceduleMutation } from '../../store/bus_api';
+import { useCancelShceduleMutation,useUndoShceduleMutation } from '../../store/bus_api';
 const customStyles = {
     content: {
       top: '57%',
@@ -29,22 +29,24 @@ const CancelForm = () => {
     const isModalOpen=useSelector(state=>state.schedule.isModalOpen)
     const ModalData=useSelector(state=>state.schedule.modalData)
 const [cancelShcedule,{isSuccess}]=useCancelShceduleMutation()
+const [undoShcedule,{isSuccess:isSuccessUndo}]=useUndoShceduleMutation()
  const CancelHandler=()=>{
     // console.log(ModalData)
 // dispatch(cancelShcedule(ModalData))
-cancelShcedule(ModalData)
+ModalData.status!="Canceled"&&cancelShcedule(ModalData)
+ModalData.status=="Canceled"&&undoShcedule(ModalData)
 // dispatch(scheduleActions.setModal(false))
  }
 function toggleModal() {
    dispatch(scheduleActions.setModal(false))
  } 
 useEffect(()=>{
-    if(isSuccess)
+    if(isSuccess||isSuccessUndo)
     {
       setSaveStatus(true);
       dispatch(scheduleActions.setModal(false))
     }
-},[isSuccess])
+},[isSuccess,isSuccessUndo])
 const [saveStatus,setSaveStatus] =useState(false)
 const handleSaveStatusClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -67,10 +69,12 @@ const handleSaveStatusClose = (event, reason) => {
                             <StyledAiFillCloseCircle onClick={()=>{dispatch(scheduleActions.setModal(false))}} style={{float:'right'}} fontSize={30} color='red'/>
                         </Card.Header>
                         <Card.Body style={{marginLeft:'10%'}}>
-                          <div style={{color:"red",textAlign:"ceneter",fontSize:"15px"}}>This Will Remove The Schedule From Ticket Sale Permanently !!! </div>
+                          {ModalData.status!="Canceled"?
+                          <div style={{color:"red",textAlign:"center",marginLeft:'-10%',fontSize:"15px"}}>This will remove the schedule from ticket sale !!! </div>:
+                          <div style={{color:"red",textAlign:"center",marginLeft:'-10%',fontSize:"15px"}}>Return schedule to ticket sale </div>}
                          <Row style={{marginLeft:"15px",justifyContent:'start',paddingBottom:"20px",paddingTop:"20px"}}>
-                <Col onClick={()=>{dispatch(scheduleActions.setModal(false))}}><Cancel size={60}/></Col>
-                <Col onClick={CancelHandler}><Proceed size={60}/></Col>
+                <Col onClick={()=>{dispatch(scheduleActions.setModal(false))}}><Cancel size={60}/><h5>Cancel</h5></Col>
+                <Col onClick={CancelHandler}><Proceed size={60}/><h5 style={{paddingLeft:'17px'}}>Ok</h5></Col>
             
                         </Row>
                         </Card.Body>
@@ -80,7 +84,8 @@ const handleSaveStatusClose = (event, reason) => {
             </Row>
            
             </Modal>
-            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule canceled' />
+            {ModalData.status!="Canceled"?<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule canceled' />:
+            <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Schedule returned' />}
         </React.Fragment>
     );
 };

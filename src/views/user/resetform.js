@@ -1,16 +1,13 @@
 import { WithContext as ReactTags } from 'react-tag-input';
 import React, { useEffect, useRef, useState } from 'react';
-import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown, Container } from 'react-bootstrap';
+import { Row, Col, Card, Form} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import TextField from "@mui/material/TextField";
 import Buttons from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
-import {userActions} from '../../store/user-slice'
-// import { errorActions } from '../../store/error-slice';
-// import { resetPassword } from '../../store/userHttp';
-// import { loadingActions } from '../../store/loading-slice';
+import {modalActions} from '../../store/modal-slice'
 import Alert from '@mui/material/Alert';
 import { useResetPasswordMutation } from '../../store/bus_api';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
@@ -34,8 +31,6 @@ Modal.setAppElement("#root");
 
 const FormsReset = ({id}) => {
     const dispatch=useDispatch()
-    // const loadingStatus=useSelector(state=>state.loading.status)
-    // const message=useSelector(state=>state.message.errMessage)
     const [password, setPassword] = useState();
     const [confirmPassword, setConfirmPassword] = useState();
     const [saveStatus,setSaveStatus] =useState(false)
@@ -52,9 +47,6 @@ if(password&&confirmPassword)
     {
         console.log(id)
         resetPassword({id,password,confirmPassword})
-        // dispatch(errorActions.Message(''))
-        // dispatch(loadingActions.status("pending"))
-        // dispatch(resetPassword({id,password,confirmPassword}))
     }
     else
     {
@@ -72,7 +64,7 @@ useEffect(()=>{
 if(isSuccess)
 {
 setSaveStatus(true)
-dispatch(userActions.setModal(false))
+dispatch(modalActions.setUserModal(false))
 }
 },[isSuccess])
 const handleSaveStatusClose = (event, reason) => {
@@ -81,12 +73,11 @@ const handleSaveStatusClose = (event, reason) => {
     }
     setSaveStatus(false);
   };
-// const profile=useSelector(state=>state.userinfo)
-const isModalOpen=useSelector(state=>state.userlist.isModalOpen)
+const isModalOpen=useSelector(state=>state.modal.isUserModalOpen)
 function toggleModal() {
     setIsNew(true)
     setIsLocalError(false)
-    dispatch(userActions.setModal(false))
+    dispatch(modalActions.setUserModal(false))
     } 
     useEffect(()=>{
     (isError||isLocalError)&&setIsNew(false)
@@ -104,7 +95,7 @@ function toggleModal() {
                         <Card.Header>
                             <Card.Title as="h5">Reset Password</Card.Title>
                             <StyledAiFillCloseCircle onClick={()=>{
-                                dispatch(userActions.setModal(false))
+                                dispatch(modalActions.setUserModal(false))
                                 setIsLocalError(false)
                                 setIsNew(true)
                                 }} style={{float:'right'}} fontSize={30} color='red'/>

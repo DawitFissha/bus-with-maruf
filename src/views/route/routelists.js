@@ -2,57 +2,30 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable,{ MTableAction,MTableEditField} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-import { getRoute,deleteRoute, getActiveBus} from '../../store/routeHttp';
-import { useSelector,useDispatch } from 'react-redux';
-import {role} from "../../role"
-import { getAllCity } from '../../store/scheduleHttp';
-import { errorActions } from '../../store/error-slice';
+import { useDispatch } from 'react-redux';
 import {RiBusWifiFill} from "react-icons/ri"
-import { routeActions } from '../../store/route-slice';
-import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
+import { modalActions } from '../../store/modal-slice';
 import AssignBus from "./assignbus"
 import { useGetRouteQuery,useUpdateRouteMutation,useGetActiveBusQuery,useGetAllCityQuery} from '../../store/bus_api';
 export default function RouteList() {
-  // const tabledata=useSelector(state=>state.route.tableData)
-  const busdata=useSelector(state=>state.route.busData)
-  const citydata=useSelector(state=>state.schedule.cityData)
-  // const data=tabledata?.map(o => ({ ...o }));
-  // const activebus=busdata?.map(o => ({ ...o }));
-  // const cityData=citydata?.map(o => ({ ...o }));
-  // const fetched=useSelector(state=>state.route.updated)
   const [cityLooks,setCityLooks] =useState({})
   const [info,setInfo]=useState({})
   const [isClicked,setIsClicked]=useState(false)
-  // const message=useSelector(state=>state.message.errMessage)
-
   const {data,error,isLoading,isFetching,isSuccess,refetch}=useGetRouteQuery()
-  const {data:cityData}=useGetAllCityQuery()
+  const {data:cityData,isSuccess:isSuccessc}=useGetAllCityQuery()
   const [updateRoute,{data:userData,isLoading:isLoadingu,isError,error:erroru,isSuccess:isSuccessu}]=useUpdateRouteMutation()
 
   const dispatch=useDispatch()
-  // useEffect(()=>{
-  //   // dispatch(getRoute())
-  //   // dispatch(getActiveBus())
-  //   // dispatch(getAllCity())
-  //   return ()=>{
-  //     dispatch(errorActions.Message(''))
-  //   }
-  //     },[fetched])
-      useEffect(()=>{
-     
+  useEffect(()=>{
+    if(isSuccessc){
     const citylooks = cityData?.reduce(function(acc, cur, i) {
       acc[cur.cityName] = cur.cityName;
       return acc;
       }, {});
       setCityLooks(citylooks)
-      },[citydata])
-      // useEffect(()=>{
-      //   message==='route-bus-place'&&setSaveStatus(true)
-      //   return ()=>{
-      //   dispatch(errorActions.Message(''))
-      //   }
-      // },[message])
-   
+    }
+      },[isSuccessc])
+   console.log(cityLooks)
   return (
     <React.Fragment>
      {isClicked&& <AssignBus info={info}/>}
@@ -86,6 +59,8 @@ export default function RouteList() {
       data={data?.map(o => ({ ...o }))}
       icons={tableIcons}
       options={{
+        exportAllData:true,
+        grouping:true,
         search:false,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
@@ -115,8 +90,7 @@ actions={[
     onClick: (evt, Data) => {
       setInfo(Data)
       setIsClicked(true)
-      dispatch(errorActions.Message(''))
-      dispatch(routeActions.setModal(true))
+      dispatch(modalActions.setRouteModal(true))
 
     }
   }]}

@@ -1,44 +1,52 @@
-import React,{useRef,useEffect} from 'react';
-import { Card, Row, Col,Button} from 'react-bootstrap';
-import { NavLink, useHistory } from 'react-router-dom';
-import useScriptRef from '../../../hooks/useScriptRef';
-import { API_SERVER } from '../../../config/constant';
+import React,{useRef,useEffect,useState} from 'react';
+import { Card, Row, Col} from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
+// import useScriptRef from '../../../hooks/useScriptRef';
+// import { API_SERVER } from '../../../config/constant';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
 import CircularProgress from "@mui/material/CircularProgress";
 import Buttons from "@mui/material/Button";
-import { errorActions } from '../../../store/error-slice';
-import { Organization } from '../../../store/authhttp';
-import { loadingActions } from '../../../store/loading-slice';
+// import { errorActions } from '../../../store/error-slice';
+// import { Organization } from '../../../store/authhttp';
+// import { loadingActions } from '../../../store/loading-slice';
 import { useDispatch,useSelector } from 'react-redux';
+import { loginActions } from "../../../store/login-slice"
 import Alert from '@mui/material/Alert';
-
+import { useLazyGetOrganizationByCodeQuery } from '../../../store/bus_api';
 const Organizations = () => {
     const orgcoderef=useRef()
     let history = useHistory();
     const dispatch=useDispatch()
-    const isOrgCodeValid=useSelector(state=>state.login.isOrgCodeValid)
-    const loadingStatus=useSelector(state=>state.loading.status)
-    const errmsg=useSelector(state=>state.message.errMessage)
+    // const isOrgCodeValid=useSelector(state=>state.login.isOrgCodeValid)
+    // const loadingStatus=useSelector(state=>state.loading.status)
+    // const errmsg=useSelector(state=>state.message.errMessage)
+    const [trigger,{data,isSuccess,isLoading,isError,error}]=useLazyGetOrganizationByCodeQuery()
+    const [isLocalError,setIsLocalError] =useState(false)
+    const [localError,setLocalError]=useState('')
     const HandleOrgCode=(event)=>{
+        setLocalError('')
+        setIsLocalError(false)
         event.preventDefault()       
         const orgcode=orgcoderef.current.value
-        if(orgcode!=='')
+        if(orgcode&&orgcode!=='')
         {
-            dispatch(errorActions.Message(''))
-            dispatch(loadingActions.status('pending'))
-            dispatch(Organization({code:orgcode}))
+            trigger({code:orgcode})
         }
         else{
-            dispatch(errorActions.Message('Please Fill Organization Code'))  
-        }
+            setLocalError('Please fill organization code')
+            setIsLocalError(true)
+          }
     }
     useEffect(()=>{
-        isOrgCodeValid&&history.push('/signin')
-        dispatch(errorActions.Message(''))
-        return ()=>{
-            dispatch(errorActions.Message(''))
+        console.log(isSuccess)
+        if(isSuccess)
+        {
+        dispatch(loginActions.isOrgCodeValid(true))
+        dispatch(loginActions.organization(data?.organizationName))
+        dispatch(loginActions.organizationCode(data?.organizationCode))
+        history.push('/signin')
         }
-    },[isOrgCodeValid])
+    },[isSuccess])
     return (
         <React.Fragment>
             <Breadcrumb />
@@ -59,7 +67,8 @@ const Organizations = () => {
                                     <div className="mb-4">
                                         <i className="feather icon-user-plus auth-icon" />
                                     </div>
-                                    {errmsg &&<Alert style={{margin:'15px 0px'}} severity="error">{errmsg}</Alert>}
+                                    {isLocalError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{localError}</Alert>}          
+                                    {!isLocalError&&isError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{error.data?.message||"connection error"}</Alert>}
                                     <form >
                         <div className="form-group mb-3">
                             <input
@@ -81,23 +90,22 @@ const Organizations = () => {
                             fullWidth
                             variant="contained"
                             color="primary">
-                        {loadingStatus!=='pending'?"Submit" :<CircularProgress color='secondary' size={18}/>}
+                        {!isLoading?"Submit" :<CircularProgress color='secondary' size={18}/>}
                            </Buttons>
                             </Col>
                         </Row>
                     </form>
             <hr />
-
-                                    <br />
+     <br />
 
                                     <p className="mb-0 text-muted">
                                         &copy;{' '}
                                         <a target="_blank" rel="noreferrer">
-                                    Shipping
+                                        Bus Booking System
                                 </a>
-                                -{' '}
-                                <a  rel="noreferrer">
-                                    Dashboard
+                                {' '}
+                                <a  href="https://4loops-kqighrp1b-marufbelete.vercel.app/" target="_blank">
+                                  By 4loop software solution 
                                 </a>
                                         .
                                     </p>

@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-
+import { useDispatch} from 'react-redux';
+import {useCookies} from 'react-cookie'
+import { loginActions } from '../../store/login-slice';
 const AuthGuard = ({ children }) => {
-    const loginState = useSelector((state) => state.login);
-    console.log(loginState)
-    const { isAuthenticated } = loginState;
-console.log('guard')
-console.log(isAuthenticated)
-    if (!isAuthenticated) {
-        return <Redirect to="/signin" />;
+    const dispatch=useDispatch()
+    // const loginState = useSelector((state) => state.login);
+    // const { isAuthenticated } = loginState;
+    const [cookies, setCookie] = useCookies(['token']);
+    console.log(cookies)
+    if(!cookies?.access_token){
+    dispatch(loginActions.isLoged(false))
+    return <Redirect to="/signin" />
     }
-
     return children;
+
 };
 
 export default AuthGuard;

@@ -2,17 +2,13 @@ import {createApi,fetchBaseQuery} from "@reduxjs/toolkit/query/react"
 
 export const busApi=createApi({
     reducerPath:"userApi",
-    tagTypes:["User","City","Bus","Route","Schedule"],
+    tagTypes:["User","City","Bus","Route","Schedule","Cash","AgentCash"],
     baseQuery:fetchBaseQuery({
         baseUrl:"http://localhost:7000",
         credentials: "include",
     }),
         endpoints:(builder)=>({
             //auth
-        checkSession:builder.query<any,any>({
-            query:()=>'/checkauth',
-            providesTags:["User","Bus"]
-        }),
         loginUser:builder.mutation<any,any>({
             query:user=>({
                 url:'/loginorganizationuser',
@@ -29,10 +25,18 @@ export const busApi=createApi({
             }),
             invalidatesTags:["User"]
         }),
+        checkSession:builder.query<any,any>({
+            query:()=>'/checkauth',
+            providesTags:["User"]
+        }),
         //organization
         getOrganizationByCode:builder.query<any,any>({
             query:data=>`/getorganizationbycode/${data.code}`,
             providesTags:["User","Bus"]
+        }),
+        getOrganizationBranch:builder.query<any,any>({
+            query:()=>`/getorganizationbranch`,
+            providesTags:["User"]
         }),
             //user
         getUser:builder.query<any,any>({
@@ -220,7 +224,7 @@ export const busApi=createApi({
                 method:"PUT",
                 body:data,
             }),
-            invalidatesTags:["Schedule"]
+            invalidatesTags:["Schedule","Cash"]
         }),
         updateScheduleBusAndPlace:builder.mutation<any,any>({
             query:data=>({
@@ -238,7 +242,56 @@ export const busApi=createApi({
             }),
             invalidatesTags:["Schedule"]
         }),
-        
+        undoShcedule:builder.mutation<any,any>({
+            query:data=>({
+                url:`undocanceledschedule/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["Schedule"]
+         }),
+         //managecash
+         getCashInfo:builder.query<any,any>({
+            query:()=>`/getcashinfo`,
+            providesTags:["Cash"]
+        }),
+         giveToCasher:builder.mutation<any,any>({
+            query:data=>({
+                url:`givetocasher/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["Cash"]
+        }),
+         takeFromCasher:builder.mutation<any,any>({
+            query:data=>({
+                url:`takefromcasher/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["Cash"]
+         }),
+         getAgentCashInfo:builder.query<any,any>({
+            query:()=>`/getagentcashinfo`,
+            providesTags:["AgentCash"]
+        }),
+         takeFromAgent:builder.mutation<any,any>({
+            query:data=>({
+                url:`takefromagent/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["AgentCash"]
+         }),
+         //cash transaction
+         getCashTransaction:builder.query<any,any>({
+            query:()=>`/getcashtransaction`,
+            providesTags:["Cash"]
+        }),
+        getAgentCashTransaction:builder.query<any,any>({
+            query:()=>`/getagentcashtransaction`,
+            providesTags:["AgentCash"]
+        }),
    }),
 })
 
@@ -249,6 +302,8 @@ export const {
     useCheckSessionQuery,
     //organization
     useGetOrganizationByCodeQuery,
+    useGetOrganizationBranchQuery,
+    useLazyGetOrganizationByCodeQuery,
     //user
     useGetUserQuery,
     useUpdateUserMutation,
@@ -256,6 +311,15 @@ export const {
     useGetAssignedUserByRoleQuery,
     useGetUserByRoleQuery,
     useGetAssignedUserByRoleWitheditQuery,
+    //managecash
+    useGetCashInfoQuery,
+    useGiveToCasherMutation,
+    useTakeFromCasherMutation,
+    useGetAgentCashInfoQuery,
+    useGetAgentCashTransactionQuery,
+    useTakeFromAgentMutation,
+    //transaction
+    useGetCashTransactionQuery,
     //city
     useGetCityQuery,
     useGetAllCityQuery,
@@ -268,6 +332,7 @@ export const {
     useUpdateBusMutation,
     useUpdateBuswMutation,
     useGetActiveBusInRouteQuery,
+    useLazyGetActiveBusInRouteQuery,
     useGetActiveBusQuery,
     useGetAllOrgBusQuery,
     //route
@@ -278,6 +343,7 @@ export const {
     useUpdateRouteMutation,
     //schedule
     useCancelShceduleMutation,
+    useUndoShceduleMutation,
     useGetOneScheduleQuery,
     useLazyGetOneScheduleQuery,
     useGetOrgRuleQuery,
@@ -287,6 +353,7 @@ export const {
     useUpdateDepartureDateTimeMutation,
     useUpdatePassInfoMutation,
     useUpdateScheduleBusAndPlaceMutation,
+    
     
 
 }=busApi

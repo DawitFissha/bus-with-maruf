@@ -6,21 +6,17 @@ import {tableIcons} from '../Table/Tableicon'
 import { useSelector,useDispatch } from 'react-redux';
 import {RiLockUnlockLine} from "react-icons/ri";
 import {role} from "../../role"
-import { userActions } from '../../store/user-slice';
-// import { errorActions } from '../../store/error-slice';
+import { modalActions } from '../../store/modal-slice';
 import ResetForm from './resetform'
 import { useGetUserQuery,useUpdateUserMutation} from '../../store/bus_api';
 export default function UserList() {
-  // const tabledata=useSelector(state=>state.userlist.tableData)
-  // const data=tabledata.map(o => ({ ...o }));
-  // const fetched=useSelector(state=>state.userlist.updated)
   const dispatch=useDispatch()
   const addActionRef = React.useRef();
   const profile=useSelector(state=>state.userinfo)
   const [id,setResetId]=useState()
 
   const {data}=useGetUserQuery()
-  const [updateUser,{data:userData,isLoading:isLoadingu,isError,error:erroru,isSuccess:isSuccessu}]=useUpdateUserMutation()
+  const [updateUser]=useUpdateUserMutation()
 let lookups
 let actions
 if(profile.role===role.SUPERADMIN)
@@ -34,7 +30,7 @@ actions=[
     // disabled:rowData.userRole==="redat",
     onClick: (evt, Data) => {
       setResetId(Data._id)
-      dispatch(userActions.setModal(true))
+      dispatch(modalActions.setUserModal(true))
     }
   }),
 ]
@@ -49,7 +45,7 @@ if(profile.role===role.ADMIN)
       position:'row',
       disabled:rowData.userRole==="redat",
       onClick: (evt, Data) => {
-        dispatch(userActions.setModal(true))
+        dispatch(modalActions.setUserModal(true))
       }
     }),
   ]
@@ -100,6 +96,8 @@ if(profile.role===role.CASHER)
       icons={tableIcons}
       options={{
         search:false,
+        exportAllData:true,
+        grouping:true,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {

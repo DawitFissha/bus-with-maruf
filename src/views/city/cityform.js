@@ -1,6 +1,6 @@
 import { WithContext as ReactTags } from 'react-tag-input';
 import React, { useEffect, useRef, useState } from 'react';
-import { Row, Col, Card, Form, Button, InputGroup, FormControl, DropdownButton, Dropdown, Container } from 'react-bootstrap';
+import { Row, Col, Card, Form} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import {TextField} from "@mui/material";
@@ -67,9 +67,9 @@ useEffect(()=>{
 if(update)
 {
    const tg= cityState?.departurePlace?.map(e=>({id:e,text:e}))
-   setCity(cityState.cityName)
+   setCity(cityState?.cityName)
    setTags(tg)
-   setStatus(cityState.isActive?"Active":"Not Active")
+   setStatus(cityState?.isActive?"Active":"Not Active")
  
 }
 else{

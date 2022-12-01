@@ -7,10 +7,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import EnhancedEncryptionIcon from '@mui/icons-material/EnhancedEncryption';
 import CircularProgress from "@mui/material/CircularProgress";
 import Buttons from "@mui/material/Button";
-import { useDispatch,useSelector } from 'react-redux';
-// import { changePassword } from '../../../store/authhttp';
-// import { errorActions } from '../../../store/error-slice';
-// import { loadingActions } from '../../../store/loading-slice';
 import { SaveSuccessfull } from '../../../Components/common-registration-form/saveSuccess';
 import Alert from '@mui/material/Alert';
 import { useChangePasswordMutation } from '../../../store/bus_api';
@@ -18,18 +14,8 @@ const FormsElements = () => {
     const oldPasswordref=useRef() 
     const newPasswordref=useRef()
     const confirmPasswordref=useRef()
-    // const message=useSelector(state=>state.message.errMessage)
-    const loadingStatus=useSelector(state=>state.loading.status)
-    console.log(loadingStatus)
-    // const dispatch=useDispatch()
     const [isLocalError,setIsLocalError] =useState(false)
     const [localError,setLocalError]=useState('')
-    // useEffect(()=>{
-    //     message==='changed'&&setSaveStatus(true)
-    //     return ()=>{
-    //         message==='changed'&&dispatch(errorActions.Message(''))
-    //     }
-    //     },[message])
     const [saveStatus,setSaveStatus] =useState(false)
     const handleSaveStatusClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -41,7 +27,6 @@ const FormsElements = () => {
     const ChangeHandler=()=>{
       setIsLocalError(false)
       setLocalError('')
-        //  dispatch(loadingActions.status('pending'))
         const oldPassword=oldPasswordref.current.value
         const newPassword=newPasswordref.current.value
         const confirmPassword=confirmPasswordref.current.value

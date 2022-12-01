@@ -7,8 +7,8 @@ import {cityActions} from '../../store/city-slice'
 import {MdAddLocationAlt,} from 'react-icons/md'
 import {FaEdit} from "react-icons/fa";
 import CityForm from "./cityform"
-import { getCity } from '../../store/cityHttp';
-import { errorActions } from '../../store/error-slice';
+// import { getCity } from '../../store/cityHttp';
+// import { errorActions } from '../../store/error-slice';
 import { useGetCityQuery} from '../../store/bus_api';
 export default function Location() {
   // const tabledata=useSelector(state=>state.city.tableData)
@@ -63,6 +63,8 @@ export default function Location() {
       icons={tableIcons}
       options={{
         search:false,
+        exportAllData:true,
+        grouping:true,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if (i % 2) {

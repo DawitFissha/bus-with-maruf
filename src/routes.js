@@ -64,12 +64,11 @@ const routes = [
         layout: AdminLayout,
         guard: AuthGuard,
         routes: [
-//test
-{
-    exact: true,
-    path: '/table',
-    component: lazy(() => import('./views/user/usertab'))
-},
+// {
+//     exact: true,
+//     path: '/table',
+//     component: lazy(() => import('./views/user/usertab'))
+// },
 
             {
                 exact: true,
@@ -112,6 +111,16 @@ const routes = [
                 exact: true,
                 path: '/schedule',
                 component: lazy(() => import('./views/schedule/scheduletab'))
+            },
+            {
+                exact: true,
+                path: '/managelocalcash',
+                component: lazy(() => import('./views/managelocalcash/managecashtab'))
+            },
+            {
+                exact: true,
+                path: '/manageagentcash',
+                component: lazy(() => import('./views/manageagentcash/managecashtab'))
             },
             {
                 exact: true,

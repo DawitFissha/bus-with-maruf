@@ -17,7 +17,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import { scheduleActions } from '../../store/schedule-slice';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
-import { useGetActiveBusInRouteQuery,useGetRouteDepPlaceQuery,useUpdateScheduleBusAndPlaceMutation } from '../../store/bus_api';
+import { useLazyGetActiveBusInRouteQuery,useGetRouteDepPlaceQuery,useUpdateScheduleBusAndPlaceMutation } from '../../store/bus_api';
 const customStyles = {
     content: {
       top: '55%',
@@ -36,25 +36,16 @@ const customStyles = {
 Modal.setAppElement("#root");
 const AssignBus = () => {
     const dispatch=useDispatch()
-    // const loadingStatus=useSelector(state=>state.loading.status)
-    // const busdata=useSelector(state=>state.route.busData)
-    // console.log(busdata)
-    // const depdata=useSelector(state=>state.route.depData)
-    // const depPlace=depdata?.map(o => ({ ...o }));
-    // console.log(ActiveBusses)
-    // const message=useSelector(state=>state.message.errMessage)
     const ModalData=useSelector(state=>state.schedule.modalData)
     const [departPlace, setDepartPlace] = useState('');
     const [assignedBus, setAssignedBus] = useState('');
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     console.log(ModalData)
-    const {data:busdata,refetch}=useGetActiveBusInRouteQuery({source:ModalData.source,destination:ModalData.destination,
-      departureDate:ModalData.departureDateAndTime,currentBusId:ModalData?.bus})
+    const [trigger,{data:busdata}]=useLazyGetActiveBusInRouteQuery()
     const ActiveBusses=busdata?.map(o => ({ ...o }));
     const {data:depdata} =useGetRouteDepPlaceQuery({source:ModalData.source,destination:ModalData.destination})
     const depPlace=depdata?.map(o => ({ ...o }));
-    // const mergBus=[...ActiveBusses,currentBus]
     const [updateScheduleBusAndPlace,{isLoading,isSuccess,isError,error}]=useUpdateScheduleBusAndPlaceMutation()
     const MenuProps = {
       PaperProps: {
@@ -70,29 +61,22 @@ const AssignBus = () => {
       setAssignedBus(value);
     };
     const handlePlaceChange = (event) => {
-      // console.log(event.target.value)
       const {target: { value }} = event;
       setDepartPlace(value);
     };
-// console.log(ModalData)
-// console.log(assignedBus)
+
 const isModalOpen=useSelector(state=>state.schedule.isBusModalOpen)
 
 function toggleModal() {
 dispatch(scheduleActions.setBusModal(false))
 } 
-// console.log(ModalData)
 useEffect(()=>{
-  // console.log("changed")
-  // console.log(isModalOpen)
   if(isModalOpen)
   {
-    // console.log(new Date(ModalData?.departureDateAndTime).getDate())
     ModalData?.departurePlace&&setDepartPlace(ModalData?.departurePlace)
     ModalData?.bus&&setAssignedBus(ModalData?.bus)
-    refetch()
-    // getActiveBusInRoute(ModalData.source,ModalData.destination)
-    // getAllDepPlace(ModalData.source)
+    ModalData && trigger({source:ModalData.source,destination:ModalData.destination,
+    departureDate:ModalData.departureDateAndTime,currentBusId:ModalData?.bus})
   }
 
 },[ModalData])
@@ -104,9 +88,6 @@ useEffect(()=>{
   }
   },[isSuccess])
 const UpdateHandler=()=>{
-  // dispatch(loadingActions.status("pending"))
-  // console.log(assignedBus)
-  // console.log(departPlace)
   updateScheduleBusAndPlace({id:ModalData._id,bus:assignedBus,departureplace:departPlace})
 }
 const [saveStatus,setSaveStatus] =useState(false)
@@ -116,7 +97,6 @@ const handleSaveStatusClose = (event, reason) => {
     }
     setSaveStatus(false);
   };
-// console.log(depPlace.departurePlace)
     return (
         <React.Fragment>
         <Modal

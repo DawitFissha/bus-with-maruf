@@ -1,18 +1,20 @@
-import React,{useRef,useEffect} from 'react';
-import { Card,Col ,Row,Button} from 'react-bootstrap';
-import { NavLink ,Link, useHistory} from 'react-router-dom';
+import React,{useRef,useEffect,useState} from 'react';
+import { Card,Col,Row} from 'react-bootstrap';
+import { useHistory} from 'react-router-dom';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
 import CircularProgress from "@mui/material/CircularProgress";
 import Buttons from "@mui/material/Button";
-import {loginActions} from "../../../store/login-slice";
-import { loginUser } from '../../../store/authhttp';
-import { useSelector,useDispatch } from "react-redux";
-import { loadingActions } from '../../../store/loading-slice';
-import { errorActions } from '../../../store/error-slice';
+// import {loginActions} from "../../../store/login-slice";
+// import { loginUser } from '../../../store/authhttp';
+import { useSelector,useDispatch} from "react-redux";
+// import { loadingActions } from '../../../store/loading-slice';
+// import { errorActions } from '../../../store/error-slice';
+import { loginActions } from "../../../store/login-slice"
+import { userinfoActions } from "../../../store/userinfo-slice"
 import  {Redirect} from 'react-router-dom'
 import {useCookies} from 'react-cookie'
 import Alert from '@mui/material/Alert';
-
+import { useLoginUserMutation } from '../../../store/bus_api';
 const Signin = () => {
     const [cookies, setCookie] = useCookies(['token']);
     const emailref=useRef()
@@ -20,44 +22,53 @@ const Signin = () => {
 const history = useHistory()
 const dispatch=useDispatch()
 const loginState = useSelector((state) => state.login);
-const { isAuthenticated ,isOrgCodeValid,organizationName} = loginState;
+const {isOrgCodeValid,organizationName,isAuthenticated} = loginState;
 const token=useSelector(state=>state.login.token)
-const loadingStatus=useSelector(state=>state.loading.status)
-const errmsg=useSelector(state=>state.message.errMessage)
+// const loadingStatus=useSelector(state=>state.loading.status)
+// const errmsg=useSelector(state=>state.message.errMessage)
 const organizationcode=useSelector(state=>state.login.organizationCode)
-
-    const HandleSignin=(event)=>{
-        event.preventDefault()
-        const phonenumber=emailref.current.value
-        const password=passwordref.current.value
-        
+const [loginUser,{data,isSuccess,isLoading,isError,error}]=useLoginUserMutation()
+const [isLocalError,setIsLocalError] =useState(false)
+const [localError,setLocalError]=useState('')
+const HandleSignin=(event)=>{
+    setLocalError('')
+    setIsLocalError(false)
+    event.preventDefault()
+    const phonenumber=emailref.current.value
+    const password=passwordref.current.value       
 if(phonenumber&&password)
 {
-    dispatch(loadingActions.status('pending'))
-    dispatch(errorActions.Message(''))
+    // dispatch(loadingActions.status('pending'))
+    // dispatch(errorActions.Message(''))
     const data={
         phonenumber,
         password,
         organizationcode
     }
-    dispatch(loginUser(data))
+    loginUser(data)
 }
 else{
-    dispatch(errorActions.Message('Please Fill All Field'))
-
+    setLocalError('Please fill all field')
+    setIsLocalError(true)
+   }
 }
+
+// console.log(localError)
+useEffect(()=>{
+    if(isSuccess){
+    dispatch(loginActions.isLoged(true))
+    dispatch(loginActions.setCookie(data.token))
+    dispatch(userinfoActions.setUser({username:data.user,role:data.role}))
+    token&&setCookie('token', token, { path: '/'})
+    history.push('/dashboard')
     }
-console.log(isAuthenticated)
-    useEffect(()=>{
-        token&&setCookie('token', token, { path: '/'})
-        isAuthenticated&&history.push('/dashboard')
-        return ()=>{
-            dispatch(errorActions.Message(''))
-        }
-    },[isAuthenticated])
-    if (!isOrgCodeValid) {
-        return <Redirect to="/organization" />;
-    }
+},[isSuccess])
+if (!isOrgCodeValid) {
+    return <Redirect to="/organization" />;
+}
+if(isAuthenticated){
+    return <Redirect to="/dashboard" />;
+}
     return (
         <React.Fragment>
             <Breadcrumb />
@@ -76,11 +87,12 @@ console.log(isAuthenticated)
                             <div className="mb-4">
                                 <i className="feather icon-unlock auth-icon" />
                             </div>
-                            {errmsg && (
+                           
                             <Col sm={12} style={{marginBottom:'8px'}}>
-        {errmsg &&<Alert style={{margin:'15px 0px'}} severity="error">{errmsg}</Alert>}
+                        {isLocalError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{localError}</Alert>}          
+                        {!isLocalError&&isError&&<Alert style={{marginTop:'10px',marginBottom:'20px'}} severity="error">{error.data?.message||"connection error"}</Alert>} 
                             </Col>
-                        )} 
+                        
                      <form>
                         <div className="form-group mb-3">
                             <input
@@ -112,13 +124,13 @@ console.log(isAuthenticated)
 
                         <Row>
                             <Col mt={2}>
-                                <Buttons
+                            <Buttons
                             type="submit"
                             fullWidth
                             variant="contained"
                             onClick={HandleSignin}
                             color="primary">
-                        {loadingStatus!=='pending'?"Sign In" :<CircularProgress color='secondary' size={18}/>}
+                        {!isLoading?"Sign In" :<CircularProgress color='secondary' size={18}/>}
                            </Buttons>
                             </Col>
                         </Row>
@@ -126,23 +138,23 @@ console.log(isAuthenticated)
              
             <hr />
 
-                            <p className="mb-0 text-muted">
+                            {/* <p className="mb-0 text-muted">
                                 Forgot password?{' '}
                                 <NavLink to="/forgotpassword" className="f-w-400">
                                     Forgot
                                 </NavLink>
-                            </p>
+                            </p> */}
 
                             <br />
 
                             <p className="mb-0 text-muted">
                                 &copy;{' '}
                                 <a target="_blank" rel="noreferrer">
-                                    Bus Booking
+                                    Bus Booking System
                                 </a>
-                                -{' '}
-                                <a  rel="noreferrer">
-                                    Pannel
+                                {' '}
+                                <a  href="https://4loops-kqighrp1b-marufbelete.vercel.app/" target="_blank">
+                                  By 4loop software solution 
                                 </a>
                                 .
                             </p>
