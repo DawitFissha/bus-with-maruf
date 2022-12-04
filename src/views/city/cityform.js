@@ -1,5 +1,5 @@
 import { WithContext as ReactTags } from 'react-tag-input';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Form} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
@@ -9,9 +9,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "react-modal";
 import { Autocomplete} from '@mui/material';
 import {cityActions} from '../../store/city-slice'
-// import { addCity, updateCity} from '../../store/cityHttp';
-// import { errorActions } from '../../store/error-slice';
-// import { loadingActions } from '../../store/loading-slice';
 import Alert from '@mui/material/Alert';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import { useAddCityMutation,useUpdateCityMutation } from '../../store/bus_api';
@@ -41,13 +38,10 @@ const KeyCodes = {
 
 const FormsCustomer = ({update}) => {
     const dispatch=useDispatch()
-    // const loadingStatus=useSelector(state=>state.loading.status)
     const cityState=useSelector(state=>state.city.updateData)
-    // const message=useSelector(state=>state.message.errMessage)
     const [tags, setTags] = useState([]);
     const [city, setCity] = useState();
     const [status, setStatus] = useState();
-    // const [inputStatus, setInputStatus] = useState();
     const [saveStatus,setSaveStatus] =useState(false)
     const [isLocalError,setIsLocalError] =useState(false)
     const [localError,setLocalError]=useState('')
@@ -88,18 +82,12 @@ const cityName=city
 const departurePlace=tags.map(e=>e.text)
 if(cityName&&departurePlace.length>0)
 {     
-    // dispatch(errorActions.Message(''))
-    // dispatch(loadingActions.status("pending"))
     if(update)
     {
-
         updateCity({cityName,departurePlace,id:cityState._id,isActive:status=="Active"?true:false})
-        // dispatch(updateCity())
     }
     else{
         addCity({cityName,departurePlace})
-        // dispatch(addCity({cityName,departurePlace}))
-
     }
     
 }
@@ -209,29 +197,23 @@ useEffect(()=>{
                               </Form.Group> 
                                     }
                                    </Row>
-                        {update&&<Row style={{justifyContent:'start'}}>
+                          {update&&<Row style={{justifyContent:'start'}}>
                          <Form.Group style={{marginLeft:'10px',marginTop:'1px'}} >
                          <Autocomplete
                                 disablePortal
                                 id="set-status"
                                 value={status}
                                 onChange={(event, newValue) => {
-                                    // console.log(newValue)
                                 setStatus(newValue);
                                 }}
-                                // onInputChange={(event, newInputValue) => {
-                                //     console.log(newInputValue&&true);
-                                //     newInputValue&&setInputStatus(newInputValue)
-                                //   }}
-                                // inputValue={inputStatus}
+                               
                                 options={stat_options}
                                 variant="outlined"
                                 sx={{ width: 300 }}
                                 renderInput={(params) => <TextField {...params} label="Status" variant="standard"/>}
                               />
                                 </Form.Group>  
-                                   </Row>}
-
+                              </Row>}
                              <Col style={{marginBottom:'50px',marginTop:'20px',marginLeft:"-26px"}}>
                             <Buttons 
                                 onClick={addCityHandler}
@@ -247,8 +229,8 @@ useEffect(()=>{
                     </Card>
                 </Col>
             </Row>
-            </Modal>
-        {!update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Added Successfully' />}
+          </Modal>
+         {!update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Added Successfully' />}
          {update&&<SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'City Info Updated' />}
         </React.Fragment>
     );

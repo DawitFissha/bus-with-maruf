@@ -37,7 +37,7 @@ export default function RouteList() {
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
-                        style={{zIndex:0,fontSize:'15px'}}
+                        style={{zIndex:0,fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                         
@@ -69,7 +69,8 @@ export default function RouteList() {
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",
+        fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

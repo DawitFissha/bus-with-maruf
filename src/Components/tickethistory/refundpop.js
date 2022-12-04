@@ -48,7 +48,7 @@ const RefundForm = ({refund,orgRule}) => {
     }
     else{
         setIsLocalError(true)
-        setLocalError('please fill all field')
+        setLocalError('please submit confirmation number')
     }
     }
 useEffect(()=>{

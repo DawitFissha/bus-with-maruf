@@ -47,7 +47,7 @@ export default function Location() {
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
-                        style={{zIndex:0,fontSize:'15px'}}
+                        style={{zIndex:0,fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
@@ -56,8 +56,10 @@ export default function Location() {
       columns={[
         {title: "id", field: "_id", hidden: true},
         { title: 'City', field: 'cityName'},
-        { title: 'Departure Plcae', field: 'departurePlace',render:Data=>Data?.departurePlace?.join()},
-        { title: 'Status', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}},
+        { title: 'Departure Plcae', field: 'departurePlace',
+        render:Data=>Data?.departurePlace?.join()},
+        { title: 'Status', field: 'isActive',lookup: { true: 'Active', 
+        false: 'Not Active'}},
       ]}
       data={data&&data.map(o=>({...o}))}
       icons={tableIcons}
@@ -72,7 +74,8 @@ export default function Location() {
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",
+        fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -88,7 +91,6 @@ export default function Location() {
           position:'toolbar',
           onClick: (evt, Data) => {
             setUpdate(false)
-            // dispatch(errorActions.Message(''))
             dispatch(cityActions.setModal(true))
 
           }
@@ -98,9 +100,7 @@ export default function Location() {
           tooltip: 'update info',
           position:'row',
           onClick: (evt, Data) => {
-            // console.log(Data)
             setUpdate(true)
-            // dispatch(errorActions.Message(''))
             dispatch(cityActions.setUpdateData(Data))
             dispatch(cityActions.setModal(true))
 

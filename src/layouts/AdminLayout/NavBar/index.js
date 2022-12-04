@@ -17,9 +17,7 @@ const NavBar = () => {
     if (collapseMenu) {
         toggleClass = [...toggleClass, 'on'];
     }
-    console.log("maruf")
     const navToggleHandler = () => {
-        console.log("toggle")
         dispatch({ type: actionType.COLLAPSE_MENU});
         dispatc(dashboardActions.toggleShow())
     };
@@ -36,7 +34,7 @@ const NavBar = () => {
                     <div className="b-bg">
                         <i className="feather icon-trending-up" />
                     </div>
-                    <span className="b-title">Admin Dashboard</span>
+                    <span className="b-title">4Loop Software</span>
                 </Link>
             </div>
             <div className={collapseClass.join(' ')}>

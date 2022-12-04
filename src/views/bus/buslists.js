@@ -1,16 +1,10 @@
 import React,{useState,useRef,useEffect} from 'react';
-import { Row, Col, Card, Table, Container } from 'react-bootstrap';
-import MaterialTable,{ MTableAction} from "material-table";
+import { Row, Col, Card } from 'react-bootstrap';
+import MaterialTable from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-// import { getBus,getAssignedUserByRole} from '../../store/busHttp';
-import { useSelector,useDispatch } from 'react-redux';
-import {FaEdit} from "react-icons/fa"
-import TextField from "@mui/material/TextField";
-import Select from '@mui/material/Select';
+import { useDispatch } from 'react-redux';
 import { busActions } from '../../store/bus-slice';
-import axios_instance from "../../services/lib-config"
 import AssignUser from "./assignD&R"
-// import { errorActions } from '../../store/error-slice';
 import {BsFillPersonLinesFill} from "react-icons/bs"
 import { useGetBusQuery,useUpdateBusMutation,useGetAssignedUserByRoleQuery} from '../../store/bus_api';
 export default function BusList() {
@@ -19,7 +13,6 @@ export default function BusList() {
   const [redatLooks,setRedatLooks] =useState({})
   const [CurrentInfo,setCurrentInfo]=useState({})
   const dispatch=useDispatch()
-
   const {data,isSuccess,error,isError}=useGetBusQuery()
   const [updateBus,{data:datau,isError:isErroru,error:erroru}]=useUpdateBusMutation()
   const {data:Driver}=useGetAssignedUserByRoleQuery("driver")
@@ -37,7 +30,6 @@ export default function BusList() {
         }, {});
         setRedatLooks(redatlooks)
   },[Driver,Redat])
-console.log(data?.map(o=>console.log(((new Date(o.serviceYear)).getFullYear()))))
   return (
     <React.Fragment>
       <AssignUser info={CurrentInfo}/>
@@ -50,7 +42,7 @@ console.log(data?.map(o=>console.log(((new Date(o.serviceYear)).getFullYear())))
                         <Card.Body>
                           <Col>
                         <MaterialTable
-                        style={{zIndex:0,fontSize:'15px'}}
+                        style={{zIndex:0,fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
@@ -66,7 +58,6 @@ console.log(data?.map(o=>console.log(((new Date(o.serviceYear)).getFullYear())))
         { title: 'Total Sit', field: 'totalNoOfSit'},
         { title: 'Bus State', field: 'busState',lookup:{"Active":"Active","Inactive":"Inactive","On-Repair":"On-Repair","Damaged":"Damaged"}},
         { title: 'Service Year', field: 'serviceYear'},
-    
       ]}
       data={data && data.map(o => ({ ...o,serviceYear:(timenow.getFullYear()-(Number(o.serviceYear)))}))}
       icons={tableIcons}
@@ -81,7 +72,8 @@ console.log(data?.map(o=>console.log(((new Date(o.serviceYear)).getFullYear())))
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",
+        fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,
@@ -111,7 +103,6 @@ actions={[
           new Promise((resolve, reject) => { 
             updateBus({id:oldData._id,...newData})
             setTimeout(()=>{resolve()},600)
-            // dispatch(updateBus(oldData._id,newData,resolve))
           }),
       }}
     />

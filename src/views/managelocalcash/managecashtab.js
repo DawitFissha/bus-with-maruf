@@ -49,11 +49,9 @@ export default function MainCashierPage() {
        <CashInfo/>
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Box sx={{display:'flex'}}>
                 <Box sx={{flexGrow:1}}>
                 <CashTransaction/>
                 </Box>
-        </Box>
         
       </TabPanel>
      

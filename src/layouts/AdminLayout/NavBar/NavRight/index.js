@@ -1,29 +1,39 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ListGroup, Dropdown, Media } from 'react-bootstrap';
+import { ListGroup, Dropdown,Col } from 'react-bootstrap';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import ChatList from './ChatList';
 import { loginActions } from '../../../../store/login-slice';
 import avatar1 from '../../../../assets/images/user/avatar-2.jpg';
 import {useCookies} from 'react-cookie'
+import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
+import moment from 'moment';
+import {FcOvertime,FcCalendar} from "react-icons/fc"
+import {VscGear} from "react-icons/vsc"
+import { userinfoActions } from '../../../../store/userinfo-slice';
+// import {toEthiopianDateString} from 'gc-to-ethiopian-calender'
 // import { errorActions } from '../../../../store/error-slice';
 const NavRight = () => {
     const account = useSelector((state) => state.account);
     const dispatch = useDispatch();
     const [cookies, setCookie,removeCookie] = useCookies(['token']);
     const userinfo=useSelector(state=>state.userinfo)
-
 const history=useHistory()
     const [listOpen, setListOpen] = useState(false);
-    const HandleProfile = () => {
-        history.push('/profile')
-    };
+    // const HandleProfile = () => {
+    //     history.push('/profile')
+    // };
     const handleLogout = () => {
         dispatch(loginActions.isLoged(false))
         removeCookie('access_token',{ path: '/'})
         history.push('/signin')
     };
-
+    const toEc=()=>{
+        dispatch(userinfoActions.setCalender('ec'))
+    }
+    const toGc=()=>{
+        dispatch(userinfoActions.setCalender('gc'))
+    }
     return (
         <React.Fragment>
             <ListGroup as="ul" bsPrefix=" " className="navbar-nav ml-auto" id="navbar-right">
@@ -125,10 +135,43 @@ const history=useHistory()
                         </Dropdown.Toggle>
                     </Dropdown>
                 </ListGroup.Item> */}
+                <span style={{paddingRight:"15px"}}>{moment().format('llll')}</span>
+                <FcOvertime size={25}/>
+                <span style={{paddingRight:"20px",paddingLeft:"15px"}}>{toEthiopianDateString()}</span>
                 <ListGroup.Item as="li" bsPrefix=" ">
                     <Dropdown className="drp-user">
                         <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
-                            <i className="icon feather icon-settings" />
+                        <FcCalendar size={25}/>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu alignRight className="profile-notification">
+                            <div className="pro-head">
+                              select calendar
+                            </div>
+                            <ListGroup as="ul" bsPrefix=" " variant="flush" className="pro-body">
+                                <ListGroup.Item as="li" bsPrefix=" ">
+                                    <Link to="#" className="dropdown-item" onClick={toEc}>
+                                    <FcCalendar/> 
+                                    {userinfo.calender=='ec'?<span style={{fontSize:'18px', paddingLeft:'6px'}}>Ethiopi calendar</span>:
+                                    <span style={{paddingLeft:'6px'}}>Ethiopian calendar</span>}
+                                    </Link>
+                                </ListGroup.Item>
+                                <ListGroup.Item as="li" bsPrefix=" ">
+                                    <Link to="#" className="dropdown-item" onClick={toGc}>
+                                    <FcCalendar/> 
+                                    {userinfo.calender=='gc'?<span style={{fontSize:'18px',paddingLeft:'6px'}}>Gregorian calendar</span>:
+                                    <span style={{paddingLeft:'6px'}}>Gregorian calendar</span>}
+                                    
+                                    </Link>
+                                </ListGroup.Item>
+                            </ListGroup>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </ListGroup.Item>
+                
+                <ListGroup.Item as="li" bsPrefix=" ">
+                    <Dropdown className="drp-user">
+                        <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
+                            <VscGear size={25} />
                         </Dropdown.Toggle>
                         <Dropdown.Menu alignRight className="profile-notification">
                             <div className="pro-head">
@@ -145,11 +188,6 @@ const history=useHistory()
                                     <Link to="/changepassword" className="dropdown-item">
                                         <i className="feather icon-settings" /> Manage Password
                                     </Link>
-                                </ListGroup.Item>
-                                <ListGroup.Item as="li" onClick={HandleProfile} bsPrefix=" ">
-                                    {/* <Link to="#" className="dropdown-item">
-                                        <i className="feather icon-user" /> Profile
-                                    </Link> */}
                                 </ListGroup.Item>
                             
                                 <ListGroup.Item as="li" bsPrefix=" ">

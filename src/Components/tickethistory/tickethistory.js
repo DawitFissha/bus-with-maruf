@@ -4,17 +4,20 @@ import MaterialTable from "material-table";
 import { tableIcons } from '../../views/Table/Tableicon';
 import { useSelector,useDispatch } from 'react-redux';
 import { modalActions } from '../../store/modal-slice';
-import { Autocomplete, FormControl, InputAdornment} from '@mui/material';
+import { Autocomplete} from '@mui/material';
 import TextField from '@mui/material/TextField'
 import moment from 'moment';
 import {FiPrinter} from "react-icons/fi"
 import {BsCashCoin} from "react-icons/bs"
 import RefundForm from "./refundpop"
-import {useLazyGetOneScheduleQuery,useGetSalesScheduleQuery,useUpdatePassInfoMutation } from '../../store/bus_api';
+import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
+import {useLazyGetOneScheduleQuery,useGetSalesScheduleQuery,
+  useUpdatePassInfoMutation } from '../../store/bus_api';
+
 export default function ScheduleList() {
   const [schedule,setSchedule]=useState([])
   let actions=[]
-
+  const userinfo=useSelector(state=>state.userinfo)
   const timenow = new Date
   const max_date=10
    actions= [
@@ -54,9 +57,8 @@ useEffect(()=>{
   }
 },[schedule])
 
-console.log(filterData)
-const options=filterData?.map(e=>({id:e._id,label:e?.scheduleId||'',desc:`From ${e?.source} 
-To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
+let options=filterData?.map(e=>({id:e._id,label:e?.scheduleId||'',desc:`From ${e?.source} 
+To ${e?.destination}`,depDate:e?.departureDateAndTime.split("T")[0]}))||[]
 
   return (
     <React.Fragment>
@@ -83,20 +85,37 @@ To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
-                        style={{zIndex:0,fontSize:'15px'}}
+                        style={{zIndex:0,fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
-      title={"Booked Ticket :"+" "+(schedule.desc||'')}
-      columns={[
+      // title={"Booked Ticket :"+" "+(schedule?.desc||'')+((userinfo.calender=="ec"&&schedule.desc?
+      // '@'+toEthiopianDateString(schedule?.depDate):'@'+schedule?.depDate)||'')}
+      title={`Booked Ticket :${schedule?.desc||''}${schedule?.desc? ' @ ':'' }${userinfo.calender=="ec"?
+      schedule?.desc?toEthiopianDateString(schedule?.depDate):'':schedule?.desc?schedule?.depDate:''}`}
+      columns={userinfo.calender=="ec"?[
+        {title: "id", field: "_id",hidden:true},
+        { title: 'Passanger ID', field: 'passangerId',editable:'never'},
+        { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+        { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
+        { title: 'Sit', field: 'sit',editable:'never'},
+        { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date",
+        render:rowData=>toEthiopianDateString(rowData?.updatedAt)},
+        { title: 'Status', field: 'status',editable:'never',
+        lookup:{"Departed":"Departed","To Be Departed":"To Be Departed",
+        "Refunded":"Refunded","Canceled Trip":"Canceled Trip","Canceled Sit":"Canceled Sit"}},
+        { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
+      ]:[
         {title: "id", field: "_id",hidden:true},
         { title: 'Passanger ID', field: 'passangerId',editable:'never'},
         { title: 'Passanger Name', field: 'passangerName',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
         { title: 'Phone Number', field: 'phoneNumber',editable: ( _ ,rowData ) => rowData && rowData.status === 'To Be Departed'},
         { title: 'Sit', field: 'sit',editable:'never'},
         { title: 'Booked At', field: 'bookedAt',editable:'never',type:"date"},
-        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","To Be Departed":"To Be Departed","Refunded":"Refunded","Canceled Trip":"Canceled Trip","Canceled Sit":"Canceled Sit"}},
+        { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed",
+        "To Be Departed":"To Be Departed","Refunded":"Refunded",
+        "Canceled Trip":"Canceled Trip","Canceled Sit":"Canceled Sit"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
       ]}
       data={oneSchedule?.map(o=>({...o}))}
@@ -104,6 +123,7 @@ To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
       options={{
         search:false,
         exportAllData:true,
+        grouping:true,
         maxBodyHeight: '550px',
         rowStyle:  (rowData, i) => {
           if(i % 2&&rowData.status=='Refunded')
@@ -135,7 +155,8 @@ To ${e?.destination} @ ${e?.departureDateAndTime.split("T")[0]}`}))||[]
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",
+        fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

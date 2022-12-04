@@ -8,6 +8,7 @@ import {FcCollect} from "react-icons/fc"
 import {GiCash} from "react-icons/gi"
 import CashForms from './cashForm';
 import { useGetCashInfoQuery, useGetOrganizationBranchQuery} from '../../store/bus_api';
+import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
 
 export default function CashInfo() {
   const [isCollect,setIsCollect]=useState(false)
@@ -17,6 +18,7 @@ export default function CashInfo() {
   console.log(data)
   const {data:branchData,isSuccess}=useGetOrganizationBranchQuery()
   const dispatch=useDispatch()
+  const userinfo=useSelector(state=>state.userinfo)
 
   useEffect(()=>{
     let branchList = branchData?.branch?.reduce(function(acc, cur, i) {
@@ -59,13 +61,24 @@ export default function CashInfo() {
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
-                        style={{zIndex:0,fontSize:'15px'}}
+                        style={{zIndex:0,fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
                          responsive
       title="Manage Cash"
-      columns={[
+      columns={userinfo.calender=="ec"?[
+        {title: "id", field: "_id", hidden: true},
+        { title: 'Full Name', field: 'fullName'},
+        { title: 'Phone Number', field: 'phoneNumber'},
+        { title: 'Cash In Hand Br', field: 'cashInHand'},
+        { title: 'Branch', field: 'branch',lookup:branch,type:String},
+        { title: 'Last Updated.By', field: 'lastUpdatedBy'},
+        { title: 'Last Updated At', field: 'updatedAt',type:'date',
+        render:rowData=>toEthiopianDateString(rowData?.updatedAt)},
+        { title: 'Total Ticket Refunded', field: 'totalRefundedTicket'},
+        { title: 'Total Refund Br', field: 'totalRefundedAmount'},
+      ]:[
         {title: "id", field: "_id", hidden: true},
         { title: 'Full Name', field: 'fullName'},
         { title: 'Phone Number', field: 'phoneNumber'},
@@ -89,7 +102,8 @@ export default function CashInfo() {
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",fontSize:"16px",
+        margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

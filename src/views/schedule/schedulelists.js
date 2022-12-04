@@ -12,12 +12,13 @@ import CancelForm from "./cancel_undo_shcedule"
 import AssignBus from './assignbus';
 import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
 import moment from 'moment';
+import {toTewelvHourAndLocal} from "../../utils/toLocaltime"
 import { useGetScheduleQuery,useGetAllCityQuery,useGetAllDepPlaceQuery,useGetAllOrgBusQuery,useUpdateDepartureDateTimeMutation } from '../../store/bus_api';
 export default function ScheduleList() {
   const profile=useSelector(state=>state.userinfo)
   //am for amharic
 const timenow = new Date
-const language='en'
+const userinfo=useSelector(state=>state.userinfo)
 const {data}=useGetScheduleQuery()
 const {data:citydata}=useGetAllCityQuery()
 const {data:depdata}=useGetAllDepPlaceQuery()
@@ -59,7 +60,7 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
   }
   const [cityLooks,setCityLooks] =useState({})
   const [depLooks,setDepLooks] =useState({})
-  const [busyLooks,setBusLooks] =useState({})
+  const [busLooks,setBusLooks] =useState({})
   const dispatch=useDispatch()
       useEffect(()=>{
           const res=depData?.map(e=>e.departurePlace).flat()
@@ -92,13 +93,13 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
                         </Card.Header>
                         <Card.Body>
                         <MaterialTable
-                        style={{zIndex:0,paddingTop:'0px',fontSize:'15px'}}
+                        style={{zIndex:0,paddingTop:'0px',fontSize:'14px'}}
                          components={{
                           Container: props => <div {...props} elevation={0}/>,
                      }}
       responsive
       title="Schedule"
-      columns={language=="am"?[
+      columns={userinfo.calender=="ec"?[
         {title: "id", field: "_id",hidden:true},
         { title: 'Schedule ID', field: 'scheduleId',editable:'never'},
         { title: 'Source', field: 'source',lookup:cityLooks,editable:'never'},
@@ -106,9 +107,11 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
         { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
         { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
-        { title: 'Ass.Bus', field: 'bus',lookup:busyLooks,editable:'never'},
+        { title: 'Ass.Bus', field: 'bus',lookup:busLooks,editable:'never'},
         { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable:'never'},
-        { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime",render:rowData=>toEthiopianDateString(rowData.departureDateAndTime),editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Date.Time', field: 'departureDateAndTime',
+        type:"datetime",render:rowData=>`${toEthiopianDateString(rowData?.departureDateAndTime)}
+         ${toTewelvHourAndLocal(new Date(rowData.departureDateAndTime))}`,editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
       ]:[
         {title: "id", field: "_id",hidden:true},
         { title: 'Schedule ID', field: 'scheduleId',editable:'never'},
@@ -117,7 +120,7 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
         { title: 'Total Sit Reserved', field: 'reservedSit',editable:'never'},
         { title: 'Status', field: 'status',editable:'never',lookup:{"Departed":"Departed","Not Departed":"Not Departed","Canceled":"Canceled"}},
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
-        { title: 'Ass.Bus', field: 'bus',lookup:busyLooks,editable:'never'},
+        { title: 'Ass.Bus', field: 'bus',lookup:busLooks,editable:'never'},
         { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable:'never'},
         { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
       ]}
@@ -150,7 +153,8 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
           }
       },
       headerStyle: {
-        zIndex: "1",backgroundColor:"#FE7C7C",color:"white",fontSize:"16px",margin:'0px',padding:'10px 2px'
+        zIndex: "1",backgroundColor:"#6B7AE0",color:"white",
+        fontSize:"16px",margin:'0px',padding:'10px 2px'
       },
         actionsColumnIndex: -1,
         exportButton:true,

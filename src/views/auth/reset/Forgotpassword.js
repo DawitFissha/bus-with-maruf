@@ -31,7 +31,7 @@ const Forgot = () => {
                         <Row className="align-items-center">
                             <Col>
                                 <Card.Body className="text-center">
-                                    <h4 className="mb-4">Admin Dashboard</h4>
+                                    <h4 className="mb-4">4Loop Software</h4>
 
                                     <div className="mb-4">
                                         <i className="feather icon-user-plus auth-icon" />

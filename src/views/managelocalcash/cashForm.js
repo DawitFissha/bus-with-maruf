@@ -98,7 +98,12 @@ const handleSaveStatusClose = (event, reason) => {
                            <TextField
                                 value={amount}
                                 required
-                                onChange={(e)=>setAmount(e.target.value)}
+                                onChange={
+                                  (e)=>{
+                                    if(Number(e.target.value)<0)
+                                    return null
+                                    setAmount(e.target.value)
+                                  }}
                                 id="outlined-required"
                                 label="Amount in Br"
                                 type="number"

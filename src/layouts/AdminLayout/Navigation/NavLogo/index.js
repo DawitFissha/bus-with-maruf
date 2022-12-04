@@ -27,7 +27,7 @@ const NavLogo = () => {
                     <div className="b-bg">
                         <i className="feather icon-trending-up" />
                     </div>
-                    <span className="b-title">Admin Dashboard</span>
+                    <span className="b-title">4Loop Software</span>
                 </Link>
                 <Link
                     to="#"
