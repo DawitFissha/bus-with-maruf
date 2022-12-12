@@ -21,7 +21,8 @@ let lookups
 let actions
 if(profile.role===role.SUPERADMIN)
 {
-lookups={ "admin": 'Admin', "casher": 'Casher', "superagent": 'Super-Agent', "driver": 'Driver',"redat":"Redat"}
+lookups={ "admin": 'Admin', "casher": 'Casher', "superagent": 'Super-Agent',
+ "driver": 'Driver',"redat":"Redat"}
 actions=[
   (rowData) => ({
     icon:() => <RiLockUnlockLine />,
@@ -37,7 +38,8 @@ actions=[
 }
 if(profile.role===role.ADMIN)
 {
-  lookups={ "casher": 'Casher', "superagent": 'Super-Agent', "driver": 'Driver',"redat":"Redat"}
+  lookups={ "casher": 'Casher', "superagent": 'Super-Agent', 
+  "driver": 'Driver',"redat":"Redat"}
   actions=[
     (rowData) => ({
       icon:() => <RiLockUnlockLine />,
@@ -53,6 +55,11 @@ if(profile.role===role.ADMIN)
 if(profile.role===role.CASHER)
 {
   lookups={"driver": 'Driver',"redat":"Redat"}
+  actions=[]
+}
+if(profile.role===role.SUPERAGENT)
+{
+  lookups={"casheragent": 'Casher'}
   actions=[]
 }
 
@@ -88,10 +95,16 @@ if(profile.role===role.CASHER)
       { title: 'First Name', field: 'firstName',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
       { title: 'Last Name', field: 'lastName',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
       { title: 'Phone', field: 'phoneNumber',editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
-      { title: 'User Role', field: 'userRole',lookup:lookups,editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
-      { title: 'Gender', field: 'gender',lookup: { "male": 'Male', "female": 'Female'},editable:(_,rowData)=>rowData&&profile.role!==role.CASHER},
-      { title: 'Assigned', field: 'isAssigned',editable: ( _ ,rowData ) => rowData && rowData.isAssigned==="2",type:"date",lookup:{"2":"Assigned","1":"Unassigned"},hidden:profile.role==role.SUPERAGENT},
-      { title: 'Status', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}}]}
+      { title: 'User Role', field: 'userRole',lookup:lookups,editable:(_,rowData)=>rowData&&
+      profile.role!==role.CASHER&&profile.role!==role.SUPERAGENT},
+      { title: 'Gender', field: 'gender',lookup: { "male": 'Male', "female": 'Female'},
+      editable:(_,rowData)=>rowData&&
+      profile.role!==role.CASHER},
+      { title: 'Assigned', field: 'isAssigned',editable: ( _ ,rowData ) => rowData && 
+      rowData.isAssigned==="2",type:"date",lookup:{"2":"Assigned","1":"Unassigned"},
+      hidden:profile.role==role.SUPERAGENT},
+      { title: 'Status', field: 'isActive',lookup: { true: 'Active',
+       false: 'Not Active'}}]}
       data={data&&data.map(o => ({ ...o }))}
       icons={tableIcons}
       options={{

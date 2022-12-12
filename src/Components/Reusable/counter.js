@@ -10,10 +10,10 @@ export default function Counter({count}) {
       const controls = animate(count.from, count.to, {
         duration: 5,
         onUpdate(value) {
-          ref.current.textContent = value.toFixed(0);
+          ref.current.textContent = value?.toFixed(0);
         }
       });
-      setTimeout(function(){setDone(true)},5000)
+      setTimeout(function(){setDone(true)},2000)
       return () => controls.stop()
       
     }, [count.from, count.to]);
@@ -24,7 +24,7 @@ export default function Counter({count}) {
           initial="from"
           animate="to"
           whileHover="hover">
-              <CounterStyle ref={ref}> </CounterStyle>{done&&<Plus>+</Plus>}
+              <CounterStyle ref={ref}> </CounterStyle>{done}
       </div>
       </>
   )

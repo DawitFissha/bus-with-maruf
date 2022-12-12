@@ -34,10 +34,10 @@ const MultiBarChartTicket = () => {
         refetch()
         if(data)
         {
-          let s=data.getCasherTicketInbr
+          let s=data?.getCasherTicketInbr
             const sales=[...initial]
             s.map(e=>{
-              sales[0]={label: "today/ዛሬ",value:e.totalPrice,color:'rgb(62 91 234)'}
+              sales[0]={label: "today/ዛሬ",value:e?.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             setSales(sales)

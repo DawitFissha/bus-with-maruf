@@ -5,7 +5,7 @@ export default function RegistrationParent(props:{children:React.ReactNode,custo
     return (
         <div
         style={{
-            width: smallScreen || props?.customeCondition ? "100%" : "600px",
+            width: smallScreen || props?.customeCondition ? "100%" : "750px",
             marginLeft: smallScreen ? "" : 'auto',
             marginRight: smallScreen ? "" : 'auto',
             height:'auto',

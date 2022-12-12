@@ -5,7 +5,7 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import ChatList from './ChatList';
 import { loginActions } from '../../../../store/login-slice';
 import avatar1 from '../../../../assets/images/user/avatar-2.jpg';
-import {useCookies} from 'react-cookie'
+// import {useCookies} from 'react-cookie'
 import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
 import moment from 'moment';
 import {FcOvertime,FcCalendar} from "react-icons/fc"
@@ -16,7 +16,7 @@ import { userinfoActions } from '../../../../store/userinfo-slice';
 const NavRight = () => {
     const account = useSelector((state) => state.account);
     const dispatch = useDispatch();
-    const [cookies, setCookie,removeCookie] = useCookies(['token']);
+    // const [cookies, setCookie,removeCookie] = useCookies(['token']);
     const userinfo=useSelector(state=>state.userinfo)
 const history=useHistory()
     const [listOpen, setListOpen] = useState(false);
@@ -25,7 +25,7 @@ const history=useHistory()
     // };
     const handleLogout = () => {
         dispatch(loginActions.isLoged(false))
-        removeCookie('access_token',{ path: '/'})
+        // removeCookie('access_token',{ path: '/'})
         history.push('/signin')
     };
     const toEc=()=>{

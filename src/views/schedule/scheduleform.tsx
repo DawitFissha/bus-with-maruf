@@ -1,12 +1,9 @@
 import React,{useState,useEffect} from 'react';
-import AdapterDateFns  from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker  from '@mui/lab/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {fetchRoutes} from '../route/routeSlice'
-import {addSchedule} from './scheduleSlice'
-import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -15,8 +12,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import {RegistrationHeader} from '../../Components/common-registration-form/registrationHeader'
 import {SavingProgress} from '../../Components/common-registration-form/savingProgress'
 import {SaveSuccessfull} from '../../Components/common-registration-form/saveSuccess'
-import {FormHelperText, InputAdornment, ListItemText, OutlinedInput } from '@mui/material';
-import { TimePicker } from '@mui/lab';
+import {Alert, AlertTitle, FormHelperText, InputAdornment, ListItemText, OutlinedInput, Typography } from '@mui/material';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useFormik } from 'formik';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -26,9 +23,12 @@ import SvgIcon from '@mui/material/SvgIcon';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
-import {ActiveBusses} from '../../App'
 import useError from '../../utils/hooks/useError'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useGetRoutesQuery,useAddNewScheduleMutation,
+  useGetActiveBussesQuery,useGetRouteByIdQuery} from '../../store/bus_api'
+import Grid from '@mui/material/Grid'
+import Divider from '@mui/material/Divider'
  type routeOptionsType = {
   label : string,
   id : string,
@@ -41,26 +41,30 @@ const validate = (values:{description:string}) => {
     } 
     return errors;
   };
-export default function Schedule(){
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-      PaperProps: {
-        style: {
-          maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-          width: 250,
-        },
-      },
-    };
-const dispatch = useAppDispatch()
-const routeStatus = useAppSelector(state=>state.routes.status)
-const [open,setOpen] = useState(false)
-const [routesOpen,setRoutesOpen] = useState(false)  
-const routesLoading = routesOpen && routeStatus==='idle'
-const [loading, setLoading] = React.useState(false);
-const routes = useAppSelector(state=>state.routes.routes)
 
-const routeOptions:routeOptionsType[] = routes.map(route=>(
+// props for menu items
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+        PaperProps: {
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+          },
+        },
+      };
+
+export default function Schedule(){
+// global redux states
+const {data:routes=[],isLoading} = useGetRoutesQuery()
+const {data:ActiveBusses} = useGetActiveBussesQuery()
+const [addSchedule] = useAddNewScheduleMutation()
+
+// states local to  the component
+
+const [open,setOpen] = useState(false)
+const [loading, setLoading] = React.useState(false);
+const routeOptions:routeOptionsType[] = routes.map((route:any)=>(
   {id:route._id as string ,label:`${route.source} to ${route.destination}`}
 ))
 
@@ -70,18 +74,22 @@ const [route,setRoute] = useState<routeOptionsType | null>({
 
 const [routeValue,setRouteValue] = useState('')
 const routeId = route?.id
-const tarif = routes.find((r)=>r._id===routeId)?.tarif
-const departurePlaces = routes.find((r)=>r._id===routeId)?.departurePlace
-const assignedBusses = routes.find((r)=>r._id===routeId)?.bus
-const source = routes.find((r)=>r._id===routeId)?.source
-const destination = routes.find((r)=>r._id===routeId)?.destination
-const estimatedhour = routes.find((r)=>r._id===routeId)?.estimatedHour
-const distance = routes.find((r)=>r._id===routeId)?.distance
+const {data:selectedRoute={}} = useGetRouteByIdQuery(routeId as string)
+const tarif = selectedRoute.tarif
+const departurePlaces = selectedRoute.departurePlace
+const assignedBusses = selectedRoute.bus
+const source = selectedRoute.source
+const destination = selectedRoute.destination
+const estimatedhour = selectedRoute.estimatedHour
+const distance = selectedRoute.distance
 const [depPlace, setDepPlace] = React.useState('');
 const [assignedBus, setAssignedBus] = React.useState('');
 const [departureDate,setDepartureDate] = useState<Date|null>(null)
 const [departureTime,setDepartureTime] = useState<Date|null>(null)
 const [routeError,routeErrorMessage,setRouteErrorOccured,setRouteErrorMessage] = useError()
+const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
+
+//Handler functions
 const handleDepPlaceChange = (e: SelectChangeEvent) => {
 setDepPlace(e.target.value);
 };
@@ -97,14 +105,8 @@ const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   setOpen(false);
 };
 
-useEffect(()=>{
-    document.title+=` - Create Schedule`
-    if(routesLoading){
-      dispatch(fetchRoutes())
-      
-    }
-    },[routesLoading,dispatch])
 
+// formik handler
 const formik = useFormik({
     initialValues: {
       description: "",
@@ -120,25 +122,26 @@ const formik = useFormik({
         if(!loading){
             setLoading(true)
             try {
-              await dispatch(addSchedule(
+              await addSchedule(
                 {
                 source,
                 description:values.description,
                 destination,
                 tarif,
-               distance,
-               estimatedhour,
-               assignedbus:assignedBus,
-               depplace:depPlace,
-               depdateandtime:new Date(`${departureDate?.toLocaleDateString()} ${departureTime?.toTimeString()}`).toISOString(),
-               totalnoofsit:ActiveBusses?.find(ab=>ab._id===assignedBus)?.totalNoOfSit,
-               
-             }
-              )).unwrap()
+                distance,
+                estimatedhour,
+                assignedbus:assignedBus,
+                depplace:depPlace,
+                depdateandtime:new Date(`${departureDate?.toLocaleDateString()} ${departureTime?.toTimeString()}`).toISOString(),
+                totalnoofsit:4,
+                // ActiveBusses?.find(ab=>ab._id===assignedBus)?.totalNoOfSit,
+               }
+              ).unwrap()
               
               resetForm({values:{
                 description: ""
               }})
+              setErrorOccured(false)
               setDepartureDate(null)
               setDepartureTime(null)
               setDepPlace('')
@@ -149,8 +152,8 @@ const formik = useFormik({
               setOpen(true)
               setRouteErrorMessage('')
             }
-            catch(err){
-              console.log(err)
+            catch(err:any){
+              setErrorMessage(`Failed to Add Schedule , ${err.data.message}`)
             }
             finally{
               setLoading(false)
@@ -159,7 +162,10 @@ const formik = useFormik({
             }
     },
   });
-  
+  console.log(routes)
+  console.log(assignedBusses)
+  console.log(ActiveBusses)
+  console.log(routeId)
   return (
    <LocalizationProvider dateAdapter={AdapterDateFns}>
      
@@ -173,18 +179,48 @@ const formik = useFormik({
            <FormWrapper>
            <RegistrationHeader description = 'Create A Schedule' />
            </FormWrapper>
-           <Box sx={{marginLeft:'60%'}}>
-           <InputLabel >Date</InputLabel>
+           <Divider/>
+           <Grid container sx={{mt:2}} columnSpacing={5}>
+                <Grid item md={6}>
+                <Box sx={{display:'flex',flexDirection:'column'}}>
+            <Box sx={{display:'flex',alignItems:'center',gap:2}}>
+            <Typography variant='h6'>Date</Typography>
                <TextField 
                sx={{maxWidth:'200px',minWidth:'150px'}}
                size = 'small'
                value={new Date().toLocaleDateString()}
                />
-               <h4 style = {{marginTop:'10px'}}>Price - {tarif?`${tarif} Birr`:''}</h4>
+            </Box>
+            <Box >
+            <h4>Price - {tarif?`${tarif} Birr`:''}</h4>
+            </Box>
+       
+               
            </Box>
+                </Grid>
+                <Grid item md={6}>
+                      
+                      <Box sx={{diplay:'flex',flexDirection:'column'}}>
+                      <Box>
+                      {
+                        Boolean(source)&&Boolean(destination)?
+                      <Typography variant="h6">{`From ${source} to ${destination}`}</Typography>:
+                      null
+                      }
+                      </Box>
+                      <Box sx={{mt:2}}>
+                        {Boolean(distance)&& <Typography variant="h6">{`${distance} KMs`}</Typography>}
+                      </Box>
+                      </Box>
+                </Grid>
+           </Grid>
+     <Divider/>
       <form onSubmit={formik.handleSubmit}>
-      <FormWrapper>
-            <TextField
+      <Grid container sx={{mt:2}}>
+                <Grid item xs={12}>
+                <Grid display='flex' container spacing={2}  columnSpacing={5}>
+                        <Grid item md={6} xs={12}>
+                        <TextField
         fullWidth
         id="description"
         name="description"
@@ -201,23 +237,25 @@ const formik = useFormik({
         error={formik.touched.description && Boolean(formik.errors.description)}
         helperText={formik.touched.description && formik.errors.description}
       />
-            </FormWrapper>
-            <FormWrapper>
-              <FormControl fullWidth error={routeError}>
+                        </Grid>
+                        <Grid item md={6} xs={12}>
+                        <FormControl fullWidth 
+                        error={routeError}
+                        >
         <Autocomplete
         value={route}
         onChange = {(event: any, newValue:routeOptionsType|null) => {
           setRoute(newValue);
         }}
         id="routes"
-        open={routesOpen}
-        onOpen = {()=>{
-          setRoutesOpen(true)
-        }}
-        onClose = {()=>{
-          setRoutesOpen(false)
-        }}
-        loading = {routesLoading}
+        // open={routesOpen}
+        // onOpen = {()=>{
+        //   setRoutesOpen(true)
+        // }}
+        // onClose = {()=>{
+        //   setRoutesOpen(false)
+        // }}
+        // loading = {routesLoading}
         inputValue={routeValue}
         onInputChange={(event, newInputValue) => {
           setRouteValue(newInputValue);
@@ -237,7 +275,7 @@ const formik = useFormik({
             ),
             endAdornment: (
               <React.Fragment>
-                {routeStatus==='loading' ? <CircularProgress color="inherit" size={20} /> : null}
+                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                 {params.InputProps.endAdornment}
               </React.Fragment>
             ),
@@ -249,9 +287,11 @@ const formik = useFormik({
         routeError && (<FormHelperText>{routeErrorMessage}</FormHelperText>)
       }
       </FormControl>
-        </FormWrapper>
-        <FormWrapper>
-            <DatePicker
+                        </Grid>
+                    </Grid>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}>
+                        <Grid item md={6} xs={12}>
+                        <DatePicker
             label="Departure Date"
             value={departureDate}
             onChange={(newValue) => {
@@ -271,10 +311,9 @@ const formik = useFormik({
         }}
         
       />
-      {/* <FormHelperText sx={{color:'red'}}>{required}</FormHelperText> */}
-            </FormWrapper>
-        <FormWrapper>
-        <TimePicker
+                        </Grid>
+                        <Grid item md={6} xs={12}>
+                        <TimePicker
         label="Departure Time"
         value={departureTime}
         onChange={(newValue) => {
@@ -293,10 +332,11 @@ const formik = useFormik({
           )
         }}
       />
-      {/* <FormHelperText sx={{color:'red'}}>{required}</FormHelperText> */}
-        </FormWrapper>
-        <FormWrapper>
-          <FormControl sx={{width: '100%' }}>
+                        </Grid>
+                    </Grid>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}>
+                        <Grid item md={6} xs={12}>
+                        <FormControl sx={{width: '100%' }}>
         <InputLabel id="departure-place">Departure Place</InputLabel>
         <Select
           labelId="departure-place"
@@ -329,19 +369,19 @@ const formik = useFormik({
           }
         </Select>
       </FormControl>
-          </FormWrapper>
-
-          <FormWrapper>
-          <FormControl sx={{width: '100%' }}>
-        <InputLabel id="departure-place">Bus</InputLabel>
+                        </Grid>
+                        <Grid item md={6} xs={12}>
+                        <FormControl sx={{width: '100%' }}>
+        <InputLabel id="assigned-bus">Bus</InputLabel>
         <Select
-          labelId="departure-place"
-          id="departure-places"
+          labelId="assigned-bus"
+          id="assigned-bus"
           // multiple
           value={assignedBus}
           onChange={handleAssignedBusChange}
           input={<OutlinedInput id="select-multiple" label="Departure Place" />}
           renderValue={(selected)=>ActiveBusses?.find(ab=>ab._id===selected)?.busPlateNo}
+          // renderValue={(selected)=>selected}
           MenuProps={MenuProps}
           startAdornment = {
             <InputAdornment position="start">
@@ -351,28 +391,39 @@ const formik = useFormik({
         >
           {
           assignedBusses?
-          assignedBusses!.map((assignedBus:string) => (
+          assignedBusses.map((assignedBus:string) => (
             <MenuItem
               key={assignedBus}
               value={assignedBus}
             >
               
-              <ListItemText primary={ActiveBusses?.find(activeBus=>(activeBus?._id === assignedBus))?.busPlateNo} />
+              <ListItemText primary={ ActiveBusses?.find((activeBus:any)=>(activeBus?._id === assignedBus))?.busPlateNo} />
             </MenuItem>
           )):null
           }
         </Select>
       </FormControl>
-          </FormWrapper>
-            <FormWrapper>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+            
             <Button  
+            sx={{marginTop:4}}
             type="submit"
             disabled = {loading}
             color="primary" variant="contained" >
           Save
         </Button>
-            </FormWrapper>
             <SaveSuccessfull open={open} handleClose={handleClose} message = 'Schedule Successfully Created' />
+            {
+          error && (
+            <Alert sx={{p:1}} severity="error">
+            <AlertTitle>Error</AlertTitle>
+             <strong>{errorMessage}</strong>
+          </Alert>
+          )
+        }
             
       </form>
       

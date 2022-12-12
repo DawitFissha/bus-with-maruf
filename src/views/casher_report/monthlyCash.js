@@ -31,12 +31,11 @@ const MultiBarChartTicket = () => {
         // refetch()
         if(data)
         {
-          console.log(data)
-          let s=data.getCasherTicketInbr
+          let s=data?.getCasherTicketInbr
             const sales=[...initial]
         
             s.map(e=>{
-              sales[e.label]={label:days[e.label-1],value:e.totalPrice,color:'rgb(62 91 234)'}
+              sales[e?.label]={label:days[e?.label-1],value:e?.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             

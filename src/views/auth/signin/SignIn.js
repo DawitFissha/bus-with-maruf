@@ -12,18 +12,18 @@ import { useSelector,useDispatch} from "react-redux";
 import { loginActions } from "../../../store/login-slice"
 import { userinfoActions } from "../../../store/userinfo-slice"
 import  {Redirect} from 'react-router-dom'
-import {useCookies} from 'react-cookie'
+// import {useCookies} from 'react-cookie'
 import Alert from '@mui/material/Alert';
 import { useLoginUserMutation } from '../../../store/bus_api';
 const Signin = () => {
-    const [cookies, setCookie] = useCookies(['token']);
+    // const [cookies, setCookie] = useCookies(['token']);
     const emailref=useRef()
     const passwordref=useRef()
 const history = useHistory()
 const dispatch=useDispatch()
 const loginState = useSelector((state) => state.login);
 const {isOrgCodeValid,organizationName,isAuthenticated} = loginState;
-const token=useSelector(state=>state.login.token)
+// const token=useSelector(state=>state.login.token)
 // const loadingStatus=useSelector(state=>state.loading.status)
 // const errmsg=useSelector(state=>state.message.errMessage)
 const organizationcode=useSelector(state=>state.login.organizationCode)
@@ -59,7 +59,7 @@ useEffect(()=>{
     dispatch(loginActions.isLoged(true))
     dispatch(loginActions.setCookie(data.token))
     dispatch(userinfoActions.setUser({username:data.user,role:data.role}))
-    token&&setCookie('token', token, { path: '/'})
+    // token&&setCookie('token', token, { path: '/'})
     history.push('/dashboard')
     }
 },[isSuccess])

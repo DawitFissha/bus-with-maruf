@@ -69,7 +69,11 @@ const routes = [
 //     path: '/table',
 //     component: lazy(() => import('./views/user/usertab'))
 // },
-
+            {
+                exact: true,
+                path: '/manageorganization',
+                component: lazy(() => import('./views/organization/index'))
+            },
             {
                 exact: true,
                 path: '/dashboard',
@@ -89,23 +93,28 @@ const routes = [
             
             {
                 exact: true,
-                path: '/addroute',
+                path: '/route',
                 component: lazy(() => import('./views/route/routetab'))
             },
             {
                 exact: true,
-                path: '/addbus',
+                path: '/bus',
                 component: lazy(() => import('./views/bus/bustab'))
             },
-            {
-                exact: true,
-                path: '/bus',
-                component: lazy(() => import('./views/bus/buslist'))
-            },
+            // {
+            //     exact: true,
+            //     path: '/bus',
+            //     component: lazy(() => import('./views/bus/buslists'))
+            // },
             {
                 exact: true,
                 path: '/user',
                 component: lazy(() => import('./views/user/usertab'))
+            },
+            {
+                exact: true,
+                path: '/agent',
+                component: lazy(() => import('./views/manageagent/agenttab'))
             },
             {
                 exact: true,

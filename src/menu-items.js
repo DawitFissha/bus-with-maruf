@@ -30,6 +30,13 @@ const menuItems = {
             icon: 'icon-ui',
             children: [
                 {
+                    id: 'organization',
+                    title: 'Manage Organization',
+                    type: 'item',
+                    url: '/manageorganization',
+                    icon: <HiCreditCard size={30} color="#A0A8B6"/>
+                },
+                {
                     id: 'ticket',
                     title: 'Ticket Sale',
                     type: 'item',
@@ -40,7 +47,7 @@ const menuItems = {
                     id: 'route',
                     title: 'Manage Route',
                     type: 'item',
-                    url: '/addroute',
+                    url: '/route',
                     icon: <FaRoute size={30} color="#A0A8B6"/>
                 },
                 {
@@ -58,10 +65,17 @@ const menuItems = {
                     icon: <MdOutlinePersonAddAlt size={30} color="#A0A8B6"/>
                 },
                 {
+                    id: 'agent',
+                    title: 'Manage Agent',
+                    type: 'item',
+                    url: '/agent',
+                    icon: <HiCreditCard size={30} color="#A0A8B6"/>
+                },
+                {
                     id: 'bus',
                     title: 'Manage Bus',
                     type: 'item',
-                    url: '/addbus',
+                    url: '/bus',
                     icon: <BiBus size={30} color="#A0A8B6"/>
                 },
                 {

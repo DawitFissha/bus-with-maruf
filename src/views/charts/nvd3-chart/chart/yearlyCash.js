@@ -96,7 +96,8 @@ const MultiBarChartTicket = () => {
         variables:{input:{filter:sortState
         }
       }})
-       const months=["jan/ጥር","feb/የካቲ","mar/መጋቢ","apr/ሚያዝ","may/ግንቦ","jun/ሰኔ","july/ሃምሌ","aug/ነሃሴ","sep/መስክ","oct/ጥቅም","nov/ህዳር","dec/ታህሳ"]
+       const months=["jan/ጥር","feb/የካቲ","mar/መጋቢ","apr/ሚያዝ","may/ግንቦ","jun/ሰኔ",
+       "july/ሃምሌ","aug/ነሃሴ","sep/መስክ","oct/ጥቅም","nov/ህዳር","dec/ታህሳ"]
        useEffect(()=>{
         refetch()
         if(data)
@@ -109,15 +110,18 @@ const MultiBarChartTicket = () => {
         const agent=[...initial]
         const mobile=[...initial]
             s.map(e=>{
-              sales[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(62 91 234)'}
+              sales[e.label-1]={label:months[e.label-1],
+              value:e.totalPrice,color:'rgb(62 91 234)'}
               return
             })
             g.map(e=>{
-              agent[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(189 133 182)'}
+              agent[e.label-1]={label:months[e.label-1],
+                value:e.totalPrice,color:'rgb(189 133 182)'}
               return
             })
             m.map(e=>{
-              mobile[e.label-1]={label:months[e.label-1],value:e.totalPrice,color:'rgb(62 191 234'}
+              mobile[e.label-1]={label:months[e.label-1],
+                value:e.totalPrice,color:'rgb(62 191 234'}
               return
             })
          
@@ -127,7 +131,8 @@ const MultiBarChartTicket = () => {
         }
     },[data,sortState])
 
-    return <NVD3Chart tooltip={{ enabled: true}} type="multiBarChart" datum={datum} x="label" y="value" height={300} groupSpacing={0.1} showValues />;
+    return <NVD3Chart tooltip={{ enabled: true}} type="multiBarChart" 
+    datum={datum} x="label" y="value" labelType="percent" height={300} groupSpacing={0.1} showValues />;
 };
 
 export default MultiBarChartTicket;

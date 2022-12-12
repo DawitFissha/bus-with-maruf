@@ -18,7 +18,7 @@ import axios_instance from '../../services/lib-config';
 import CircularProgress from '@mui/material/CircularProgress';
 // import { updateBus, updateBusw } from '../../store/busHttp';
 // import { loadingActions } from '../../store/loading-slice';
-import { useUpdateBuswMutation } from '../../store/bus_api';
+import { useUpdateBuswMutation,useLazyGetAssignedUserByRoleWitheditQuery } from '../../store/bus_api';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 
 const customStyles = {
@@ -46,7 +46,7 @@ const Assign = ({info}) => {
     const [driverList,setDriverList]=useState()
     const [redatList,setRedatList]=useState()
     const [updateBusw,{data,isError,error,isSuccess,isLoading}]=useUpdateBuswMutation()
-
+    const [trigger,{data:userData}]=useLazyGetOrganizationByCodeQuery()
     const handleDriverChange = (e)=>{
       console.log(e.target.value)
         setDriver(e.target.value)
@@ -78,20 +78,27 @@ useEffect(()=>{
   {
     setDriver(info?.driverId)
     setRedat(info?.redatId)
-const getUser=async(role,current)=>{
-  let query={}
+// const getUser=async(role,current)=>{
+//   let query={}
   !!role?query.role=role:query=query
   !!current?query.current=current:query=query
-const user=await axios_instance.get(`getuserwithedit`,{params:{...query}})
-role==="driver"&&setDriverList(user.data)
-role==="redat"&&setRedatList(user.data)
-}
-getUser("driver",info?.driverId)
-getUser("redat",info?.redatId)
+  trigger(info?.driverId)
+// const user=await axios_instance.get(`getuserwithedit`,{params:{...query}})
+// role==="driver"&&setDriverList(user.data)
+// role==="redat"&&setRedatList(user.data)
+// }
+// getUser("driver",info?.driverId)
+// getUser("redat",info?.redatId)
 
 }
 
 },[info])
+useEffect(()=>{
+  if(userData){
+    role==="driver"&&setDriverList(userData)
+    role==="redat"&&setRedatList(userData)
+  }
+},[userData])
 const UpdateHandler=()=>{
   // dispatch(loadingActions.status("pending"))
   updateBusw({id:info._id,driverId:driver,redatId:redat})

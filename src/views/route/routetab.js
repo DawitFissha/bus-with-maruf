@@ -41,7 +41,7 @@ export default function MainCashierPage() {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs indicatorColor='secondary' value={value} onChange={handleChange} aria-label="cashier tabs">
-          <Tab  label="Schedule Info" {...a11yProps(0)} />
+          <Tab  label="Route List" {...a11yProps(0)} />
           <Tab style={{marginLeft:"20px"}} label="Add Route" {...a11yProps(1)} />
         </Tabs>
       </Box>

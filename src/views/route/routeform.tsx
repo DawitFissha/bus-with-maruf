@@ -2,8 +2,7 @@ import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {ROUTE,addRoutes} from './routeSlice'
-import {useAppDispatch,useAppSelector} from '../../app/hooks'
+import {ROUTE} from './routeSlice'
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,19 +15,19 @@ import {SameCity} from './samecity'
 import Autocomplete from '@mui/material/Autocomplete';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
-import { FormHelperText, InputAdornment, ListItemText } from '@mui/material';
+import { FormHelperText, Grid, InputAdornment, ListItemText } from '@mui/material';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import PlaceIcon from '@mui/icons-material/Place';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import SvgIcon from '@mui/material/SvgIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import {ActiveBusses} from '../../App'
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
 import useError from '../../utils/hooks/useError'
-import useSmallScreen from '../../utils/hooks/useSmallScreen'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+import {useGetActiveBussesQuery,
+  useAddNewRouteMutation,useGetCitiesQuery} from '../../store/bus_api'
+import DisplayFormError from '../../Components/common-registration-form/formError';
+
 type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
@@ -53,13 +52,42 @@ const validate = (values:VALUES_TYPE) => {
     return errors;
   };
 
- function RouteRegistration(){
+//Menu Props
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
-
+export default function RouteRegistration() {
+//Redux states
+const {data:ActiveBusses=[],isLoading:bussesLoading} = useGetActiveBussesQuery()
+const [addNewRoute] = useAddNewRouteMutation()
+const {data:cities=[],isLoading:citiesLoading} = useGetCitiesQuery()
+//Local States
 const [error,errorMessage,setErrorOccured,setErrorMessage] = useError()
 const [busError,busErrorMessage,setBusErrorOccured,setBusErrorMessage] = useError()
 const [depPlace, setDepPlace] = React.useState<string[]>([]);
 const [assignedBus, setAssignedBus] = React.useState<string[]>([]);
+const [saveStatus,setSaveStatus] = useState(false)
+const [samecity,setSameCity] = useState(false)
+const [loading, setLoading] = React.useState(false);
+
+const cityOptions =  cities?.map((city:any)=>(
+  city.cityName
+)) as string[]
+const [sourceValue, setSourceValue] = React.useState('');
+const [destinationValue, setDestinationValue] = React.useState('');
+const [source, setSource] = React.useState<string>(cityOptions[0]);
+const depPlaces = cities?.find((city:any)=>(city.cityName===source))?.departurePlace
+const [destination, setDestination] = React.useState<string>(cityOptions[0]);
+
+//Handler functions
 const handleDepPlaceChange = (event: SelectChangeEvent<typeof depPlace>) => {
   const {
     target: { value },  
@@ -80,44 +108,28 @@ const handleAssignedBusChange = (event: SelectChangeEvent<typeof assignedBus>) =
   setBusErrorOccured(false)
 };
 
-const [saveStatus,setSaveStatus] = useState(false)
-const [samecity,setSameCity] = useState(false)
-const [loading, setLoading] = React.useState(false);
-const cities = useAppSelector(state=>state.cities)
-const cityNames =  cities.map((city)=>city['name'])
- const [sourceValue, setSourceValue] = React.useState('');
- const [destinationValue, setDestinationValue] = React.useState('');
- const [source, setSource] = React.useState<string>(cityNames[0]);
- const depPlaces = useAppSelector(state=>state.cities.find((city)=>(city.name===source)))?.departurePlaces
- const [destination, setDestination] = React.useState<string>(cityNames[0]);
- const busStatus = useAppSelector(state=>state.busses.status)
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
 const handleSameCityClose = () => {
   setSameCity(false);
 };
-const dispatch = useAppDispatch();
+
 const handleSaveStatusClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
   }
   setSaveStatus(false);
 };
-const smallScreen = useSmallScreen()
-
+const [active,setActive] = React.useState<boolean>(true)
+const handleActiveChecked = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setActive(event.target.checked);
+};
+console.log(cityOptions)
+//Effect to clear departure place when source is changed
 React.useEffect(()=>{
     document.title+=` - Route Registration`
     setDepPlace([])
     },[source])
+
+//formik handler
   const formik = useFormik({
     initialValues: {
       price: 0,
@@ -139,16 +151,15 @@ React.useEffect(()=>{
             setLoading(true)
 
             try {
-              await dispatch(addRoutes({
+              await addNewRoute({
                 source,
                 destination,
                 tarif:values.price,
                 departureplace:depPlace?depPlace:undefined,
-                // departureplcae:'X',
                 distance:values.distance>0?values.distance:null,
                 estimatedhour:values.estimatedHour>0?values.estimatedHour:null,
                 bus:assignedBus,
-              })).unwrap()
+              }).unwrap()
               
               resetForm({values:{
                 price: 0,
@@ -162,25 +173,20 @@ React.useEffect(()=>{
               setSaveStatus(true)
               setAssignedBus([])
             }
-            catch(err) {
-              
-              setErrorOccured(true)
-              // setErrorMessage(err.message)
-              // console.log(errorMessage)
-              setErrorMessage(err.message)
+            catch(err:any) {
+              setErrorMessage(`Failed to Register Route , ${err.data.message}`)
             }
             finally {
               setLoading(false)
             }
-              
-            
+          
           }
          }
     },
   });
 
   return (
-     busStatus==='loading'? 
+    bussesLoading ? 
       <Box sx={{ display: 'flex' }}>
       <CircularProgress />
     </Box>
@@ -196,8 +202,12 @@ React.useEffect(()=>{
            <RegistrationHeader description = 'Add New Routes' />
            </FormWrapper>
       <form onSubmit={formik.handleSubmit}>
-        <FormWrapper>
-        <Autocomplete
+      <Grid container >
+                    <Grid item xs={12}>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5}> 
+                    <Grid item md={6} xs={12}>
+                    <Autocomplete
+        loading={citiesLoading}
         value={source}
         onChange={(event: any, newValue: string | null) => {
           setSource(newValue as string);
@@ -207,25 +217,35 @@ React.useEffect(()=>{
         onInputChange={(event, newInputValue) => {
           setSourceValue(newInputValue);
         }}
-        options={cityNames}
+        options={cityOptions}
         // sx={{ width: 300 }}
+        // getOptionLabel={option=>option.cityName}
         renderInput={(params) => {
-          params.InputProps.startAdornment = (
-            <InputAdornment position="start">
-            <PlaceIcon sx={{fontSize:"35px"}} color="primary"/>
-        </InputAdornment>
-          )
           return(
-            <TextField  {...params}  label="Source"/>
+            <TextField 
+             {...params} 
+             label="Source"
+             inputProps={{
+              ...params.inputProps,
+              endAdornment: (
+                <React.Fragment>
+                {citiesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+              ),
+              startAdornment:(
+                <InputAdornment position="start">
+                <PlaceIcon sx={{fontSize:"35px"}} color="primary"/>
+            </InputAdornment>
+              )
+             }}
+             />
           )
         }}
       />
-        </FormWrapper>
-   
-           <FormWrapper>
-
-           
-           <Autocomplete
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                    <Autocomplete
         value={destination}
         onChange={(event: any, newValue: string | null) => {
           setDestination(newValue as string);
@@ -235,45 +255,58 @@ React.useEffect(()=>{
         onInputChange={(event, newInputValue) => {
           setDestinationValue(newInputValue);
         }}
-        options={cityNames}
-        
+        options={cityOptions}
+        loading={citiesLoading}
         renderInput={(params) => {
-          params.InputProps.startAdornment = (
-            <InputAdornment position="start">
-            <PlaceIcon sx={{fontSize:"35px"}} color="primary"/>
-        </InputAdornment>
-          )
           return(
-            <TextField  {...params}  label="Destination"/>
-          )
-        }}
-      />
-        
-
-           </FormWrapper>
-            <FormWrapper>
-            <TextField
-        
-        id="price"
-        name="price"
-        label="Price"
-        type='number'
-        value={formik.values.price}
-        onChange={formik.handleChange}
-        InputProps = {{
-          startAdornment:(
-            <InputAdornment position="start">
-              <PriceChangeIcon sx={{fontSize:"35px"}} color="primary"/>
+            <TextField  {...params} 
+             label="Destination"
+             inputProps={{
+              ...params.inputProps,
+              endAdornment: (
+                <React.Fragment>
+                {citiesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+              ),
+              startAdornment:(
+                <InputAdornment position="start">
+                <PlaceIcon sx={{fontSize:"35px"}} color="primary"/>
             </InputAdornment>
+              )
+             }}
+             />
           )
         }}
-        error={formik.touched.price && Boolean(formik.errors.price)}
-        helperText={formik.touched.price && formik.errors.price}
       />
-            </FormWrapper>
-            <FormWrapper>
-            
-            <FormControl error = {busError} sx={{width: '100%' }}>
+      </Grid>
+                 
+                    </Grid>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}> 
+                        <Grid item md={6} xs={12}>
+                        <TextField
+        
+                        id="price"
+                        name="price"
+                        label="Price"
+                        type='number'
+                        value={formik.values.price}
+                        onChange={formik.handleChange}
+                        InputProps = {{
+                        startAdornment:(
+                            <InputAdornment position="start">
+                            <PriceChangeIcon sx={{fontSize:"35px"}} color="primary"/>
+                            </InputAdornment>
+                        )
+                        }}
+                        error={formik.touched.price && Boolean(formik.errors.price)}
+                        helperText={formik.touched.price && formik.errors.price}
+                    />
+                        </Grid>
+                        <Grid item md={6} xs={12}>
+                        <FormControl 
+                        error = {busError}
+                         sx={{width: '100%' }}>
         <InputLabel id="assign-bus">Assign Bus</InputLabel>
         <Select
           
@@ -285,7 +318,7 @@ React.useEffect(()=>{
           input={<OutlinedInput id="assignBus-multiple-chip" label="Assign Bus" />}
           renderValue={(selected)=>{
             return selected.map(sel=>(
-              ActiveBusses?.find(ab=>ab._id===sel)?.busPlateNo
+              ActiveBusses?.find((ab:any)=>ab._id===sel)?.busPlateNo
             )).join(',')
           }}
           MenuProps={MenuProps}
@@ -297,7 +330,7 @@ React.useEffect(()=>{
         >
           {
           ActiveBusses?
-          ActiveBusses.map((activeBus) => (
+          ActiveBusses.map((activeBus:any) => (
             <MenuItem
               key={activeBus._id}
               value = {activeBus._id}
@@ -313,10 +346,11 @@ React.useEffect(()=>{
         busError && (<FormHelperText>{busErrorMessage}</FormHelperText>)
         }
       </FormControl>
-
-            </FormWrapper>
-          <FormWrapper>
-          <FormControl sx={{width: '100%' }}>
+                        </Grid>
+                    </Grid>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}> 
+                    <Grid item md={6} xs={12}>
+                    <FormControl sx={{width: '100%' }}>
         <InputLabel id="departure-place">Departure Place</InputLabel>
         <Select
           
@@ -338,7 +372,7 @@ React.useEffect(()=>{
         >
           {
           depPlaces?
-          depPlaces!.map((departurePlace,index) => (
+          depPlaces!.map((departurePlace:any,index:number) => (
             <MenuItem
               key={index}
               value={departurePlace}
@@ -350,9 +384,9 @@ React.useEffect(()=>{
           }
         </Select>
       </FormControl>
-          </FormWrapper>
-            <FormWrapper>
-            <TextField  
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                    <TextField  
         id="distance"
         name="distance"
         label="Distance"
@@ -371,10 +405,12 @@ React.useEffect(()=>{
         error={formik.touched.distance && Boolean(formik.errors.distance)}
         helperText={formik.touched.distance && formik.errors.distance}
       />
-            </FormWrapper>
+                    </Grid>
+                    </Grid>
+                    <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}> 
+                        <Grid item md={6} xs={12}>
+                        <TextField
         
-        <FormWrapper>
-        <TextField
         id="estimatedHour"
         name="estimatedHour"
         label="Estimated Hour"
@@ -394,24 +430,28 @@ React.useEffect(()=>{
         helperText={formik.touched.estimatedHour && formik.errors.estimatedHour}
 
       />
-        </FormWrapper>
-            <FormWrapper>
-            <Button  
+                        </Grid>
+                        <Grid item md={6} xs={12} sx={{marginTop:1}}>
+                        <p style={{display:'inline'}}>Is Active</p>
+              <Checkbox
+              onChange={handleActiveChecked}
+              checked={active}
+              />
+                        </Grid>
+                    </Grid>
+                    </Grid>
+                </Grid>
+                <Button  
             type="submit"
+            sx={{marginTop:4}}
             disabled = {loading}
             color="primary" variant="contained" >
           Save
         </Button>
-            </FormWrapper>
             <SaveSuccessfull open={saveStatus} handleClose={handleSaveStatusClose} message = 'Route Successfully Added' />
             <SameCity open = {samecity} handleClose = {handleSameCityClose}/>
         {
-          error && (
-            <Alert sx={{p:1}} severity="error">
-            <AlertTitle>Error</AlertTitle>
-             <strong>{errorMessage}</strong>
-          </Alert>
-          )
+          error && (<DisplayFormError errMess={errorMessage}/>)
         }
       </form>
 
@@ -420,6 +460,3 @@ React.useEffect(()=>{
    
   );
 };
-
-
-export default RouteRegistration

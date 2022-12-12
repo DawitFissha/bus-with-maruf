@@ -85,7 +85,6 @@ const MultiBarChartTicket = () => {
         refetch()
         if(data)
         {
-          console.log(data)
           let s=data.getGroupLocalTicketInbr
           let g=data.getGroupAgentTicketInbr
           let m=data.getGroupMobileTicketInbr
@@ -111,7 +110,8 @@ const MultiBarChartTicket = () => {
         }
     },[data,sortState])
 
-    return <NVD3Chart tooltip={{ enabled: true}} type="multiBarChart" datum={datum} x="label" y="value" height={300} groupSpacing={0.1} showValues />;
+    return <NVD3Chart tooltip={{ enabled: true}} type="multiBarChart" 
+    datum={datum} x="label" y="value" height={300} groupSpacing={0.1} showValues />;
 };
 
 export default MultiBarChartTicket;

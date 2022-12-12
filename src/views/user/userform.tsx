@@ -2,7 +2,6 @@ import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {useAppDispatch,useAppSelector} from '../../app/hooks'
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -24,14 +23,16 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import PasswordIcon from '@mui/icons-material/Password';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
-import {addUsers} from './userSlice'
 import Alert from '@mui/material/Alert'
-import { fetchDrivers,resetDriver} from './driverSlice';
-import { fetchRedats,resetRedat} from './redatSlice';
 import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
-import useSmallScreen from '../../utils/hooks/useSmallScreen';
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
+// import DisplayFormError from '../../Components/common-registration-form/formError'
+import {useAddNewUserMutation,useGetLoggedInOrganizationQuery,
+  useGetAgentsWithNoAccountQuery} from '../../store/bus_api'
+import Grid from '@mui/material/Grid'
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import ListItemText from '@mui/material/ListItemText'
 interface USER_TYPE {
   firstName:string
   lastName:string,
@@ -39,6 +40,8 @@ interface USER_TYPE {
   password:string,
   confirmPassword:string,
 }
+
+//validator function for formik fields
 const validate = (values:USER_TYPE) => {
     const errors:Partial<USER_TYPE> = {};
     if (!values.firstName) {
@@ -84,17 +87,27 @@ const validate = (values:USER_TYPE) => {
   };
 
 export default function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
-
+// states from redux
+const {data:agents,isLoading:agentsLoading}= useGetAgentsWithNoAccountQuery()
+const [addNewUser,{error}] = useAddNewUserMutation()
+const {data:Orgn={},isLoading:branchesLoading}= useGetLoggedInOrganizationQuery()
+const branches = Orgn?.branch
+//local states
 const [open,setOpen] = useState(false)
 const [gender,setGender] = useState('')
 const providedRoleDescription  = roles.find((role)=>role.id===providedRole)?.description 
-const [roleItem,setRoleItem] = useState(providedRole?providedRoleDescription:'')
-const roleId = roles.find((role)=>role.description===roleItem)?.id as string 
+const [role,setRole] = useState(providedRole?providedRoleDescription:'')
 const [genderError,genderErrorText,setGenderError,setGenderErrorText] = useError()
+const [branchError,branchErrorText,setBranchError,setBranchErrorText] = useError()
 const [roleError,roleErrorText,setRoleError,setRoleErrorText] = useError()
+const [userServerErrorOccured,userServerErrorMessage,setUserServerErrorOccured,setUserServerErrorMessage] = useError()
+const [branchOrAgent,setBranchOrAgent] = React.useState('')
 const [loading, setLoading] = React.useState(false);
-const [adduserError,setAddUserError] = useState('')
-const dispatch = useAppDispatch();
+
+// const [adduserError,setAddUserError] = useState('')
+
+const [adduserErrorOccured,addUserErrorMessage,setAddUserErrorOccured,setAddUserErrorMessage] = useError()
+//Handler Functions
 const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
   if (reason === 'clickaway') {
     return;
@@ -108,16 +121,17 @@ const handleGenderChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
     setGenderError(false)
 }
 const handleRoleChange = (e:SelectChangeEvent)=>{
-  setRoleItem(e.target.value)
+  setRole(e.target.value)
   setRoleErrorText('')
   setRoleError(false)
 }
-const smallScreen = useSmallScreen()
+const handleBranchChange = (event: SelectChangeEvent) => {
+  setBranchOrAgent(event.target.value);
+  setBranchErrorText('')
+  setBranchError(false)
+};
 
-React.useEffect(()=>{
-    document.title +=` - User Registration`
-  },[])
-
+// formik stuff
   const formik = useFormik({
     initialValues: {
       firstName: '',
@@ -137,9 +151,14 @@ React.useEffect(()=>{
               setGenderError(true)
               setGenderErrorText('Please Select Gender')
             }
-            else if(roleItem === ''){
+            else if(role === ''){
               setRoleError(true)
               setRoleErrorText('Please Choose A Role')
+
+            }
+            else if(branchOrAgent === ''){
+              setBranchError(true)
+              setBranchErrorText(role==='superagent'?'Please Select Agent':'Please Select A Branch')
 
             }
             else {
@@ -147,20 +166,19 @@ React.useEffect(()=>{
               setLoading(true)
               
             try {
-              await dispatch(addUsers(
+              await addNewUser(
                 {
                   firstname:values.firstName,
                   lastname:values.lastName,
                   gender,
                   phonenumber:values.phoneNumber,
-                  userrole:providedRole?providedRole:roleId,  
+                  userrole:providedRole?providedRole:role,  
                   password:values.password,
                   confirmpassword:values.confirmPassword,
+                  [role==='superagent'?'agentId':'branch']:branchOrAgent
                 }
-              )).unwrap()
-
+              ).unwrap()
               
-
               resetForm({values:{
                 firstName: '',
                 lastName: '',
@@ -168,36 +186,20 @@ React.useEffect(()=>{
                 password:'',
                 confirmPassword:''
               }})
-             
+              setAddUserErrorOccured(false)
               setGender('')
-              setRoleItem('')
+              setRole('')
               setOpen(true)
-            if(providedRole){
-
-              if(providedRole === 'driver'){
-                dispatch(resetDriver())
-                dispatch(fetchDrivers())
-              }
-              else if (providedRole === 'redat'){
-                dispatch(resetRedat())
-                dispatch(fetchRedats())
-              }
-            }
+              setBranchOrAgent('')
             if(DialogClose){
                 DialogClose()
               }
           
             }
             catch (err:any) {
-              console.log(err.message)
-              const resMessage =
-              (err.response &&
-                err.response.data &&
-                err.response.data.message) ||
-                err.message ||
-                err.toString();
-                setAddUserError(resMessage)
-            }
+                setAddUserErrorOccured(true)
+                setAddUserErrorMessage(`Failed to register user , ${err.data.message}`)
+                 }
             finally {
               setLoading(false)
             }
@@ -208,24 +210,25 @@ React.useEffect(()=>{
         
     },
   });
-
+console.log(role)
   return (
  <RegistrationParent customeCondition = {Boolean(providedRole)}>
     <SavingProgress loading={loading}/>
         <Box sx={{
            display:'flex',
            flexDirection:'column',
-            ml:providedRole? 0 : 1,
-            mr:providedRole? 0 : 1
+            ml: 1,
+            mr: 1
        }}>
            <FormWrapper>
            {providedRole?null:<RegistrationHeader description = 'Register Users' />}
            </FormWrapper>
       <form onSubmit={formik.handleSubmit}>
-   
-           <FormWrapper>
-
-           <TextField
+           <Grid container>
+            <Grid item xs={12}>
+    <Grid display='flex' container spacing={2}  columnSpacing={5}> 
+            <Grid item md={6} xs={12}>
+            <TextField
           fullWidth
           id="firstName"
           name="firstName"
@@ -242,48 +245,33 @@ React.useEffect(()=>{
           error={formik.touched.firstName && Boolean(formik.errors.firstName)}
           helperText={formik.touched.firstName && formik.errors.firstName}
         />
-           </FormWrapper>
-        
-            <FormWrapper>
+            </Grid>
+            
+            <Grid item md={6} xs={12}>
             <TextField
             
-          fullWidth
-          id="lastName"
-          name="lastName"
-          label="last Name"
-          value={formik.values.lastName}
-          onChange={formik.handleChange}
-          InputProps = {{
-            startAdornment:(
-            <InputAdornment position="start">
-                <PersonIcon fontSize="large" color="primary"/>
-            </InputAdornment>
-            )
-        }}
-          error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-          helperText={formik.touched.lastName && formik.errors.lastName}
-        />
-            </FormWrapper>
-            <FormWrapper>
-            <FormControl variant="standard" error = {genderError}>
-            <FormLabel id="gender-label">Gender</FormLabel>
-            <RadioGroup
-                value ={gender}
-                onChange = {handleGenderChange}
-                 row
-                 aria-labelledby="gender-radio-buttons-group-label"
-                 name="gender-radio-buttons-group"
-      >
-        <FormControlLabel value="male" control={<Radio />} label="Female" />
-        <FormControlLabel value="female" control={<Radio />} label="Male" />
-        </RadioGroup>
-        <FormHelperText >{genderErrorText}</FormHelperText>
-            </FormControl>
+            fullWidth
+            id="lastName"
+            name="lastName"
+            label="last Name"
+            value={formik.values.lastName}
+            onChange={formik.handleChange}
+            InputProps = {{
+              startAdornment:(
+              <InputAdornment position="start">
+                  <PersonIcon fontSize="large" color="primary"/>
+              </InputAdornment>
+              )
+          }}
+            error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+            helperText={formik.touched.lastName && formik.errors.lastName}
+          />
+            </Grid>
             
-            </FormWrapper>
-        
-            <FormWrapper>
-            <TextField
+           </Grid>
+           <Grid display='flex' container spacing={2}  columnSpacing={5} sx={{marginTop:2}}> 
+                <Grid item md={6} xs={12}>
+                <TextField
             fullWidth
           id="phoneNumber"
           name="phoneNumber"
@@ -300,15 +288,86 @@ React.useEffect(()=>{
           error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
           helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
         />
-            </FormWrapper>
-            <FormWrapper>
-            <FormControl error={roleError} sx={{width: '100%' }}>
+                </Grid>
+                
+                <Grid item md={6} xs={12}>
+                <FormControl variant="standard" error = {genderError} >
+            <FormLabel id="gender-label">Gender</FormLabel>
+            <RadioGroup
+                   value ={gender}
+                   onChange = {handleGenderChange}
+                   row
+                   aria-labelledby="gender-radio-buttons-group-label"
+                   name="gender-radio-buttons-group"
+      >
+        <FormControlLabel value="male" control={<Radio />} label="Male" />
+        <FormControlLabel value="female" control={<Radio />} label="Female" />
+        </RadioGroup>
+        <FormHelperText >
+            {genderErrorText}
+        </FormHelperText>
+            </FormControl>
+            </Grid>
+            </Grid>
+            <Grid container spacing={2} columnSpacing={5} sx={{marginTop:2}}>
+                <Grid item md={6} xs={12}>
+              
+            <FormControl
+              error={branchError}
+              sx={{width: '100%' }}
+            >
+            <InputLabel id="branch-select-helper-label">
+            {role==='superagent'?'Agents':"Branch/Station"}
+              </InputLabel>
+            <Select
+        name="branchOrAgent"
+        label={role==='superagent'?'Agents':"Branch/Station"}
+        value = {branchOrAgent}
+        onChange={handleBranchChange}
+        startAdornment = {
+          <InputAdornment position="start">
+          <CorporateFareIcon color="primary" fontSize='large'/>
+          </InputAdornment>
+          }
+      >
+        <MenuItem value="">
+        <em>None</em>
+        </MenuItem>
+        {
+        role==='superagent'?
+        agents?
+        agents.map((agent:any)=>(
+          <MenuItem /*divider = {true} */ key = {agent._id} value={agent._id}>
+            <ListItemText primary = {`${agent.agentName}`}/>
+          </MenuItem>
+        ))
+        :null
+        :
+        branches?
+        branches.map((branch:any)=>(
+          <MenuItem /*divider = {true} */ key = {branch._id} value={branch._id}>
+            <ListItemText primary = {`${branch.description}`}/>
+          </MenuItem>
+        ))
+        :null
+        }
+        
+      </Select>
+      <FormHelperText >
+            {branchErrorText}
+        </FormHelperText>
+            </FormControl>
+                </Grid>
+                <Grid item md={6} xs={12}>
+                <FormControl
+                 error={roleError}
+                  sx={{width: '100%' }}>
             <InputLabel id="role-select-helper-label">Role</InputLabel>
         <Select
           disabled = {Boolean(providedRole)}
           labelId="role-select-helper-label"
           id="role-select-helper"
-          value={roleItem}
+          value={role}
           label="Role"
           onChange={handleRoleChange}
           startAdornment = {<WorkspacesIcon color="primary" fontSize="large"/>}
@@ -319,23 +378,26 @@ React.useEffect(()=>{
           {
           
           roles.map((role)=>(
-            <MenuItem  key = {role.id} value={role.description}>{role.description}</MenuItem>
+            <MenuItem  key = {role.id} value={role.id}>{role.description}</MenuItem>
           ))
           }
         </Select>
-        <FormHelperText >{roleErrorText}</FormHelperText>
+        <FormHelperText >
+            {roleErrorText}
+            </FormHelperText>
         </FormControl>
-            </FormWrapper>
-        
-        <FormWrapper>
-        <TextField
+                </Grid>
+           </Grid>
+           <Grid display='flex' container spacing={2} columnSpacing={5} sx={{marginTop:2}}>
+                <Grid item md={6} xs={12}>
+                <TextField
           fullWidth
           id="password"
           name="password"
           label="password"
           type='password'
-          value={formik.values.password}
-          onChange={formik.handleChange}
+              value={formik.values.password}
+              onChange={formik.handleChange}
           InputProps = {{
             startAdornment:(
             <InputAdornment position="start">
@@ -346,16 +408,15 @@ React.useEffect(()=>{
           error={formik.touched.password && Boolean(formik.errors.password)}
           helperText={formik.touched.password && formik.errors.password}
         />
-        </FormWrapper>
-       
-        <FormWrapper>
-        <TextField
-         sx={{marginTop:'10px'}}
-          fullWidth
-          type='password'
-          id="confirmPassword"
-          name="confirmPassword"
-          label="Confirm Password"
+                </Grid>
+            <Grid item md={6} xs={12}>
+            <TextField
+            // sx={{marginTop:'10px'}}
+            fullWidth
+            type ='password'
+            id = "confirmPassword"
+            name = "confirmPassword"
+            label = "Confirm Password"
           value={formik.values.confirmPassword}
           onChange={formik.handleChange}
           InputProps = {{
@@ -368,22 +429,29 @@ React.useEffect(()=>{
           error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
           helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
         />
-        </FormWrapper>
-            <FormWrapper>
-            <Button  
+            </Grid>
+           </Grid>
+           </Grid>
+           </Grid>
+           <Button  
             type="submit"
             disabled = {loading}
+            sx={{marginTop:4}}
             color="primary" variant="contained" >
           Save
         </Button>
-            </FormWrapper>
             <SaveSuccessfull open={open} handleClose={handleClose} message = 'User Successfully Registered' />
+            {/* {
+          userServerErrorOccured && (<DisplayFormError errMess={userServerErrorMessage}/>)
+        } */}
       </form>
-      {adduserError&&(<FormWrapper>
-            <Alert sx ={{width:'450px',fontSize:"medium"}} severity="error">
-            <strong>{adduserError}</strong> , Please try again
+      {
+      adduserErrorOccured && (<FormWrapper>
+            <Alert severity="error">
+            <strong>{addUserErrorMessage}</strong>
             </Alert>
-            </FormWrapper>)}
+            </FormWrapper>)
+            }
       </Box>
       </RegistrationParent>
   );

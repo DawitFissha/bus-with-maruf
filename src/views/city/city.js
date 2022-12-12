@@ -7,31 +7,13 @@ import {cityActions} from '../../store/city-slice'
 import {MdAddLocationAlt,} from 'react-icons/md'
 import {FaEdit} from "react-icons/fa";
 import CityForm from "./cityform"
-// import { getCity } from '../../store/cityHttp';
-// import { errorActions } from '../../store/error-slice';
+
 import { useGetCityQuery} from '../../store/bus_api';
 export default function Location() {
-  // const tabledata=useSelector(state=>state.city.tableData)
-  // const message=useSelector(state=>state.message.errMessage)
-  // const data=tabledata.map(o => ({ ...o }));
   const [update,setUpdate]=useState(false)
-  // const fetched=useSelector(state=>state.city.updated)
-
   const {data,isError,isSuccess}=useGetCityQuery()
-
   const dispatch=useDispatch()
-  // useEffect(()=>{
-  // dispatch(getCity())
-  // return ()=>{
-  //   dispatch(errorActions.Message(''))
-  // }
-  // },[fetched])
-  // useEffect(()=>{
-  //   message==='city'&&setSaveStatus(true)
-  //   return ()=>{
-  //       message==='city'&&dispatch(errorActions.Message(''))
-  //   }
-  //   },[message])
+ 
 
 
   return (

@@ -122,7 +122,7 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
         { title: 'Tarif In Birr', field: 'tarif',editable:'never'},
         { title: 'Ass.Bus', field: 'bus',lookup:busLooks,editable:'never'},
         { title: 'Departure Place', field: 'departurePlace',lookup:depLooks,editable:'never'},
-        { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime",editable: ( _ ,rowData ) => rowData && rowData.status === 'Not Departed'},
+        { title: 'Departure Date.Time', field: 'departureDateAndTime',type:"datetime"},
       ]}
       data={data?.map(o => ({ ...o }))}
       icons={tableIcons}
