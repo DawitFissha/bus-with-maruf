@@ -10,10 +10,12 @@ import { scheduleActions } from '../../store/schedule-slice';
 import {role} from "../../role"
 import CancelForm from "./cancel_undo_shcedule"
 import AssignBus from './assignbus';
+import DepartureDateForm from './datetimepicker'
 import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
 import moment from 'moment';
+import {SiTimescale} from "react-icons/si"
 import {toTewelvHourAndLocal} from "../../utils/toLocaltime"
-import { useGetScheduleQuery,useGetAllCityQuery,useGetAllDepPlaceQuery,useGetAllOrgBusQuery,useUpdateDepartureDateTimeMutation } from '../../store/bus_api';
+import { useGetScheduleQuery,useGetAllCityQuery,useGetAllOrgBusQuery,useGetAllDepPlaceQuery,} from '../../store/bus_api';
 export default function ScheduleList() {
   const profile=useSelector(state=>state.userinfo)
   //am for amharic
@@ -23,7 +25,8 @@ const {data}=useGetScheduleQuery()
 const {data:citydata}=useGetAllCityQuery()
 const {data:depdata}=useGetAllDepPlaceQuery()
 const {data:busdata}=useGetAllOrgBusQuery()
-const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
+const [depdatetime,setDepdatetime]=useState()
+// const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
   const cityData=citydata?.map(o => ({ ...o }));
   const busData=busdata?.map(o => ({ ...o }));
   const depData=depdata?.map(o => ({ ...o }));
@@ -47,13 +50,25 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
       }),
       (rowData)=>({
         icon:() => <GiBus style={{color:"brown"}} size={25}/>,
-        tooltip: 'Assign Bus And Departure Place',
+        tooltip: 'assign bus and departure place',
         position:'row',
         disabled:rowData.status!=="Not Departed",
         onClick: (evt, Data) => {
           const newData=JSON.parse(JSON.stringify(Data))
           dispatch(scheduleActions.setModalData(newData))
           dispatch(scheduleActions.setBusModal(true))
+        }
+      }),
+      (rowData)=>({
+        icon:() => <SiTimescale style={{color:"blue"}} size={23}/>,
+        tooltip: 'update departure time',
+        position:'row',
+        disabled:rowData.status!=="Not Departed",
+        onClick: (evt, Data) => {
+          console.log("clicked")
+          const newData=JSON.parse(JSON.stringify(Data))
+          setDepdatetime(newData)
+          dispatch(scheduleActions.setDatepickerModal(true))
         }
       }),
     ]
@@ -85,6 +100,7 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
     <React.Fragment>
       <CancelForm/>
       <AssignBus/>
+      <DepartureDateForm Datetime={depdatetime}/>
             <Row>
                 <Col>
                     <Card>
@@ -169,14 +185,14 @@ const [updateDepartureDateTime]=useUpdateDepartureDateTimeMutation()
        }
 }}
 actions={actions}
-      editable={{
-        isEditable: rowData => rowData.status === 'Not Departed',
-        onRowUpdate: (newData, oldData) =>
-          new Promise((resolve, reject) => {
-        updateDepartureDateTime({id:oldData._id,departureDateAndTime:newData.departureDateAndTime})
-        setTimeout(()=>{resolve()},600)
-          }),
-      }}
+      // editable={{
+      //   isEditable: rowData => rowData.status === 'Not Departed',
+      //   onRowUpdate: (newData, oldData) =>
+      //     new Promise((resolve, reject) => {
+      //   updateDepartureDateTime({id:oldData._id,departureDateAndTime:newData.departureDateAndTime})
+      //   setTimeout(()=>{resolve()},600)
+      //     }),
+      // }}
     />
   </Card.Body>
         </Card>

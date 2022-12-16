@@ -1,26 +1,24 @@
 // import { WithContext as ReactTags } from 'react-tag-input';
 import React, { useEffect, useRef, useState } from 'react';
-import { Row, Col, Card, Form, Button, InputGroup, DropdownButton, Dropdown, Container } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
-import Buttons from "@mui/material/Button";
+import {Button} from '@mui/material';
+// import Button from "@material-ui/core/Button";
 import Modal from "react-modal";
 import { busActions } from '../../store/bus-slice';
-import {Alert, AlertTitle, InputAdornment, ListItemText } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {ListItemText,InputLabel,MenuItem,FormControl,Select} from "@mui/material";
+// import InputLabel from '@mui/material/InputLabel';
+// import MenuItem from '@mui/material/MenuItem';
+// import FormControl from '@mui/material/FormControl';
+// import Select, { SelectChangeEvent } from '@mui/material/Select';
 import {FormWrapper} from '../../Components/common-registration-form/formWrapper'
 import AirlineSeatReclineNormalIcon from '@mui/icons-material/AirlineSeatReclineNormal';
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
-import axios_instance from '../../services/lib-config';
 import CircularProgress from '@mui/material/CircularProgress';
-// import { updateBus, updateBusw } from '../../store/busHttp';
-// import { loadingActions } from '../../store/loading-slice';
 import { useUpdateBuswMutation,useLazyGetAssignedUserByRoleWitheditQuery } from '../../store/bus_api';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
-
+// import Select from 'react-select';
 const customStyles = {
     content: {
       top: '55%',
@@ -39,22 +37,18 @@ const customStyles = {
 Modal.setAppElement("#root");
 const Assign = ({info}) => {
     const dispatch=useDispatch()
-    // const loadingStatus=useSelector(state=>state.loading.status)
-    // const message=useSelector(state=>state.message.errMessage)
     const [driver, setDriver] = useState();
     const [redat, setRedat] = useState();
     const [driverList,setDriverList]=useState()
     const [redatList,setRedatList]=useState()
     const [updateBusw,{data,isError,error,isSuccess,isLoading}]=useUpdateBuswMutation()
-    const [trigger,{data:userData}]=useLazyGetOrganizationByCodeQuery()
+    const [triggerDriver,{data:driverData}]=useLazyGetAssignedUserByRoleWitheditQuery()
+    const [triggerRedat,{data:redatData}]=useLazyGetAssignedUserByRoleWitheditQuery()
     const handleDriverChange = (e)=>{
-      console.log(e.target.value)
         setDriver(e.target.value)
-        // setDriverRequired('')
         }
      const handleRedatChange = (e)=>{
         setRedat(e.target.value)
-        // setRedatRequired('')
      }
 const [saveStatus,setSaveStatus] =useState(false)
 const handleSaveStatusClose = (event, reason) => {
@@ -64,7 +58,11 @@ const handleSaveStatusClose = (event, reason) => {
     setSaveStatus(false);
   };
 const isModalOpen=useSelector(state=>state.bus.isModalOpen)
-
+const options = [
+  { value: 'chocolate', label: 'Chocolate' },
+  { value: 'strawberry', label: 'Strawberry' },
+  { value: 'vanilla', label: 'Vanilla' },
+];
 function toggleModal() {
 dispatch(busActions.setModal(false))
 } 
@@ -76,29 +74,17 @@ isSuccess&&setSaveStatus(true);
 useEffect(()=>{
   if(isModalOpen)
   {
-    setDriver(info?.driverId)
-    setRedat(info?.redatId)
-// const getUser=async(role,current)=>{
-//   let query={}
-  !!role?query.role=role:query=query
-  !!current?query.current=current:query=query
-  trigger(info?.driverId)
-// const user=await axios_instance.get(`getuserwithedit`,{params:{...query}})
-// role==="driver"&&setDriverList(user.data)
-// role==="redat"&&setRedatList(user.data)
-// }
-// getUser("driver",info?.driverId)
-// getUser("redat",info?.redatId)
-
+  setDriver(info?.driverId)
+  setRedat(info?.redatId)
+  triggerDriver({role:"driver",current:info?.driverId})
+  triggerRedat({role:"redat",current:info?.redatId})
 }
-
 },[info])
+
 useEffect(()=>{
-  if(userData){
-    role==="driver"&&setDriverList(userData)
-    role==="redat"&&setRedatList(userData)
-  }
-},[userData])
+  driverData&&setDriverList(driverData)
+  redatData&&setRedatList(redatData)
+},[driverData,redatData])
 const UpdateHandler=()=>{
   // dispatch(loadingActions.status("pending"))
   updateBusw({id:info._id,driverId:driver,redatId:redat})
@@ -126,10 +112,11 @@ const UpdateHandler=()=>{
           <InputLabel id="driver-select-label">Drivers</InputLabel>
       <Select
         labelId="driver-select-label"
-        id="driver-select-helper"
+        // id="driver-select-helper"
         name="driver"
         value={driver}
-        label="driver"
+        fullWidth
+        // label="driver"
         onChange={handleDriverChange}
         startAdornment={<AirlineSeatReclineNormalIcon sx={{fontSize:"35px"}} color="primary"/>}
       >
@@ -168,14 +155,15 @@ const UpdateHandler=()=>{
       </FormControl>
         </FormWrapper>
                                         
-                            <Row style={{justifyContent:'center',margin:'20px 1px'}}>                            <Buttons 
+                            <Row style={{justifyContent:'center',margin:'20px 1px'}}>                            
+                            <Button
                                 style={{width:'250px'}}
                                 onClick={UpdateHandler}
                                 type="submit"
                                 variant="contained"
                                 color="primary">
                                 {!isLoading?"Update Info" :<CircularProgress color='secondary'/>}
-                           </Buttons> 
+                           </Button> 
                            </Row> 
                         </Card.Body>
                     </Card>

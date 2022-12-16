@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Cancel, Proceed, StyledAiFillCloseCircle } from '../../Components/styled/main.styled'
 import Modal from "react-modal";
 import { scheduleActions } from '../../store/schedule-slice';
-// import { cancelShcedule } from '../../store/scheduleHttp';
 import { SaveSuccessfull } from '../../Components/common-registration-form/saveSuccess';
 import { useCancelShceduleMutation,useUndoShceduleMutation } from '../../store/bus_api';
 const customStyles = {
@@ -31,11 +30,8 @@ const CancelForm = () => {
 const [cancelShcedule,{isSuccess}]=useCancelShceduleMutation()
 const [undoShcedule,{isSuccess:isSuccessUndo}]=useUndoShceduleMutation()
  const CancelHandler=()=>{
-    // console.log(ModalData)
-// dispatch(cancelShcedule(ModalData))
 ModalData.status!="Canceled"&&cancelShcedule(ModalData)
 ModalData.status=="Canceled"&&undoShcedule(ModalData)
-// dispatch(scheduleActions.setModal(false))
  }
 function toggleModal() {
    dispatch(scheduleActions.setModal(false))
