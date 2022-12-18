@@ -69,7 +69,8 @@ export const busApi = createApi({
                 url:'addagent',
                 method:'POST',
                 body:newAgent,
-            })
+            }),
+            invalidatesTags:['Agent'],
         }),
         getCities: builder.query<any,void>({
             query: ()=>'getallorganizationcity'
@@ -97,10 +98,20 @@ export const busApi = createApi({
             invalidatesTags:["Branches"]
         }),
         getAllAgents: builder.query({
-            query: ()=> 'getallagent'
+            query: ()=> 'getallagent',
+            providesTags:["Agent"]
+        }),
+        updateAgent: builder.mutation({
+            query: ({id,...data}) => ({
+                    method:'PUT',
+                    url:`updateagent/${id}`,
+                    body:data,
+            }),
+            invalidatesTags:['Agent'],
         }),
         getAgentsWithNoAccount: builder.query<any,void>({
-            query: ()=> 'getagentwithnoaccount'
+            query: ()=> 'getagentwithnoaccount',
+            providesTags:["Agent"]
         }),
         loginUser:builder.mutation<any,any>({
             query:user=>({
@@ -400,6 +411,7 @@ export const busApi = createApi({
        useUpdateOrganizationMutation,
        useAddNewAgentMutation,
        useGetAllAgentsQuery,
+       useUpdateAgentMutation,
        useGetAgentsWithNoAccountQuery,
        useLoginUserMutation,
        useChangePasswordMutation,

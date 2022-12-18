@@ -2,11 +2,12 @@ import React,{useState,useRef,useEffect} from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import MaterialTable,{ MTableAction} from "material-table";
 import {tableIcons} from '../Table/Tableicon'
-import {useGetAgentCashTransactionQuery} from '../../store/bus_api';
+import {useGetAllAgentsQuery,useUpdateAgentMutation} from '../../store/bus_api';
 import {toEthiopianDateString} from 'gc-to-ethiopian-calendar'
 import { useSelector } from 'react-redux';
 export default function CashAgentTransaction() {
-  const {data,isSuccess}=useGetAgentCashTransactionQuery()
+  const {data,isSuccess}=useGetAllAgentsQuery()
+  const [updateAgent]=useUpdateAgentMutation()
   const userinfo=useSelector(state=>state.userinfo)
 
   return (
@@ -31,19 +32,21 @@ export default function CashAgentTransaction() {
         {title: "id", field: "_id", hidden: true},
         { title: 'Agent Name', field: 'agentName'},
         { title: 'Phone Number', field: 'phoneNumber'},
-        { title: 'Amount', field: 'amount'},
-        { title: 'Collected By', field: 'collectedBy'},
-        { title: 'Collecter Phone', field: 'collectorPhone'},
-        { title: 'Collected At', field: 'updatedAt',type:'date',
+        { title: 'Tin No', field: 'tin'},
+        { title: 'Location', field: 'location'},
+        { title: 'Max User', field: 'maxUser'},
+        { title: 'isActive', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}},
+        { title: 'Created At', field: 'createdAt',type:'date',
         render:rowData=>toEthiopianDateString(rowData?.updatedAt)},
        ]:[
         {title: "id", field: "_id", hidden: true},
         { title: 'Agent Name', field: 'agentName'},
         { title: 'Phone Number', field: 'phoneNumber'},
-        { title: 'Amount', field: 'amount'},
-        { title: 'Collected By', field: 'collectedBy'},
-        { title: 'Collecter Phone', field: 'collectorPhone'},
-        { title: 'Collected At', field: 'updatedAt',type:'date'},
+        { title: 'Tin No', field: 'tin'},
+        { title: 'Location', field: 'location'},
+        { title: 'Max User', field: 'maxUser'},
+        { title: 'isActive', field: 'isActive',lookup: { true: 'Active', false: 'Not Active'}},
+        { title: 'Created At', field: 'createdAt',type:'date'},
       ]}
       data={data?.map(e=>({...e}))}
       icons={tableIcons}
@@ -68,7 +71,13 @@ export default function CashAgentTransaction() {
         columnsButton:true,
         filtering:true,
       }}
-
+      editable={{
+        onRowUpdate: (newData, oldData) =>
+          new Promise((resolve, reject) => {
+            updateAgent({id:oldData._id,...newData})
+            setTimeout(()=>{resolve()},600)
+          }),
+      }}
     />
   </Card.Body>
         </Card>
