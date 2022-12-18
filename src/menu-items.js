@@ -1,9 +1,10 @@
 import {FaRoute,FaCity} from "react-icons/fa"
 import {RiDashboardLine} from "react-icons/ri"
 import {HiCreditCard} from "react-icons/hi"
-import {GrSchedules,GrBus} from "react-icons/gr"
+import {GrSchedules,GrBus,GrOrganization} from "react-icons/gr"
 import {GiTakeMyMoney,GiReceiveMoney} from "react-icons/gi"
-import {MdOutlinePersonAddAlt} from "react-icons/md"
+import {MdOutlinePersonAddAlt,MdSupportAgent} from "react-icons/md"
+import {SlOrganization} from "react-icons/sl"
 import {BiBus} from "react-icons/bi"
 import {AiOutlineSchedule} from "react-icons/ai"
 const menuItems = {
@@ -34,7 +35,7 @@ const menuItems = {
                     title: 'Manage Organization',
                     type: 'item',
                     url: '/manageorganization',
-                    icon: <HiCreditCard size={30} color="#A0A8B6"/>
+                    icon: <SlOrganization size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'ticket',
@@ -69,7 +70,7 @@ const menuItems = {
                     title: 'Manage Agent',
                     type: 'item',
                     url: '/agent',
-                    icon: <HiCreditCard size={30} color="#A0A8B6"/>
+                    icon: <MdSupportAgent size={30} color="#A0A8B6"/>
                 },
                 {
                     id: 'bus',

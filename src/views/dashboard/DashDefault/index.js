@@ -113,20 +113,26 @@ useEffect(()=>{
     console.log(data)
     setSitInfoInRoute([])
     if(dataSit?.getRouteAggregateSitReserve?.length>0){
-        
         const sitInfoData= dataSit?.getRouteAggregateSitReserve?.reduce((agg,curr) => {
+            console.log(agg)
+            console.log(curr)
             let found = agg.find((x) => x.source === curr.source&&x.destination === curr.destination);
+            console.log(found)
             if(found){
               found.sitInfo.push(curr);
             }
             else{
+                console.log("false")
                agg.push({
                    route:`from ${curr.source} to ${curr.destination}`,
+                   source:curr.source,
+                   destination:curr.destination,
                    sitInfo:[curr]
                });
             }
             return agg;
             },[]);
+            console.log(sitInfoData)
             setSitInfoInRoute(sitInfoData)
     }
 
