@@ -18,7 +18,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SvgIcon from '@mui/material/SvgIcon';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import SeatPicker from '../../Components/seat-picker'
-import AuthService from '../../services/auth.service'
+// import AuthService from '../../services/auth.service'
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
@@ -27,7 +27,7 @@ import {useGetSchedulesQuery,useGetActiveBussesQuery,useGetAllUsersQuery} from '
 import {useReactToPrint} from 'react-to-print'
 import TicketPreview from '../../Components/ticket/ticket-preview'
 import Avatar from '@mui/material/Avatar'
-import dave from './dave.jpg'
+// import dave from './dave.jpg'
 import {useLockSitMutation,useBookTicketMutation} from '../../store/bus_api'
 import {useAppSelector} from '../../app/hooks'
 type scheduleOptionsType = {
@@ -486,8 +486,8 @@ const formik = useFormik({
                       <Box sx={{display:'flex',flexDirection:'column',alignItems:'center'}}>
                       <Avatar
                     sx={{width:60,height:60}}
-                    src={dave} alt="cashier profile pic">
-
+                    alt="cashier profile pic">
+                        D
                     </Avatar>
                       </Box>
                         <Box sx={{mt:.5}}>
