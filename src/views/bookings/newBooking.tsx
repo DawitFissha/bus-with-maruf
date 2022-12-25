@@ -28,6 +28,7 @@ import {useReactToPrint} from 'react-to-print'
 import TicketPreview from '../../Components/ticket/ticket-preview'
 import Avatar from '@mui/material/Avatar'
 import dave from './dave.jpg'
+import {useLockSitMutation,useBookTicketMutation} from '../../store/bus_api'
 import {useAppSelector} from '../../app/hooks'
 type scheduleOptionsType = {
     scheduleDescription : string,
@@ -59,11 +60,12 @@ type scheduleOptionsType = {
       return errors;
     };
 export default function Newbooking(){
-const userName = JSON.parse(localStorage.getItem('user') as string)
-     // states from redux
+ // states from redux
 const {data:schedules=[],isLoading:schedulesLoading} = useGetSchedulesQuery()
 const {data:allBusses=[]} = useGetActiveBussesQuery()
 const userinfo=useAppSelector(state=>state.userinfo)
+const [lockSit] = useLockSitMutation()
+const [bookTicket] = useBookTicketMutation()
 // local states
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
 const smallScreen = useSmallScreen()
@@ -138,7 +140,7 @@ if(seatNumber.length<=1) {
   setCanSelectSeat(true) //maximum of two seats can be selected
 }
 if(Boolean(schedule?.id && (seatNumber?.length>0))){
-  AuthService.lockSit(seatNumber,schedule?.id as string)
+  lockSit({id:schedule?.id as string,sits:seatNumber})
 }
 if(!Boolean(schedule?.id)){
   setSeatNumber([])
@@ -165,24 +167,22 @@ const formik = useFormik({
       if(!loading) {
           setLoading(true)
           try {
-            await AuthService.bookTicket(
-              [
-                {
-                passname:`${values.firstName} ${values.lastName}`,
-                passphone:values.phoneNumber,
-                sits:seatNumber[0],
+            await bookTicket({sits:[
+              {
+              passname:`${values.firstName} ${values.lastName}`,
+              passphone:values.phoneNumber,
+              sits:seatNumber[0],
+            }
+            ,
+            ...seatNumber.slice(1).map((seatNo)=>(
+              {
+                passname:`${values.additonalPassengerFirstName as string}  ${values.additonalPassengerLastName as string}`,
+                passphone:values.additonalPassengerPhoneNumber !=='' ? values.additonalPassengerPhoneNumber as string : values.phoneNumber,
+                sits:seatNo,
               }
-              ,
-              ...seatNumber.slice(1).map((seatNo)=>(
-                {
-                  passname:`${values.additonalPassengerFirstName as string}  ${values.additonalPassengerLastName as string}`,
-                  passphone:values.additonalPassengerPhoneNumber !=='' ? values.additonalPassengerPhoneNumber as string : values.phoneNumber,
-                  sits:seatNo,
-                }
-              )
-              )
-            ]
-            ,schedule?.id as string).then((response:any)=>{
+            )
+            )
+          ],id:schedule?.id as string}).then((response:any)=>{
               // console.log(response.data.ticket)
               setPassengerDetail({
                 ...passengerDetail,
@@ -493,7 +493,7 @@ const formik = useFormik({
                         <Box sx={{mt:.5}}>
                         <Typography>
                       {
-                        userName?userName:''
+                        userinfo?userinfo?.username:''
                       }
                     </Typography>
                         </Box>

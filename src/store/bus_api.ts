@@ -202,6 +202,22 @@ export const busApi = createApi({
             }),
             invalidatesTags:["City"]
         }),
+        lockSit:builder.mutation<any,any>({
+            query:data=>({
+                url:`/locksit/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["Schedules"]
+        }),
+        bookTicket:builder.mutation<any,any>({
+            query:data=>({
+                url:`/bookticketfromschedule/${data.id}`,
+                method:"PUT",
+                body:data,
+            }),
+            invalidatesTags:["Schedules"]
+        }),
         getBus:builder.query<any,any>({
             query:()=>'/getdetailorganizationbus',
             providesTags:["Busses","Users"]
@@ -470,7 +486,7 @@ export const busApi = createApi({
        useUpdateDepartureDateTimeMutation,
        useUpdatePassInfoMutation,
        useUpdateScheduleBusAndPlaceMutation,
-       
-       
+       useLockSitMutation,
+       useBookTicketMutation,
    
    } = busApi
