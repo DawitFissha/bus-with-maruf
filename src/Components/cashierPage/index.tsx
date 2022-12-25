@@ -3,7 +3,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import {Booking} from '../../views/bookings'
+import Newbooking from '../../views/bookings/newBooking'
 import BookingHistory from '../mySale/sales'
 import FilterPanel from '../mySale/bookingFilterPanel'
 import {TodaysSalesSummary} from '../mySale/todaySales'
@@ -58,7 +58,7 @@ export default function MainCashierPage() {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <Booking passSchedule={getSchedule}/>
+        <Newbooking/>
       </TabPanel>
       <TabPanel value={value} index={1}>
       <TicketHistory/>

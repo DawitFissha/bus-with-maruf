@@ -23,11 +23,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import {ValidatePhoneNumber} from '../../utils/regex-validators'
 import useSmallScreen from '../../utils/hooks/useSmallScreen'
-import {useGetSchedulesQuery,useGetActiveBussesQuery,useGetAllUsersQuery} from '../../features/api/apiSlice'
+import {useGetSchedulesQuery,useGetActiveBussesQuery,useGetAllUsersQuery} from '../../store/bus_api'
 import {useReactToPrint} from 'react-to-print'
 import TicketPreview from '../../Components/ticket/ticket-preview'
 import Avatar from '@mui/material/Avatar'
 import dave from './dave.jpg'
+import {useAppSelector} from '../../app/hooks'
 type scheduleOptionsType = {
     scheduleDescription : string,
     id : string,
@@ -62,6 +63,7 @@ const userName = JSON.parse(localStorage.getItem('user') as string)
      // states from redux
 const {data:schedules=[],isLoading:schedulesLoading} = useGetSchedulesQuery()
 const {data:allBusses=[]} = useGetActiveBussesQuery()
+const userinfo=useAppSelector(state=>state.userinfo)
 // local states
 const [seatPickerOpen,setSeatPickerOpen] = React.useState(false)
 const smallScreen = useSmallScreen()
@@ -238,7 +240,7 @@ const formik = useFormik({
                 >
                          <div style = {{display:'none'}}><TicketPreview 
           qrCodeValue={passengerDetail.uniqueId}
-          ticketerName={AuthService.getCurrentUser()}
+          ticketerName={userinfo?.username}
           ticketNo='000231' 
           passengerFullName={passengerDetail.passengerName}
           seatNo= {passengerDetail.seatNo}
