@@ -4,10 +4,10 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
-import zemen from './zemen.jfif'
+// import zemen from './zemen.jfif'
 import Typography from '@mui/material/Typography'
 import QRCode from "react-qr-code";
-import PriceChange from '@mui/icons-material/PriceChange';
+// import PriceChange from '@mui/icons-material/PriceChange';
 interface TicketProps { 
     ticketNo:string
     passengerFullName:string
@@ -59,7 +59,8 @@ const TicketPreview = React.forwardRef((props:TicketProps,ref)=>{
             <Box sx={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <Box>
                     <Avatar 
-                    alt="company logo" src={zemen}
+                    alt="company logo" 
+                    // src={zemen}
                     sx={{ width: 76, height: 76 }}
                     />
                 </Box>
