@@ -82,7 +82,7 @@ export const busApi = createApi({
             query: (id:string)=>`getorganizationroutebyid/${id}`
         }),
         getOrganizationByCode: builder.query({
-            query: (orgCode) =>`getorganizationbycode/${orgCode}`,
+            query: (orgCode:string) =>`getorganizationbycode/${orgCode}`,
             providesTags:["Users","Busses"],
         }),
         getLoggedInOrganization: builder.query<any,void>({

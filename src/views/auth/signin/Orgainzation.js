@@ -12,7 +12,7 @@ import Buttons from "@mui/material/Button";
 import { useDispatch,useSelector } from 'react-redux';
 import { loginActions } from "../../../store/login-slice"
 import Alert from '@mui/material/Alert';
-import { useLazyGetOrganizationByCodeQuery } from '../../../store/bus_api';
+import { useLazyGetOrganizationByCodeQuery,useGetOrganizationByCodeQuery } from '../../../store/bus_api';
 const Organizations = () => {
     const orgcoderef=useRef()
     let history = useHistory();
@@ -21,6 +21,7 @@ const Organizations = () => {
     // const loadingStatus=useSelector(state=>state.loading.status)
     // const errmsg=useSelector(state=>state.message.errMessage)
     const [trigger,{data,isSuccess,isLoading,isError,error}]=useLazyGetOrganizationByCodeQuery()
+    // const {data,isLoading} = useGetOrganizationByCodeQuery(orgcoderef.current)
     const [isLocalError,setIsLocalError] =useState(false)
     const [localError,setLocalError]=useState('')
     const HandleOrgCode=(event)=>{
@@ -30,7 +31,7 @@ const Organizations = () => {
         const orgcode=orgcoderef.current.value
         if(orgcode&&orgcode!=='')
         {
-            trigger({code:orgcode})
+            trigger(orgcode)
         }
         else{
             setLocalError('Please fill organization code')
