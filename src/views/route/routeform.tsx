@@ -2,7 +2,7 @@ import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import {ROUTE} from './routeSlice'
+// import {ROUTE} from './routeSlice'
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -28,7 +28,12 @@ import {useGetActiveBussesQuery,
   useAddNewRouteMutation,useGetCitiesQuery} from '../../store/bus_api'
 import DisplayFormError from '../../Components/common-registration-form/formError';
 
-type VALUES_TYPE  = Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
+type VALUES_TYPE  = {
+  price:number;
+  distance:number;
+  estimatedHour:number
+}
+// Required<Pick<ROUTE,'price'|'distance'|'estimatedHour'>>
 type ERROR_TYPE  = {
   [Property in keyof VALUES_TYPE]+?:string
 }
