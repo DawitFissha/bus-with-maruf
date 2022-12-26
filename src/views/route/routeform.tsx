@@ -197,6 +197,7 @@ React.useEffect(()=>{
     </Box>
      :
   <RegistrationParent>
+    <>
     <SavingProgress loading={loading}/>
         <Box sx={{
            display:'flex',
@@ -322,7 +323,7 @@ React.useEffect(()=>{
           onChange={handleAssignedBusChange}
           input={<OutlinedInput id="assignBus-multiple-chip" label="Assign Bus" />}
           renderValue={(selected)=>{
-            return selected.map(sel=>(
+            return selected.map((sel)=>(
               ActiveBusses?.find((ab:any)=>ab._id===sel)?.busPlateNo
             )).join(',')
           }}
@@ -461,6 +462,7 @@ React.useEffect(()=>{
       </form>
 
       </Box>
+    </>
       </RegistrationParent>
    
   );
