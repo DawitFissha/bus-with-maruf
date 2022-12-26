@@ -61,7 +61,7 @@ export default function Settings() {
                 </AccordionSummary>
                 <AccordionDetails>
                   {
-                    settings[key].map((setting:any)=>(
+                    settings[key as keyof typeof settings].map((setting:any)=>(
                         <>
                         <Typography key={setting.id}>
                             {setting.settingDescription}    
