@@ -380,7 +380,7 @@ const formik = useFormik({
           value={assignedBus}
           onChange={handleAssignedBusChange}
           input={<OutlinedInput id="select-multiple" label="Departure Place" />}
-          renderValue={(selected)=>ActiveBusses?.find(ab=>ab._id===selected)?.busPlateNo}
+          renderValue={(selected:any)=>ActiveBusses?.find((ab:any)=>ab._id===selected)?.busPlateNo}
           // renderValue={(selected)=>selected}
           MenuProps={MenuProps}
           startAdornment = {

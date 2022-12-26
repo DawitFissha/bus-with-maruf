@@ -322,8 +322,8 @@ React.useEffect(()=>{
           value={assignedBus}
           onChange={handleAssignedBusChange}
           input={<OutlinedInput id="assignBus-multiple-chip" label="Assign Bus" />}
-          renderValue={(selected)=>{
-            return selected.map((sel)=>(
+          renderValue={(selected:any)=>{
+            return selected.map((sel:any)=>(
               ActiveBusses?.find((ab:any)=>ab._id===sel)?.busPlateNo
             )).join(',')
           }}
