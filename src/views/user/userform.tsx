@@ -28,7 +28,8 @@ import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 // import DisplayFormError from '../../Components/common-registration-form/formError'
-import {useAddNewUserMutation,useGetLoggedInOrganizationQuery,useGetAgentsWithNoAccountQuery} from '../../features/api/apiSlice'
+import {useAddNewUserMutation,useGetLoggedInOrganizationQuery,
+  useGetAgentsWithNoAccountQuery} from '../../store/bus_api'
 import Grid from '@mui/material/Grid'
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import ListItemText from '@mui/material/ListItemText'
@@ -85,7 +86,7 @@ const validate = (values:USER_TYPE) => {
     return errors;
   };
 
-export  function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
+export default function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
 // states from redux
 const {data:agents,isLoading:agentsLoading}= useGetAgentsWithNoAccountQuery()
 const [addNewUser,{error}] = useAddNewUserMutation()
