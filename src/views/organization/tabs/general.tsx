@@ -146,7 +146,7 @@ const formik = useFormik({
                             <p>Attach Company Logo</p>
                             <input
                             onChange={
-                                (e)=>{
+                                (e:any)=>{
                                     setImage(e.target?.files[0])
                                 }
                             }
