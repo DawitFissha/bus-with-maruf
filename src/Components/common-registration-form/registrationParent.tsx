@@ -9,7 +9,7 @@ export default function RegistrationParent(props:{children:React.ReactNode,custo
             marginLeft: smallScreen ? "" : 'auto',
             marginRight: smallScreen ? "" : 'auto',
             height:'auto',
-            background:'#FFFF',
+	    background:'#f4f7fa',
             marginBottom:'5px',
           }}
         >
