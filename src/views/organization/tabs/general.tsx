@@ -79,9 +79,9 @@ const formik = useFormik({
             setUpdatingErrorOccured(false)
           }
           
-          catch(err) {
+          catch(err:any) {
             setUpdatingErrorOccured(true)
-            setUpdatingErrorMessage(`Failed to Update Organization , ${err.data.message}`)
+            setUpdatingErrorMessage(`Failed to Update Organization , ${err?.data?.message}`)
 
           }
         
