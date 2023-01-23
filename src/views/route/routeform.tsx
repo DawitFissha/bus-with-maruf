@@ -179,6 +179,7 @@ React.useEffect(()=>{
               setAssignedBus([])
             }
             catch(err:any) {
+              setErrorOccured(true)
               setErrorMessage(`Failed to Register Route , ${err.data.message}`)
             }
             finally {
