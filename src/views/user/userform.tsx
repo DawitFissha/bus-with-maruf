@@ -28,8 +28,7 @@ import useError from '../../utils/hooks/useError'
 import {ValidateTextFields} from '../../utils/regex-validators'
 import RegistrationParent from '../../Components/common-registration-form/registrationParent'
 // import DisplayFormError from '../../Components/common-registration-form/formError'
-import {useAddNewUserMutation,useGetLoggedInOrganizationQuery,
-  useGetAgentsWithNoAccountQuery} from '../../store/bus_api'
+import {useAddNewUserMutation,useGetLoggedInOrganizationQuery,useGetAgentsWithNoAccountQuery} from '../../features/api/apiSlice'
 import Grid from '@mui/material/Grid'
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import ListItemText from '@mui/material/ListItemText'
@@ -86,7 +85,7 @@ const validate = (values:USER_TYPE) => {
     return errors;
   };
 
-export default function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
+export  function UserRegistration({providedRole,DialogClose}:{providedRole?:string,DialogClose?:()=>void}) {
 // states from redux
 const {data:agents,isLoading:agentsLoading}= useGetAgentsWithNoAccountQuery()
 const [addNewUser,{error}] = useAddNewUserMutation()
@@ -100,7 +99,7 @@ const [role,setRole] = useState(providedRole?providedRoleDescription:'')
 const [genderError,genderErrorText,setGenderError,setGenderErrorText] = useError()
 const [branchError,branchErrorText,setBranchError,setBranchErrorText] = useError()
 const [roleError,roleErrorText,setRoleError,setRoleErrorText] = useError()
-const [userServerErrorOccured,userServerErrorMessage,setUserServerErrorOccured,setUserServerErrorMessage] = useError()
+// const [userServerErrorOccured,userServerErrorMessage,setUserServerErrorOccured,setUserServerErrorMessage] = useError()
 const [branchOrAgent,setBranchOrAgent] = React.useState('')
 const [loading, setLoading] = React.useState(false);
 
@@ -311,8 +310,37 @@ console.log(role)
             </Grid>
             <Grid container spacing={2} columnSpacing={5} sx={{marginTop:2}}>
                 <Grid item md={6} xs={12}>
-              
-            <FormControl
+                <FormControl
+                 error={roleError}
+                  sx={{width: '100%' }}>
+            <InputLabel id="role-select-helper-label">Role</InputLabel>
+        <Select
+          disabled = {Boolean(providedRole)}
+          labelId="role-select-helper-label"
+          id="role-select-helper"
+          value={role}
+          label="Role"
+          onChange={handleRoleChange}
+          startAdornment = {<WorkspacesIcon color="primary" fontSize="large"/>}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          {
+          
+          roles.map((role)=>(
+            <MenuItem  key = {role.id} value={role.id}>{role.description}</MenuItem>
+          ))
+          }
+        </Select>
+        <FormHelperText >
+            {roleErrorText}
+            </FormHelperText>
+        </FormControl>
+
+                </Grid>
+                <Grid item md={6} xs={12}>
+                <FormControl
               error={branchError}
               sx={{width: '100%' }}
             >
@@ -357,35 +385,6 @@ console.log(role)
             {branchErrorText}
         </FormHelperText>
             </FormControl>
-                </Grid>
-                <Grid item md={6} xs={12}>
-                <FormControl
-                 error={roleError}
-                  sx={{width: '100%' }}>
-            <InputLabel id="role-select-helper-label">Role</InputLabel>
-        <Select
-          disabled = {Boolean(providedRole)}
-          labelId="role-select-helper-label"
-          id="role-select-helper"
-          value={role}
-          label="Role"
-          onChange={handleRoleChange}
-          startAdornment = {<WorkspacesIcon color="primary" fontSize="large"/>}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {
-          
-          roles.map((role)=>(
-            <MenuItem  key = {role.id} value={role.id}>{role.description}</MenuItem>
-          ))
-          }
-        </Select>
-        <FormHelperText >
-            {roleErrorText}
-            </FormHelperText>
-        </FormControl>
                 </Grid>
            </Grid>
            <Grid display='flex' container spacing={2} columnSpacing={5} sx={{marginTop:2}}>
